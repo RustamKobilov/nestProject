@@ -7,7 +7,7 @@ export type BlogDocument = HydratedDocument<Blog>;
 export class Blog {
   @Prop({ type: String, unique: true, required: true })
   id: string;
-  @Prop({ type: String, unique: true, required: true })
+  @Prop({ type: String, required: true })
   name: string;
   @Prop({ type: String, required: true })
   description: string;

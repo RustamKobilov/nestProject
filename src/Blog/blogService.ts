@@ -24,7 +24,7 @@ export class BlogService {
 
   async createNewBlog(createBlogDto: CreateBlogDTO): Promise<BlogViewModel> {
     //await this.blogRepository.checkDuplicateName(createBlogDto.name);
-
+    // new data
     const blog: Blog = {
       id: randomUUID(),
       name: createBlogDto.name,

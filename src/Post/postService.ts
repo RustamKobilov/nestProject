@@ -37,7 +37,9 @@ export class PostService {
     return outputPostModel;
   }
   async getPosts(postPagination: PaginationDTO) {
+    console.log(postPagination);
     const pagination = helper.getPostPaginationValues(postPagination);
+    console.log(pagination);
     return this.postRepository.getPosts(pagination, {});
   }
   async getPost(postId: string): Promise<Post> {

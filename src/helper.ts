@@ -16,7 +16,7 @@ export const helper = {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
       sortBy: query.sortBy || 'createdAt',
-      sortDirection: query.sortDirection === 'desc' ? -1 : 1,
+      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
       searchLoginTerm: query.searchLoginTerm,
       searchEmailTerm: query.searchEmailTerm,
     };
@@ -26,7 +26,7 @@ export const helper = {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
       sortBy: query.sortBy || 'createdAt',
-      sortDirection: query.sortDirection === 'desc' ? -1 : 1,
+      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
       searchNameTerm: query.searchNameTerm,
     };
   },
@@ -35,7 +35,7 @@ export const helper = {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
       sortBy: query.sortBy || 'createdAt',
-      sortDirection: query.sortDirection === 'desc' ? -1 : 1,
+      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
     };
   },
   getValueTrim(value: string): string {

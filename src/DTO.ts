@@ -86,7 +86,7 @@ export class PaginationDTO {
   @IsOptional()
   @Transform(({ value }) => helper.getValueTrim(value))
   //@Transform(({ value }) => helper.toSortDirection(value,-1))
-  sortDirection: 1 | -1;
+  sortDirection: -1 | 1;
 }
 
 export class UserPaginationDTO extends PaginationDTO {

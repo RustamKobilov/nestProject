@@ -38,4 +38,7 @@ export const helper = {
       sortDirection: query.sortDirection === 'desc' ? -1 : 1,
     };
   },
+  getValueTrim(value: string): string {
+    return value.trim();
+  },
 };

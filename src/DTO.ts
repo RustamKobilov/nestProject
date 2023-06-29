@@ -6,8 +6,8 @@ import {
   Matches,
   Min,
 } from 'class-validator';
-import { Type } from 'class-transformer';
-import { likeStatus } from './Enum';
+import { Transform, Type } from 'class-transformer';
+import { helper } from './helper';
 
 export class CreateUserDto {
   @IsString()
@@ -80,22 +80,27 @@ export class PaginationDTO {
   @IsNumber()
   pageSize: number;
   @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
   //@Transform(({ value }) => helper.toSortBy(value,'createdAt'))
   sortBy: string;
   @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
   //@Transform(({ value }) => helper.toSortDirection(value,-1))
   sortDirection: 1 | -1;
 }
 
 export class UserPaginationDTO extends PaginationDTO {
   @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
   searchLoginTerm: string | null;
   @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
   searchEmailTerm: string | null;
 }
 
 export class BlogPaginationDTO extends PaginationDTO {
   @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
   searchNameTerm: string | null;
 }
 

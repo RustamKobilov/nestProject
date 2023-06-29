@@ -69,9 +69,7 @@ export class UserRepository {
     paginationUser: UserPaginationDTO,
     filter: FilterQuery<UserDocument>[],
   ): Promise<outputModel<User>> {
-    console.log(paginationUser);
-    console.log(filter);
-    const totalCountUser = await this.userModel.count({ $and: filter });
+    const totalCountUser = await this.userModel.count({ $or: filter });
     console.log(totalCountUser);
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(
@@ -82,7 +80,7 @@ export class UserRepository {
 
     const sortUser = await this.userModel
       .find(
-        { $and: filter },
+        { $or: filter },
         {
           _id: 0,
           __v: 0,

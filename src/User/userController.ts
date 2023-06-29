@@ -28,8 +28,8 @@ export class UserController {
   }
 
   @Delete('/:id')
-  deleteUser(@Param('id') userId: string, @Res() res: Response) {
-    this.userService.deleteUser(userId);
+  async deleteUser(@Param('id') userId: string, @Res() res: Response) {
+    await this.userService.deleteUser(userId);
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
 }

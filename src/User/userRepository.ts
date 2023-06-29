@@ -69,6 +69,8 @@ export class UserRepository {
     paginationUser: UserPaginationDTO,
     filter: FilterQuery<UserDocument>[],
   ): Promise<outputModel<User>> {
+    console.log(paginationUser);
+    console.log(filter);
     const totalCountUser = await this.userModel.count({ $and: filter });
     console.log(totalCountUser);
     const paginationFromHelperForUsers =

@@ -4,11 +4,14 @@ import {
   Controller,
   Delete,
   Get,
+  HttpStatus,
   Param,
   Post,
   Query,
+  Res,
 } from '@nestjs/common';
 import { CreateUserDto, UserPaginationDTO } from '../DTO';
+import { Response } from 'express';
 
 @Controller('users')
 export class UserController {
@@ -25,7 +28,8 @@ export class UserController {
   }
 
   @Delete('/:id')
-  deleteUser(@Param('id') userId: string) {
-    return this.userService.deleteUser(userId);
+  deleteUser(@Param('id') userId: string, @Res() res: Response) {
+    this.userService.deleteUser(userId);
+    return res.sendStatus(HttpStatus.NO_CONTENT);
   }
 }

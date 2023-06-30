@@ -1,22 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { HttpStatus, INestApplication } from '@nestjs/common';
+import { appSetting } from '../appSetting';
+import { BlogController } from './Blog/blogController';
+import { BlogService } from './Blog/blogService';
+import { BlogRepository } from './Blog/blogRepository';
+import * as request from 'supertest';
 
 describe('AppController', () => {
-  let appController: AppController;
+  let app: INestApplication;
+  let httpServer;
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [AppController],
-      providers: [AppService],
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      controllers: [BlogController],
+      providers: [BlogService, BlogRepository],
     }).compile();
 
-    appController = app.get<AppController>(AppController);
+    app = moduleFixture.createNestApplication();
+    appSetting(app);
+    await app.init();
+    httpServer.getHttpServer();
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+  afterAll(async () => {
+    await app.close();
+  });
+
+  describe('Blog', () => {
+    it('should return Create Blog"', () => {
+      request(httpServer).post('/blogs').expect(HttpStatus.CREATED);
     });
   });
 });

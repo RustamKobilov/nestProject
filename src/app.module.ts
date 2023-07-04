@@ -33,11 +33,12 @@ import { PostRepository } from './Post/postRepository';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        console.log(configService)
-        console.log(configService.get<string>('MONGO_URI_CLUSTER'))
+        console.log(configService);
+        console.log(configService.get<string>('MONGO_URI_CLUSTER'));
         return {
-        uri: configService.get<string>('MONGO_URI_CLUSTER'),
-      }},
+          uri: configService.get<string>('MONGO_URI_CLUSTER'),
+        };
+      },
       inject: [ConfigService],
     }),
     MongooseModule.forFeature([

@@ -7,7 +7,6 @@ import { AppModule } from '../src/app.module';
 let httpServer;
 describe('AppController', () => {
   let app: INestApplication;
-  let httpServer;
 
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -89,6 +88,8 @@ describe('AppController', () => {
         .expect(HttpStatus.NOT_FOUND);
     });
     it('should getBlogs', async () => {
+      await request(httpServer).delete('/testing/all-data');
+
       const checkBlogAdd = 4;
       await creatManyBlog(checkBlogAdd);
 
@@ -110,23 +111,19 @@ describe('AppController', () => {
 async function creatManyBlog(colBlog: number, searchName?: string) {
   const insertedBlogs = [];
   for (let x = 0; x < colBlog; x++) {
-    const blogCheckManyAdd = {
-      name: 'checking blog',
-      description: 'checking description',
-      websiteUrl: 'https://api-swagger.it-incubator.ru/checking',
+    const newBlog: CreateBlogDTO = {
+      name: 'string',
+      description: 'string',
+      websiteUrl: 'https://bitrix24.by/koba',
     };
     if (searchName && x == colBlog - 1) {
-      blogCheckManyAdd.name = searchName!;
+      newBlog.name = searchName!;
     }
-    const CreateBlogResponse = await request(httpServer)
-      .post(
-        '/blogs/',
-      ) /*.set(BasicAuthorized.authorization, BasicAuthorized.password).*/
-      .send(blogCheckManyAdd)
-      .expect(201);
-    insertedBlogs.push(CreateBlogResponse);
+    const responseBlog = await request(httpServer)
+      .post('/blogs')
+      .send(newBlog)
+      .expect(HttpStatus.CREATED);
   }
-  await Promise.all(insertedBlogs);
 }
 // describe('AppController (e2e)', () => {
 //   let app: INestApplication;

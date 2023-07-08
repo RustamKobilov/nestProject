@@ -1,7 +1,12 @@
 import { HttpStatus, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { appSetting } from '../src/appSetting';
-import { CreateBlogDTO, CreatePostByBlogDTO, CreatePostDTO } from '../src/DTO';
+import {
+  CreateBlogDTO,
+  CreatePostByBlogDTO,
+  CreatePostDTO,
+  CreateUserDto,
+} from '../src/DTO';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 
@@ -50,6 +55,81 @@ async function creatManyPosts(
       .expect(HttpStatus.CREATED);
   }
 }
+
+describe('User', () => {
+  let app: INestApplication;
+  let httpServer;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+    app = moduleFixture.createNestApplication();
+    appSetting(app);
+    await app.init();
+    httpServer = app.getHttpServer();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+  let viewModelUser;
+  it('should return Create User"', async () => {
+    await request(httpServer).delete('/testing/all-data');
+    const newUser: CreateUserDto = {
+      login: 'Login',
+      password: 'stringPassword',
+      email: 'hijack@mail.ru',
+    };
+    const responseUser = await request(httpServer)
+      .post('/users/')
+      .send(newUser)
+      .expect(HttpStatus.CREATED);
+
+    viewModelUser = responseUser.body;
+
+    expect(responseUser.body).toEqual({
+      id: expect.any(String),
+      login: newUser.login,
+      email: newUser.email,
+      createdAt: expect.any(String),
+    });
+  });
+  it('should get Users"', async () => {
+    const colUser = 1;
+    const resultGetRequest = await request(httpServer)
+      .get('/users/')
+      .expect(HttpStatus.OK);
+
+    const checkPagesCount = Math.ceil(colUser / 10);
+    expect(resultGetRequest.body).toEqual({
+      pagesCount: checkPagesCount,
+      page: 1,
+      pageSize: 10,
+      totalCount: colUser,
+      items: expect.anything(),
+    });
+  });
+  it('should return delete User"', async () => {
+    const responseUser = await request(httpServer)
+      .delete('/users/' + viewModelUser.id)
+      .expect(HttpStatus.NO_CONTENT);
+  });
+  it('should return delete User"', async () => {
+    const colUser = 0;
+    const resultGetRequest = await request(httpServer)
+      .get('/users/')
+      .expect(HttpStatus.OK);
+    const checkPagesCount = Math.ceil(colUser / 10);
+    expect(resultGetRequest.body).toEqual({
+      pagesCount: checkPagesCount,
+      page: 1,
+      pageSize: 10,
+      totalCount: colUser,
+      items: expect.anything(),
+    });
+  });
+});
 
 describe('Blog', () => {
   let app: INestApplication;

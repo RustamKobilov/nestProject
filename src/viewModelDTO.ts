@@ -1,4 +1,5 @@
 import { ExtendedLikesInfo } from './Post/Post';
+import { CommentatorInfo, LikesInfo } from './Post/Comment';
 
 export class UserViewModel {
   id: string;
@@ -25,4 +26,18 @@ export class PostViewModel {
   blogName: string;
   createdAt: string;
   extendedLikesInfo: ExtendedLikesInfo;
+}
+
+export class CommentViewModel {
+  id: string;
+  content: string;
+  commentatorInfo: CommentatorInfo;
+  createdAt: string;
+  likesInfo: LikesInfo;
+}
+
+export enum LikeStatus {
+  None = 'None',
+  Like = 'Like',
+  Dislike = 'Dislike',
 }

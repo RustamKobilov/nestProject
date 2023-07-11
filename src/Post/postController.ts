@@ -11,7 +11,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { CreatePostDTO, PaginationDTO } from '../DTO';
+import { CreateCommentByPostDTO, CreatePostDTO, PaginationDTO } from '../DTO';
 import { Response } from 'express';
 
 @Controller('posts')
@@ -42,5 +42,12 @@ export class PostController {
   async deletePost(@Param('id') postId: string, @Res() res: Response) {
     await this.postService.deletePost(postId);
     return res.sendStatus(HttpStatus.NO_CONTENT);
+  }
+  @Post()
+  async createCommentByPost(
+    @Body() createCommentDto: CreateCommentByPostDTO,
+    @Param('id') postId: string,
+  ) {
+    return this.postService.createNewComment(createCommentDto, postId);
   }
 }

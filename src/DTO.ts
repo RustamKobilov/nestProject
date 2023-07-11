@@ -65,7 +65,11 @@ export class CreatePostByBlogDTO {
   @Length(1, 1000)
   content: string;
 }
-
+export class CreateCommentByPostDTO {
+  @IsString()
+  @Length(20, 300)
+  content: string;
+}
 export class PaginationDTO {
   @IsOptional()
   @Type((type) => Number)

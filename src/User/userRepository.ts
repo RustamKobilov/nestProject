@@ -6,14 +6,14 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './User';
 import { FilterQuery, Model } from 'mongoose';
-import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
+import { CreateUserDtoAdmin, outputModel, UserPaginationDTO } from '../DTO';
 import { helper } from '../helper';
 
 @Injectable()
 export class UserRepository {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-  async checkDuplicateLoginAndEmail(createUserDto: CreateUserDto) {
+  async checkDuplicateLoginAndEmail(createUserDto: CreateUserDtoAdmin) {
     const searchLogin = {
       login: { $regex: createUserDto.login, $options: 'i' },
     };
@@ -41,6 +41,15 @@ export class UserRepository {
     const user = await this.userModel.findOne({ id: idUser });
     if (!user) {
       throw new NotFoundException(`If specified user is not exists`);
+    }
+    return user;
+  }
+  async getUserbyLogin(login: string): Promise<any> {
+    const user = await this.userModel.findOne({
+      $or: [{ login: login }, { email: login }],
+    });
+    if (!user) {
+      return false;
     }
     return user;
   }

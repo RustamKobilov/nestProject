@@ -5,7 +5,7 @@ import {
   CreateBlogDTO,
   CreatePostByBlogDTO,
   CreatePostDTO,
-  CreateUserDto,
+  CreateUserDtoAdmin,
 } from '../src/DTO';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
@@ -76,7 +76,7 @@ describe('User', () => {
   let viewModelUser;
   it('should return Create User"', async () => {
     await request(httpServer).delete('/testing/all-data');
-    const newUser: CreateUserDto = {
+    const newUser: CreateUserDtoAdmin = {
       login: 'Login',
       password: 'stringPassword',
       email: 'hijack@mail.ru',

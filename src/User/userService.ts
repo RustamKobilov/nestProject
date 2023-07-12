@@ -1,5 +1,5 @@
 import { UserRepository } from './userRepository';
-import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
+import { CreateUserDtoAdmin, outputModel, UserPaginationDTO } from '../DTO';
 import { User } from './User';
 import { mapObject } from '../mapObject';
 import { bcriptService } from '../bcryptService';
@@ -13,7 +13,9 @@ import { helper } from '../helper';
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async createNewUser(createUserDto: CreateUserDto): Promise<UserViewModel> {
+  async createNewUserAdmin(
+    createUserDto: CreateUserDtoAdmin,
+  ): Promise<UserViewModel> {
     await this.userRepository.checkDuplicateLoginAndEmail(createUserDto);
 
     const salt = await bcriptService.getSalt(8);
@@ -38,7 +40,32 @@ export class UserService {
     const outputUserModel = mapObject.mapUserForViewModel(user);
     return outputUserModel;
   }
+  async createNewUserRegistration(
+    createUserDto: CreateUserDtoAdmin,
+  ): Promise<User> {
+    await this.userRepository.checkDuplicateLoginAndEmail(createUserDto);
 
+    const salt = await bcriptService.getSalt(8);
+    const hash = await bcriptService.getHashPassword(
+      createUserDto.password,
+      salt,
+    );
+    const user: User = {
+      id: randomUUID(),
+      login: createUserDto.login,
+      password: hash,
+      salt: salt,
+      email: createUserDto.email,
+      createdAt: new Date().toISOString(),
+      userConfirmationInfo: {
+        userConformation: false,
+        code: randomUUID(),
+        expirationCode: addHours(new Date(), 1).toISOString(),
+      },
+    };
+    await this.userRepository.createUser(user);
+    return user;
+  }
   async getUsers(
     userPagination: UserPaginationDTO,
   ): Promise<outputModel<User>> {

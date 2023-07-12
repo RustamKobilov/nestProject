@@ -26,10 +26,13 @@ import {
 import { PostController } from './Post/postController';
 import { PostService } from './Post/postService';
 import { PostRepository } from './Post/postRepository';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
@@ -50,7 +53,13 @@ import { PostRepository } from './Post/postRepository';
       { name: NewestLikes.name, schema: NewestLikesSchema },
     ]),
   ],
-  controllers: [UserController, DeleteBase, BlogController, PostController],
+  controllers: [
+    UserController,
+    DeleteBase,
+    BlogController,
+    PostController,
+    AuthController,
+  ],
   providers: [
     UserService,
     UserRepository,

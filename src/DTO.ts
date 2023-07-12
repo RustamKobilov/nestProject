@@ -9,7 +9,7 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { helper } from './helper';
 
-export class CreateUserDto {
+export class CreateUserDtoAdmin {
   @IsString()
   @Length(3, 10)
   @Matches(/^[a-zA-Z0-9_-]*$/)
@@ -22,6 +22,17 @@ export class CreateUserDto {
   @IsString()
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
   email: string;
+}
+
+export class CreateUserRegistrationDTO {
+  @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
+  @Length(1)
+  loginOrEmail: string;
+  @Transform(({ value }) => helper.getValueTrim(value))
+  @IsString()
+  @Length(1)
+  password: string;
 }
 
 export class CreateBlogDTO {

@@ -108,4 +108,14 @@ export class UserRepository {
     await this.userModel.deleteOne({ id: userId });
     return;
   }
+
+  async getUserByLoginOrEmail(loginOrEmail: string) {
+    const user = await this.userModel.findOne({
+      $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
+    });
+    if (!user) {
+      throw new NotFoundException('login and email not found');
+    }
+    return user;
+  }
 }

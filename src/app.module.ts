@@ -26,6 +26,12 @@ import {
 import { PostController } from './Post/postController';
 import { PostService } from './Post/postService';
 import { PostRepository } from './Post/postRepository';
+import * as process from 'process';
+import { JwtModule } from '@nestjs/jwt';
+import { AuthController } from './auth/auth.controller';
+import { LocalStrategy } from './auth/Strategy/localStrategy';
+import { AuthService } from './auth/auth.service';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
@@ -49,8 +55,20 @@ import { PostRepository } from './Post/postRepository';
       { name: ExtendedLikesInfo.name, schema: ExtendedLikesInfoSchema },
       { name: NewestLikes.name, schema: NewestLikesSchema },
     ]),
+    PassportModule,
+    JwtModule.register({
+      global: true,
+      secret: process.env.JWT_SECRET,
+      signOptions: { expiresIn: '60s' },
+    }),
   ],
-  controllers: [UserController, DeleteBase, BlogController, PostController],
+  controllers: [
+    UserController,
+    DeleteBase,
+    BlogController,
+    PostController,
+    AuthController,
+  ],
   providers: [
     UserService,
     UserRepository,
@@ -58,6 +76,8 @@ import { PostRepository } from './Post/postRepository';
     BlogRepository,
     PostService,
     PostRepository,
+    LocalStrategy,
+    AuthService,
   ],
 })
 export class AppModule {}

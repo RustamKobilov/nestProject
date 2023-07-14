@@ -51,4 +51,8 @@ export class UserService {
     const findUser = await this.userRepository.getUser(userId);
     return await this.userRepository.deleteUser(userId);
   }
+
+  async searchUserLoginAndEmail(loginOrEmail: string) {
+    return await this.userRepository.getUserByLoginOrEmail(loginOrEmail);
+  }
 }

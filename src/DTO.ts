@@ -111,3 +111,8 @@ export type outputModel<T> = {
   totalCount: number;
   items: T[];
 };
+
+export class LoginDto {
+  loginOrEmail: number;
+  password: string;
+}

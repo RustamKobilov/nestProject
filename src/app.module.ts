@@ -26,12 +26,17 @@ import {
 import { PostController } from './Post/postController';
 import { PostService } from './Post/postService';
 import { PostRepository } from './Post/postRepository';
-import * as process from 'process';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth/auth.controller';
 import { LocalStrategy } from './auth/Strategy/localStrategy';
 import { AuthService } from './auth/auth.service';
 import { PassportModule } from '@nestjs/passport';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { join } from 'path';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { EmailAdapters } from './adapters/email-adapters';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 @Module({
   imports: [
@@ -39,8 +44,6 @@ import { PassportModule } from '@nestjs/passport';
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        console.log(configService);
-        console.log(configService.get<string>('MONGO_URI_CLUSTER'));
         return {
           uri: configService.get<string>('MONGO_URI_CLUSTER'),
         };
@@ -61,6 +64,30 @@ import { PassportModule } from '@nestjs/passport';
       secret: process.env.JWT_SECRET,
       signOptions: { expiresIn: '60s' },
     }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        transport: {
+          service: 'gmail',
+          //secure: false,
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: '"No Reply" <noreply@example.com>',
+        },
+        template: {
+          dir: join(__dirname, 'templates'),
+          adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+          options: {
+            strict: true,
+          },
+        },
+      }),
+    }),
   ],
   controllers: [
     UserController,
@@ -78,6 +105,7 @@ import { PassportModule } from '@nestjs/passport';
     PostRepository,
     LocalStrategy,
     AuthService,
+    EmailAdapters,
   ],
 })
 export class AppModule {}

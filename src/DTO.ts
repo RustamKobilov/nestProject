@@ -113,6 +113,16 @@ export type outputModel<T> = {
 };
 
 export class LoginDto {
-  loginOrEmail: number;
+  @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
+  login: string;
+  @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   password: string;
+}
+
+export class RegistrationConfirmation {
+  @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
+  code: string;
 }

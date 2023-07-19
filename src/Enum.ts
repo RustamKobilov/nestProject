@@ -3,3 +3,7 @@ export enum likeStatus {
   Like = 'Like',
   Dislike = 'Dislike',
 }
+export enum token {
+  accessToken = 'accessToken',
+  refreshToken = 'refreshToken',
+}

@@ -118,4 +118,13 @@ export class UserRepository {
     }
     return user;
   }
+  async getCodeConfirmationByUserId(code: string) {
+    const user = await this.userModel.findOne({
+      'userConfirmationInfo.code': code,
+    });
+    if (!user) {
+      throw new NotFoundException('usercode  not found');
+    }
+    return true;
+  }
 }

@@ -1,39 +1,48 @@
 import { Body, Controller, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { User } from '../User/User';
 import { LocalAuthGuard } from './Guard/localGuard';
-import { LoginDto } from '../DTO';
+import { token } from '../Enum';
+import { CreateUserDto, RegistrationConfirmation } from '../DTO';
+import { UserService } from '../User/userService';
 
 @Controller('auth')
 export class AuthController {
   constructor(
+    private userService: UserService,
     private authService: AuthService /*private jwtService: ApiJwtService,*/,
   ) {}
-  // @Post('/registration')
-  // async registrationUser(@Body() createUserDto: CreateUserDtoAdmin) {
-  //   return this.authService.registration(createUserDto);
-  // }
+
+  @Post('/registration')
+  async registrationUser(@Res() res, @Body() createUserDto: CreateUserDto) {
+    await this.authService.registration(createUserDto);
+    return res.sendStatus(204);
+  }
   @UseGuards(LocalAuthGuard)
   @Post('/login')
-  login(@Res() res, loginDto: LoginDto) {
-    //validate yes
-    //   res.cookie(
-    //     'refreshToken',
-    //     await this.jwtService.createRefreshToken(user.id),
-    //     {
-    //       httpOnly: true,
-    //       secure: true,
-    //     },
-    //   );
-    //   return res.send({
-    //     access_token: await this.jwtService.createAccessTokenJWT(user.id),
-    //   });
-    console.log(loginDto);
-    return res.sendStatus(200);
+  async login(@Res() res, @Req() req) {
+    const accessToken = await this.authService.signIn(
+      req.user.login,
+      req.user.password,
+    );
+    res.cookie(
+      [token.accessToken],
+      await this.authService.createToken(req.user.id),
+      {
+        httpOnly: true,
+        secure: true,
+      },
+    );
+    return res.status(200).send(accessToken);
   }
-
-  // @Get('profile')
-  // getProfile(@Request() req) {
-  //   return req.user;
-  // }
+  @Post('/registration-confirmation')
+  async registrationConfirmation(
+    @Body() registrationConfirmation: RegistrationConfirmation,
+  ) {
+    return await this.authService.verifyToken(registrationConfirmation.code);
+    //this.userService.confirmationUser(registrationConfirmation.code);
+  }
 }
+// @Get('profile')
+// getProfile(@Request() req) {
+//   return req.user;
+// }

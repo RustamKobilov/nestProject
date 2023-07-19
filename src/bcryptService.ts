@@ -6,4 +6,10 @@ export const bcriptService = {
   async getSalt(round: number): Promise<string> {
     return await bcrypt.genSalt(round);
   },
+  async comparePassword(
+    inputPassword: string,
+    password: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(inputPassword, password);
+  },
 };

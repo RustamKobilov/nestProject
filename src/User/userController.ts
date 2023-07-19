@@ -24,7 +24,7 @@ export class UserController {
 
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
-    return this.userService.createNewUser(createUserDto);
+    return this.userService.createUserOutputUserViewModel(createUserDto);
   }
 
   @Delete('/:id')

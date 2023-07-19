@@ -13,7 +13,7 @@ import { helper } from '../helper';
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async createNewUser(createUserDto: CreateUserDto): Promise<UserViewModel> {
+  private async createNewUser(createUserDto: CreateUserDto): Promise<User> {
     await this.userRepository.checkDuplicateLoginAndEmail(createUserDto);
 
     const salt = await bcriptService.getSalt(8);
@@ -35,10 +35,15 @@ export class UserService {
       },
     };
     await this.userRepository.createUser(user);
+    return user;
+  }
+  async createUserOutputUserViewModel(
+    createUserDto: CreateUserDto,
+  ): Promise<UserViewModel> {
+    const user = await this.createNewUser(createUserDto);
     const outputUserModel = mapObject.mapUserForViewModel(user);
     return outputUserModel;
   }
-
   async getUsers(
     userPagination: UserPaginationDTO,
   ): Promise<outputModel<User>> {
@@ -52,7 +57,16 @@ export class UserService {
     return await this.userRepository.deleteUser(userId);
   }
 
-  async searchUserLoginAndEmail(loginOrEmail: string) {
-    return await this.userRepository.getUserByLoginOrEmail(loginOrEmail);
+  async searchUserLoginAndEmail(login: string): Promise<User> {
+    return await this.userRepository.getUserByLoginOrEmail(login);
+  }
+  async confirmationUser(code: string) {
+    return await await this.userRepository.getCodeConfirmationByUserId(code);
+  }
+  async createNewUserRegistration(
+    createUserDto: CreateUserDto,
+  ): Promise<string> {
+    const user = await this.createNewUser(createUserDto);
+    return user.userConfirmationInfo.code;
   }
 }

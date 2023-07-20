@@ -6,7 +6,11 @@ import { bcriptService } from '../bcryptService';
 import { addHours } from 'date-fns';
 import { randomUUID } from 'crypto';
 import { UserViewModel } from '../viewModelDTO';
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { helper } from '../helper';
 
 @Injectable()
@@ -58,7 +62,11 @@ export class UserService {
   }
 
   async searchUserLoginAndEmail(login: string): Promise<User> {
-    return await this.userRepository.getUserByLoginOrEmail(login);
+    const user = await this.userRepository.getUserByLoginOrEmail(login);
+    if (user.userConfirmationInfo.userConformation === false) {
+      throw new BadRequestException('confirmation false');
+    }
+    return user;
   }
   async confirmationUser(code: string) {
     return await await this.userRepository.getCodeConfirmationByUserId(code);
@@ -68,5 +76,9 @@ export class UserService {
   ): Promise<string> {
     const user = await this.createNewUser(createUserDto);
     return user.userConfirmationInfo.code;
+  }
+
+  getUserAdmin(userId: string) {
+    return this.userRepository.getUser(userId);
   }
 }

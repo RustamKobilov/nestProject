@@ -37,7 +37,7 @@ export class UserRepository {
     return;
   }
 
-  async getUser(idUser: string): Promise<any> {
+  async getUser(idUser: string): Promise<User> {
     const user = await this.userModel.findOne({ id: idUser });
     if (!user) {
       throw new NotFoundException(`If specified user is not exists`);
@@ -109,12 +109,12 @@ export class UserRepository {
     return;
   }
 
-  async getUserByLoginOrEmail(loginOrEmail: string) {
+  async getUserByLoginOrEmail(loginOrEmail: string): Promise<User> {
     const user = await this.userModel.findOne({
       $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
     if (!user) {
-      throw new NotFoundException('login and email not found');
+      throw new BadRequestException('login and email not found');
     }
     return user;
   }
@@ -125,6 +125,13 @@ export class UserRepository {
     if (!user) {
       throw new NotFoundException('usercode  not found');
     }
-    return true;
+    const updateConfirmation = await this.userModel.updateOne(
+      { 'userConfirmationInfo.code': code },
+      {
+        'userConfirmationInfo.userConformation': true,
+      },
+    );
+    //TODO как проверить обновление, нет свойства matchedCount
+    return;
   }
 }

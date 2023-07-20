@@ -5,11 +5,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../User/userService';
 import { bcriptService } from '../bcryptService';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { token } from '../Enum';
+import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../DTO';
 import { EmailAdapters } from '../adapters/email-adapters';
 import * as dotenv from 'dotenv';
+import { ConfigService } from '@nestjs/config';
+
 dotenv.config();
 
 @Injectable()
@@ -19,6 +20,7 @@ export class AuthService {
     /*private usersRepository: UserRepository,*/
     private jwtService: JwtService,
     private emailAdapters: EmailAdapters,
+    private configService: ConfigService,
   ) {}
 
   async signIn(login, password) {
@@ -26,34 +28,57 @@ export class AuthService {
     if (!user) {
       throw new UnauthorizedException();
     }
-    console.log('1');
     const resultCompare = await bcriptService.comparePassword(
       password,
       user.password,
     );
     if (!resultCompare) {
-      return false;
+      throw new UnauthorizedException();
     }
-    //if(user.userConfirmationInfo.userConformation==false){return false}
+    return await this.getTokens(user.id);
+  }
 
-    console.log('2');
+  // async createToken(userId: string): Promise<string> {
+  //   const payload = { userId: userId };
+  //   return await this.jwtService.signAsync(payload);
+  // }
+  async getTokens(userId: string /*username: string*/) {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          /*username,*/
+        },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRED'),
+        },
+      ),
+      this.jwtService.signAsync(
+        {
+          sub: userId,
+          /*username,*/
+        },
+        {
+          secret: this.configService.get<string>('JWT_SECRET'),
+          expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRED'),
+        },
+      ),
+    ]);
 
     return {
-      [token.refreshToken]: await this.createToken(user.id),
+      accessToken,
+      refreshToken,
     };
   }
-  async createToken(userId: string): Promise<string> {
-    const payload = { userId: userId };
-    return await this.jwtService.signAsync(payload);
-  }
+
   async registration(createUserDto: CreateUserDto) {
     const userConfirmationCode =
       await this.usersService.createNewUserRegistration(createUserDto);
-    const code = await this.createToken(userConfirmationCode);
     try {
       await this.emailAdapters.gmailSendEmailRegistration(
         createUserDto.email,
-        code,
+        userConfirmationCode,
       );
     } catch (error) {
       console.error('email send out');
@@ -62,13 +87,18 @@ export class AuthService {
     }
     return;
   }
-  async verifyToken(token: string) {
-    try {
-      const payload = await this.jwtService.verify(token);
-      return payload;
-    } catch (e) {
-      throw new BadRequestException('token invalid');
-    }
-  }
 }
+//   async verifyToken(token: string) {
+//     try {
+//       console.log(token);
+//       const payload = await this.jwtService.verify(token);
+//       console.log(payload);
+//       return payload;
+//     } catch (e) {
+//       console.log('errrorrr');
+//       return false;
+//     }
+//     return 'huli';
+//   }
+// }
 //verify work , service adapter

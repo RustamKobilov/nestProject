@@ -36,6 +36,7 @@ import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { EmailAdapters } from './adapters/email-adapters';
 import * as dotenv from 'dotenv';
+import { JwtStrategy } from './auth/Strategy/jwtStrategy';
 dotenv.config();
 
 @Module({
@@ -62,7 +63,7 @@ dotenv.config();
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '60s' },
+      //signOptions: { expiresIn: '60s' },
     }),
     MailerModule.forRootAsync({
       imports: [ConfigModule],
@@ -105,6 +106,7 @@ dotenv.config();
     PostRepository,
     LocalStrategy,
     AuthService,
+    JwtStrategy,
     EmailAdapters,
   ],
 })

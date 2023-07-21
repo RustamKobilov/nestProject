@@ -69,7 +69,21 @@ export class UserService {
     return user;
   }
   async confirmationUser(code: string) {
-    return await await this.userRepository.getCodeConfirmationByUserId(code);
+    const user = await await this.userRepository.getCodeConfirmationByUserId(
+      code,
+    );
+    if (user.userConfirmationInfo.userConformation === true) {
+      throw new BadRequestException('user not found by cod');
+    }
+    const dateNow = new Date(new Date().getTime());
+    const dateCode = new Date(
+      new Date(user.userConfirmationInfo.expirationCode).getTime(),
+    );
+    if (dateCode < dateNow) {
+      throw new BadRequestException('user confirmation time expire');
+    }
+    await this.userRepository.updateCodeConfirmationByUserId(user.id);
+    return;
   }
   async createNewUserRegistration(
     createUserDto: CreateUserDto,
@@ -80,5 +94,11 @@ export class UserService {
 
   getUserAdmin(userId: string) {
     return this.userRepository.getUser(userId);
+  }
+
+  async deleteUserbyConfirmationCode(userConfirmationCode: string) {
+    return this.userRepository.deleteUserByConfirmationCode(
+      userConfirmationCode,
+    );
   }
 }

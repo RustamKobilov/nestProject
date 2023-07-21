@@ -10,6 +10,8 @@ import { CreateUserDto } from '../DTO';
 import { EmailAdapters } from '../adapters/email-adapters';
 import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
+import { DeviceRepository } from '../Device/deviceRepository';
+import { randomUUID } from 'crypto';
 
 dotenv.config();
 
@@ -21,9 +23,10 @@ export class AuthService {
     private jwtService: JwtService,
     private emailAdapters: EmailAdapters,
     private configService: ConfigService,
+    private deviceRepository: DeviceRepository,
   ) {}
 
-  async signIn(login, password) {
+  async signIn(login, password, ip) {
     const user = await this.usersService.searchUserLoginAndEmail(login);
     if (!user) {
       throw new UnauthorizedException();
@@ -32,9 +35,11 @@ export class AuthService {
       password,
       user.password,
     );
+    console.log(ip);
     if (!resultCompare) {
       throw new UnauthorizedException();
     }
+    await this.registrationAttempt(ip, user.id);
     return await this.getTokens(user.id);
   }
 
@@ -82,10 +87,52 @@ export class AuthService {
       );
     } catch (error) {
       console.error('email send out');
-      /*await this.usersRepository.deleteUser(user.id);*/
+      await this.usersService.deleteUserbyConfirmationCode(
+        userConfirmationCode,
+      );
       throw new BadRequestException(`If email send out`);
     }
     return;
+  }
+
+  async registrationAttempt(userId: string, title: string) {
+    const device = await this.deviceRepository.checkTokenInBaseByName(
+      userId,
+      title,
+    );
+    // if (!device) {
+    //   const deviceId = randomUUID();
+    //   refreshToken = await this.jwtService.createRefreshToken(
+    //     user.id,
+    //     deviceId,
+    //   );
+    //   const lastActiveDate =
+    //     await this.jwtService.getLastActiveDateFromRefreshToken(refreshToken);
+    //   const diesAtDate = await this.jwtService.getDiesAtDate(refreshToken);
+    //   await this.jwtService.createTokenByUserIdInBase(
+    //     user.id,
+    //     paginationUserInformation,
+    //     deviceId,
+    //     lastActiveDate,
+    //     diesAtDate,
+    //   );
+    // } else {
+    //   refreshToken = await this.jwtService.createRefreshToken(
+    //     user.id,
+    //     checkTokenInBaseByName,
+    //   );
+    //   const lastActiveDate =
+    //     await this.jwtService.getLastActiveDateFromRefreshToken(refreshToken);
+    //   const diesAtDate = await this.jwtService.getDiesAtDate(refreshToken);
+    //   await this.jwtService.updateTokenInBase(
+    //     user.id,
+    //     paginationUserInformation.title,
+    //     lastActiveDate,
+    //     diesAtDate,
+    //   );
+    // }
+
+    return true;
   }
 }
 //   async verifyToken(token: string) {
@@ -102,3 +149,4 @@ export class AuthService {
 //   }
 // }
 //verify work , service adapter
+//TODO сделать декод на jonwebtoken смотреть проект express HT

@@ -33,9 +33,7 @@ export class AuthController {
     @Res() res,
   ) {
     await this.userService.confirmationUser(registrationConfirmation.code);
-    console.log('est');
     return res.sendStatus(204);
-    //this.userService.confirmationUser(registrationConfirmation.code);
   }
   @Get('/user/:id')
   async userAdmin(@Param('id') userId: string) {
@@ -44,21 +42,32 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   async login(@Res() res, @Req() req) {
-    const tokens = await this.authService.signIn(
+    const user = await this.authService.signIn(
       req.user.login,
       req.user.password,
+      req.ip,
     );
-    res.cookie([token.accessToken], tokens.refreshToken, {
+    // await this.authService.registrationAttempt(req.ip,user);
+    // await this.getTokens(user.id)
+
+    console.log(user);
+    res.cookie([token.refreshToken], user.refreshToken, {
       httpOnly: true,
       secure: true,
     });
-    return res.status(200).send(tokens.accessToken);
+    return res.status(200).send(user.accessToken);
+    //TODO не забыть поставиь поле accees token in body
   }
   @UseGuards(JwtAuthGuard)
   @Post('/refresh-token')
   async refreshToken(@Res() res, @Req() req) {
-    console.log(req.user);
-    return res.status(200).send('tokens.accessToken');
+    console.log(req.user.userId.sub);
+    const tokens = await this.authService.getTokens(req.user.userId.sub);
+    res.cookie([token.refreshToken], tokens.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+    return res.status(200).send(tokens.accessToken);
   }
 }
 // @Get('profile')

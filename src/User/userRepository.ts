@@ -118,20 +118,30 @@ export class UserRepository {
     }
     return user;
   }
-  async getCodeConfirmationByUserId(code: string) {
+  async getCodeConfirmationByUserId(code: string): Promise<User> {
     const user = await this.userModel.findOne({
       'userConfirmationInfo.code': code,
     });
     if (!user) {
       throw new NotFoundException('usercode  not found');
     }
+    return user;
+  }
+  async updateCodeConfirmationByUserId(userId: string) {
     const updateConfirmation = await this.userModel.updateOne(
-      { 'userConfirmationInfo.code': code },
+      { id: userId },
       {
         'userConfirmationInfo.userConformation': true,
       },
     );
     //TODO как проверить обновление, нет свойства matchedCount
+    return;
+  }
+
+  async deleteUserByConfirmationCode(userConfirmationCode: string) {
+    await this.userModel.deleteOne({
+      'userConfirmationInfo.code': userConfirmationCode,
+    });
     return;
   }
 }

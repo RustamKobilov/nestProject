@@ -37,6 +37,9 @@ import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handleba
 import { EmailAdapters } from './adapters/email-adapters';
 import * as dotenv from 'dotenv';
 import { JwtStrategy } from './auth/Strategy/jwtStrategy';
+import { DeviceRepository } from './Device/deviceRepository';
+import { Device, DeviceSchema } from './Device/Device';
+import { DeviceService } from './Device/deviceService';
 dotenv.config();
 
 @Module({
@@ -58,6 +61,7 @@ dotenv.config();
       { name: Post.name, schema: PostSchema },
       { name: ExtendedLikesInfo.name, schema: ExtendedLikesInfoSchema },
       { name: NewestLikes.name, schema: NewestLikesSchema },
+      { name: Device.name, schema: DeviceSchema },
     ]),
     PassportModule,
     JwtModule.register({
@@ -108,6 +112,8 @@ dotenv.config();
     AuthService,
     JwtStrategy,
     EmailAdapters,
+    DeviceService,
+    DeviceRepository,
   ],
 })
 export class AppModule {}

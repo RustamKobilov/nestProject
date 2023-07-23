@@ -7,7 +7,7 @@ export class DeviceRepository {
   constructor(
     @InjectModel(Device.name) private deviceModel: Model<DeviceDocument>,
   ) {}
-  async checkTokenInBaseByName(
+  async checkTokenInbyUserIdAndTitle(
     userId: string,
     title: string,
   ): Promise<Device | false> {
@@ -21,5 +21,27 @@ export class DeviceRepository {
       return false;
     }
     return device;
+  }
+  async createTokenByUserIdInBase(device: Device) {
+    const createDevice = new this.deviceModel(device);
+    await createDevice.save();
+    return;
+  }
+  async updateTokenInBase(
+    userId: string,
+    title: string,
+    lastActiveDate: string,
+    diesAtDate: string,
+  ) {
+    const tokenUpdate = await this.deviceModel.updateOne(
+      { userId: userId, title: title },
+      {
+        $set: {
+          lastActiveDate: lastActiveDate,
+          diesAtDate: diesAtDate,
+        },
+      },
+    );
+    return;
   }
 }

@@ -2,12 +2,14 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  OnModuleInit,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './User';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, UpdateQuery, UpdateWriteOpResult } from 'mongoose';
 import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
 import { helper } from '../helper';
+import { randomUUID } from 'crypto';
 
 @Injectable()
 export class UserRepository {
@@ -128,14 +130,15 @@ export class UserRepository {
     return user;
   }
   async updateCodeConfirmationByUserId(userId: string) {
-    const updateConfirmation = await this.userModel.updateOne(
-      { id: userId },
-      {
-        'userConfirmationInfo.userConformation': true,
-      },
-    );
+    const updateConfirmation: UpdateWriteOpResult =
+      await this.userModel.updateOne(
+        { id: userId },
+        {
+          'userConfirmationInfo.userConformation': true,
+        },
+      );
     //TODO как проверить обновление, нет свойства matchedCount
-    return;
+    return updateConfirmation.matchedCount === 1;
   }
 
   async deleteUserByConfirmationCode(userConfirmationCode: string) {
@@ -145,3 +148,12 @@ export class UserRepository {
     return;
   }
 }
+
+//export class UserRepository implements OnModuleInit
+// async onModuleInit() {
+//   const res: UpdateWriteOpResult = await this.userModel.deleteOne(
+//     { id: randomUUID() },
+//   );
+//   console.log(res.matchedCount);
+// }
+//TODO fast base

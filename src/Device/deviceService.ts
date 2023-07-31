@@ -1,7 +1,8 @@
 import { DeviceRepository } from './deviceRepository';
 import { Device } from './Device';
 import jwt from 'jsonwebtoken';
-
+import { Injectable } from '@nestjs/common';
+@Injectable()
 export class DeviceService {
   constructor(private deviceRepository: DeviceRepository) {}
   private async createDevice(
@@ -24,7 +25,10 @@ export class DeviceService {
     return device;
   }
   async getLastActiveDateFromRefreshToken(refreshToken: string) {
+    console.log(refreshToken);
+    console.log('refreshToken');
     const payload: any = jwt.decode(refreshToken);
+    console.log(payload);
     return new Date(payload.iat * 1000).toISOString();
   }
   async getDiesAtDate(refreshToken: string) {
@@ -58,7 +62,7 @@ export class DeviceService {
       refreshToken,
     );
     const diesAtDate = await this.getDiesAtDate(refreshToken);
-    await this.deviceRepository.updateTokenInBase(
+    await this.deviceRepository.updateExpiredTimeTokenInBaseByDevice(
       userId,
       title,
       lastActiveDate,
@@ -67,10 +71,46 @@ export class DeviceService {
     return;
   }
 
-  async checkTokenInBaseByName(userId: string, title: string) {
+  async checkTokenByNameAndTitle(
+    userId: string,
+    title: string,
+  ): Promise<Device | false> {
+    console.log('tut');
+    console.log(userId, title);
     return await this.deviceRepository.checkTokenInbyUserIdAndTitle(
       userId,
       title,
     );
+  }
+  async checkTokenByDevice(
+    userId: string,
+    deviceId: string,
+    lastActiveDate: string,
+  ) {
+    return await this.deviceRepository.checkTokenByDeviceInBase(
+      userId,
+      deviceId,
+      lastActiveDate,
+    );
+  }
+  async refreshTokenDevice(
+    refreshToken: string,
+    userId: string,
+    deviceId: string,
+  ) {
+    const diesAtDate = await this.getDiesAtDate(refreshToken);
+    const lastActiveDate = await this.getLastActiveDateFromRefreshToken(
+      refreshToken,
+    );
+
+    return await this.deviceRepository.refreshTokenDeviceInBase(
+      userId,
+      deviceId,
+      lastActiveDate,
+      diesAtDate,
+    );
+  }
+  async deleteAdmin() {
+    return await this.deviceRepository.deleteDevicesAdmin();
   }
 }

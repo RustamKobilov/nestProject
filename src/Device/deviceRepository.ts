@@ -1,8 +1,8 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from '../User/User';
-import { Model } from 'mongoose';
+import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Device, DeviceDocument } from './Device';
-
+import { Injectable } from '@nestjs/common';
+@Injectable()
 export class DeviceRepository {
   constructor(
     @InjectModel(Device.name) private deviceModel: Model<DeviceDocument>,
@@ -11,12 +11,12 @@ export class DeviceRepository {
     userId: string,
     title: string,
   ): Promise<Device | false> {
-    const device = await this.deviceModel
-      .findOne({
-        userId: userId,
-        title: title,
-      })
-      .lean();
+    console.log('tut repa');
+    const device = await this.deviceModel.findOne({
+      userId: userId,
+      title: title,
+    });
+    console.log(device);
     if (!device) {
       return false;
     }
@@ -27,7 +27,7 @@ export class DeviceRepository {
     await createDevice.save();
     return;
   }
-  async updateTokenInBase(
+  async updateExpiredTimeTokenInBaseByDevice(
     userId: string,
     title: string,
     lastActiveDate: string,
@@ -43,5 +43,42 @@ export class DeviceRepository {
       },
     );
     return;
+  }
+
+  async checkTokenByDeviceInBase(
+    userId: string,
+    deviceId: string,
+    lastActiveDate: string,
+  ) {
+    const result = await this.deviceModel.findOne({
+      userId: userId,
+      deviceId: deviceId,
+      lastActiveDate: lastActiveDate,
+    });
+    if (!result) {
+      return false;
+    }
+    return true;
+  }
+  async refreshTokenDeviceInBase(
+    userId: string,
+    deviceId: string,
+    lastActiveDate: string,
+    diesAtDate: string,
+  ) {
+    const tokenUpdate: UpdateWriteOpResult = await this.deviceModel.updateOne(
+      { userId: userId, deviceId: deviceId },
+      {
+        $set: {
+          lastActiveDate: lastActiveDate,
+          diesAtDate: diesAtDate,
+        },
+      },
+    );
+    return tokenUpdate.matchedCount === 1;
+  }
+  async deleteDevicesAdmin() {
+    console.log('delete all device');
+    return await this.deviceModel.deleteOne({});
   }
 }

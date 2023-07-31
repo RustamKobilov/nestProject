@@ -47,14 +47,12 @@ export class AuthService {
     // const accessToken = await this.getAccessToken(user.id)
     return {
       accessToken: await this.getAccessToken(user.id),
-      refreshToken: await this.registrationAttempt(ip, user.id, title),
+      refreshToken: await this.registrationAttempt(user.id, ip, title),
     };
   }
   async getAccessToken(userId: string) {
     return await this.jwtService.signAsync(
-      {
-        sub: userId,
-      },
+      { userId },
       {
         secret: this.configService.get<string>('JWT_SECRET'),
         expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRED'),
@@ -62,16 +60,34 @@ export class AuthService {
     );
   }
   async getRefreshToken(userId: string, deviceId: string) {
-    await this.jwtService.signAsync(
-      {
-        sub: userId,
-        deviceId,
-      },
+    return await this.jwtService.signAsync(
+      { userId, deviceId },
       {
         secret: this.configService.get<string>('JWT_SECRET'),
         expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRED'),
       },
     );
+  }
+  async checkRefreshTokenForUser(
+    refreshToken: string,
+    userId: string,
+    deviceId: string,
+  ) {
+    const lastActiveDate =
+      await this.deviceService.getLastActiveDateFromRefreshToken(refreshToken);
+    const payload = await this.verifyToken(refreshToken);
+    if (!payload) {
+      throw new UnauthorizedException();
+    }
+    const resultCheckTokenInBase = await this.deviceService.checkTokenByDevice(
+      payload.userId,
+      payload.deviceId,
+      lastActiveDate,
+    );
+    if (!resultCheckTokenInBase) {
+      throw new UnauthorizedException('refreshtoken ykrali');
+    }
+    return;
   }
 
   async registration(createUserDto: CreateUserDto) {
@@ -96,7 +112,7 @@ export class AuthService {
 
   async registrationAttempt(userId: string, ip: string, title: string) {
     let refreshToken;
-    const device = await this.deviceService.checkTokenInBaseByName(
+    const device = await this.deviceService.checkTokenByNameAndTitle(
       userId,
       title,
     );
@@ -111,6 +127,8 @@ export class AuthService {
         deviceId,
       );
     } else {
+      console.log('else');
+      console.log(device);
       refreshToken = await this.getRefreshToken(userId, device.deviceId);
       await this.deviceService.updateDevice(refreshToken, userId, title);
     }
@@ -145,19 +163,32 @@ export class AuthService {
       refreshToken,
     };
   }
+  async deleteAdminDevice() {
+    return await this.deviceService.deleteAdmin();
+  }
+  async verifyToken(token: string) {
+    try {
+      const payload = await this.jwtService.verify(token);
+      console.log(payload);
+      return payload;
+    } catch (e) {
+      console.log('errrorrr');
+      return false;
+    }
+    //return 'huli';
+  }
+
+  async refreshTokenDevice(
+    refreshToken: string,
+    userId: string,
+    deviceId: string,
+  ) {
+    return await this.deviceService.refreshTokenDevice(
+      userId,
+      deviceId,
+      refreshToken,
+    );
+  }
 }
-//   async verifyToken(token: string) {
-//     try {
-//       console.log(token);
-//       const payload = await this.jwtService.verify(token);
-//       console.log(payload);
-//       return payload;
-//     } catch (e) {
-//       console.log('errrorrr');
-//       return false;
-//     }
-//     return 'huli';
-//   }
-// }
 //verify work , service adapter
 //TODO сделать декод на jonwebtoken смотреть проект express HT

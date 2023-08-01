@@ -40,6 +40,7 @@ import { JwtStrategy } from './auth/Strategy/jwtStrategy';
 import { DeviceRepository } from './Device/deviceRepository';
 import { Device, DeviceSchema } from './Device/Device';
 import { DeviceService } from './Device/deviceService';
+import { ThrottlerModule } from '@nestjs/throttler';
 dotenv.config();
 
 @Module({
@@ -91,6 +92,14 @@ dotenv.config();
             strict: true,
           },
         },
+      }),
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        ttl: parseInt(<string>config.get('THROTTLE_TTL'), 10),
+        limit: parseInt(<string>config.get('THROTTLE_LIMIT'), 10),
       }),
     }),
   ],

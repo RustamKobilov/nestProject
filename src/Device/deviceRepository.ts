@@ -2,6 +2,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Device, DeviceDocument } from './Device';
 import { Injectable } from '@nestjs/common';
+
 @Injectable()
 export class DeviceRepository {
   constructor(

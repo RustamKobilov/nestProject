@@ -16,6 +16,7 @@ import { token } from '../Enum';
 import { CreateUserDto, RegistrationConfirmation } from '../DTO';
 import { UserService } from '../User/userService';
 import { JwtAuthGuard } from './Guard/jwtGuard';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -37,6 +38,7 @@ export class AuthController {
     await this.userService.confirmationUser(registrationConfirmation.code);
     return res.sendStatus(204);
   }
+  @Throttle()
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   async login(@Res() res, @Req() req) {

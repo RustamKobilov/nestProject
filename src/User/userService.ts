@@ -5,7 +5,7 @@ import { mapObject } from '../mapObject';
 import { bcriptService } from '../bcryptService';
 import { addHours } from 'date-fns';
 import { randomUUID } from 'crypto';
-import { UserViewModel } from '../viewModelDTO';
+import { MeViewModel, UserViewModel } from '../viewModelDTO';
 import {
   BadRequestException,
   Injectable,
@@ -100,5 +100,14 @@ export class UserService {
     return this.userRepository.deleteUserByConfirmationCode(
       userConfirmationCode,
     );
+  }
+
+  async getUserInformation(userId: string): Promise<MeViewModel> {
+    const user = await this.userRepository.getUser(userId);
+    if (!user) {
+      throw new NotFoundException('user not found');
+    }
+    const outputMeModelUserInformation = mapObject.mapMeUserInformation(user);
+    return outputMeModelUserInformation;
   }
 }

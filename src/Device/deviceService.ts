@@ -1,7 +1,7 @@
 import { DeviceRepository } from './deviceRepository';
 import { Device } from './Device';
 import jwt from 'jsonwebtoken';
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 @Injectable()
 export class DeviceService {
   constructor(private deviceRepository: DeviceRepository) {}
@@ -28,11 +28,19 @@ export class DeviceService {
     console.log(refreshToken);
     console.log('refreshToken');
     const payload: any = jwt.decode(refreshToken);
+    if (!payload) {
+      throw new UnauthorizedException('payload getLastActive');
+    }
     console.log(payload);
     return new Date(payload.iat * 1000).toISOString();
   }
   async getDiesAtDate(refreshToken: string) {
+    console.log(refreshToken);
     const payload: any = jwt.decode(refreshToken);
+    if (!payload) {
+      throw new UnauthorizedException('payload getDiesAtDate');
+    }
+
     return new Date(payload.exp * 1000).toISOString();
   }
   async addDevice(
@@ -112,5 +120,13 @@ export class DeviceService {
   }
   async deleteAdmin() {
     return await this.deviceRepository.deleteDevicesAdmin();
+  }
+
+  async getDeviceAdminById(deviceId: string) {
+    return await this.deviceRepository.getDeviceByIdAdmin(deviceId);
+  }
+
+  async deleteDevice(userId: string, deviceId: string) {
+    return await this.deviceRepository.deleteDevice(userId, deviceId);
   }
 }

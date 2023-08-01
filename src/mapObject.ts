@@ -42,4 +42,11 @@ export const mapObject = {
       login: reaction.userLogin,
     };
   },
+  async mapMeUserInformation(user: User) {
+    return {
+      userId: user.id,
+      login: user.login,
+      email: user.email,
+    };
+  },
 };

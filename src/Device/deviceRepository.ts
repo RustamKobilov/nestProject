@@ -50,11 +50,14 @@ export class DeviceRepository {
     deviceId: string,
     lastActiveDate: string,
   ) {
+    console.log('repa');
+    console.log(userId, deviceId, lastActiveDate);
     const result = await this.deviceModel.findOne({
       userId: userId,
       deviceId: deviceId,
       lastActiveDate: lastActiveDate,
     });
+    console.log(result);
     if (!result) {
       return false;
     }
@@ -80,5 +83,19 @@ export class DeviceRepository {
   async deleteDevicesAdmin() {
     console.log('delete all device');
     return await this.deviceModel.deleteOne({});
+  }
+
+  async getDeviceByIdAdmin(deviceId: string) {
+    const result = await this.deviceModel.find({
+      /*deviceId: deviceId,*/
+    });
+    return result;
+  }
+
+  async deleteDevice(userId: string, deviceId: string) {
+    return await this.deviceModel.deleteOne({
+      userId: userId,
+      deviceId: deviceId,
+    });
   }
 }

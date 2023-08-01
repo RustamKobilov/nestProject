@@ -75,19 +75,18 @@ export class AuthService {
   ) {
     const lastActiveDate =
       await this.deviceService.getLastActiveDateFromRefreshToken(refreshToken);
-    const payload = await this.verifyToken(refreshToken);
-    if (!payload) {
-      throw new UnauthorizedException();
-    }
     const resultCheckTokenInBase = await this.deviceService.checkTokenByDevice(
-      payload.userId,
-      payload.deviceId,
+      userId,
+      deviceId,
       lastActiveDate,
     );
     if (!resultCheckTokenInBase) {
-      throw new UnauthorizedException('refreshtoken ykrali');
+      throw new UnauthorizedException(
+        'refreshtoken ykrali, ispolzavali starye',
+      );
     }
-    return;
+    console.log('est vnutri raz');
+    return true;
   }
 
   async registration(createUserDto: CreateUserDto) {
@@ -139,7 +138,7 @@ export class AuthService {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
-          sub: userId,
+          userId,
         },
         {
           secret: this.configService.get<string>('JWT_SECRET'),
@@ -148,7 +147,7 @@ export class AuthService {
       ),
       this.jwtService.signAsync(
         {
-          sub: userId,
+          userId,
           deviceId,
         },
         {
@@ -184,10 +183,18 @@ export class AuthService {
     deviceId: string,
   ) {
     return await this.deviceService.refreshTokenDevice(
+      refreshToken,
       userId,
       deviceId,
-      refreshToken,
     );
+  }
+
+  async getDeviceAdmin(deviceId: string) {
+    return await this.deviceService.getDeviceAdminById(deviceId);
+  }
+
+  async deleteDeviceInLogout(userId: string, deviceId: string) {
+    return await this.deviceService.deleteDevice(userId, deviceId);
   }
 }
 //verify work , service adapter

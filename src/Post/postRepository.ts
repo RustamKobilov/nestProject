@@ -30,10 +30,6 @@ export class PostRepository {
       .find(filter, {
         _id: 0,
         __v: 0,
-        hash: 0,
-        salt: 0,
-        password: 0,
-        userConfirmationInfo: 0,
       })
       .sort({ [paginationPost.sortBy]: paginationPost.sortDirection })
       .skip(paginationFromHelperForUsers.skipPage)

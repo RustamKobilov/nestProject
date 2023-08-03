@@ -3,6 +3,7 @@ import { BlogViewModel, PostViewModel, UserViewModel } from './viewModelDTO';
 import { Blog } from './Blog/Blog';
 import { Post } from './Post/Post';
 import { Reaction } from './Like/Reaction';
+import { Comment } from './Comment/Comment';
 
 export const mapObject = {
   async mapUserForViewModel(user: User): Promise<UserViewModel> {
@@ -33,6 +34,15 @@ export const mapObject = {
       blogName: post.blogName,
       createdAt: post.createdAt,
       extendedLikesInfo: post.extendedLikesInfo,
+    };
+  },
+  async mapComment(comment: Comment) {
+    return {
+      id: comment.id,
+      content: comment.content,
+      commentatorInfo: comment.commentatorInfo,
+      createdAt: comment.createdAt,
+      likesInfo: comment.likesInfo,
     };
   },
   async mapNewestLikes(reaction: Reaction) {

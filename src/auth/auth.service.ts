@@ -10,11 +10,8 @@ import { CreateUserDto } from '../DTO';
 import { EmailAdapters } from '../adapters/email-adapters';
 import * as dotenv from 'dotenv';
 import { ConfigService } from '@nestjs/config';
-import { DeviceRepository } from '../Device/deviceRepository';
-import jwt from 'jsonwebtoken';
 import { randomUUID } from 'crypto';
 import { DeviceService } from '../Device/deviceService';
-import { de } from 'date-fns/locale';
 
 dotenv.config();
 
@@ -171,10 +168,9 @@ export class AuthService {
       console.log(payload);
       return payload;
     } catch (e) {
-      console.log('errrorrr');
+      console.log(e);
       return false;
     }
-    //return 'huli';
   }
 
   async refreshTokenDevice(

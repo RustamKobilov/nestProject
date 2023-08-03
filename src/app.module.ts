@@ -40,7 +40,16 @@ import { JwtStrategy } from './auth/Strategy/jwtStrategy';
 import { DeviceRepository } from './Device/deviceRepository';
 import { Device, DeviceSchema } from './Device/Device';
 import { DeviceService } from './Device/deviceService';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+import {
+  Comment,
+  CommentatorInfo,
+  CommentatorInfoSchema,
+  CommentSchema,
+  LikesInfo,
+  LikesInfoSchema,
+} from './Comment/Comment';
 dotenv.config();
 
 @Module({
@@ -63,6 +72,9 @@ dotenv.config();
       { name: ExtendedLikesInfo.name, schema: ExtendedLikesInfoSchema },
       { name: NewestLikes.name, schema: NewestLikesSchema },
       { name: Device.name, schema: DeviceSchema },
+      { name: Comment.name, schema: CommentSchema },
+      { name: CommentatorInfo.name, schema: CommentatorInfoSchema },
+      { name: LikesInfo.name, schema: LikesInfoSchema },
     ]),
     PassportModule,
     JwtModule.register({
@@ -123,6 +135,10 @@ dotenv.config();
     EmailAdapters,
     DeviceService,
     DeviceRepository,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AppModule {}

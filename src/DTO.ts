@@ -1,4 +1,5 @@
 import {
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -8,6 +9,8 @@ import {
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { helper } from './helper';
+import { CommentatorInfo, LikesInfo } from './Comment/Comment';
+import { likeStatus } from './Enum';
 
 export class CreateUserDto {
   @IsString()
@@ -65,7 +68,16 @@ export class CreatePostByBlogDTO {
   @Length(1, 1000)
   content: string;
 }
-
+export class CreateCommentDto {
+  @IsString()
+  @Length(20, 300)
+  content: string;
+}
+export class UpdateLikeStatusCommentDto {
+  @IsString()
+  @IsEnum(likeStatus)
+  likeStatus: likeStatus;
+}
 export class PaginationDTO {
   @IsOptional()
   @Type((type) => Number)
@@ -110,6 +122,14 @@ export type outputModel<T> = {
   pageSize: number;
   totalCount: number;
   items: T[];
+};
+
+export type OutputCommentType = {
+  id: string;
+  content: string;
+  commentatorInfo: CommentatorInfo;
+  createdAt: string;
+  likesInfo: LikesInfo;
 };
 
 export class LoginDto {

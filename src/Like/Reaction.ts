@@ -1,6 +1,8 @@
-import { Prop, Schema } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { likeStatus } from '../Enum';
+import { HydratedDocument } from 'mongoose';
 
+export type ReactionDocument = HydratedDocument<Reaction>;
 @Schema({ versionKey: false })
 export class Reaction {
   @Prop({ type: String, unique: true, required: true })
@@ -14,3 +16,4 @@ export class Reaction {
   @Prop({ type: String, required: true })
   createdAt: string;
 }
+export const ReactionSchema = SchemaFactory.createForClass(Reaction);

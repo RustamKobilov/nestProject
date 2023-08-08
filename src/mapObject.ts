@@ -1,5 +1,10 @@
 import { User } from './User/User';
-import { BlogViewModel, PostViewModel, UserViewModel } from './viewModelDTO';
+import {
+  BlogViewModel,
+  CommentViewModel,
+  PostViewModel,
+  UserViewModel,
+} from './viewModelDTO';
 import { Blog } from './Blog/Blog';
 import { Post } from './Post/Post';
 import { Reaction } from './Like/Reaction';
@@ -36,7 +41,7 @@ export const mapObject = {
       extendedLikesInfo: post.extendedLikesInfo,
     };
   },
-  async mapComment(comment: Comment) {
+  async mapComment(comment: Comment): Promise<CommentViewModel> {
     return {
       id: comment.id,
       content: comment.content,

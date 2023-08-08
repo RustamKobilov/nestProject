@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import { likeStatus } from '../Enum';
 import { mapObject } from '../mapObject';
 import { PostViewModel } from '../viewModelDTO';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { helper } from '../helper';
 @Injectable()
 export class PostService {
@@ -43,7 +43,7 @@ export class PostService {
     return this.postRepository.getPosts(pagination, {});
   }
   async getPost(postId: string): Promise<Post> {
-    return this.postRepository.getPost(postId);
+    return await this.postRepository.getPost(postId);
   }
 
   async updatePost(postId: string, updatePostDto: CreatePostDTO) {

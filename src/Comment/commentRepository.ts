@@ -2,10 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery } from 'mongoose';
 import { Comment, CommentDocument } from './Comment';
-import { OutputCommentType } from '../DTO';
+import { OutputCommentType, PaginationDTO } from '../DTO';
 import { User } from '../User/User';
 import { ReactionRepository } from '../Like/reactionRepository';
 import { mapObject } from '../mapObject';
+import { helper } from '../helper';
 
 Injectable();
 export class CommentRepository {
@@ -17,6 +18,7 @@ export class CommentRepository {
   async getComment(id: string): Promise<Comment | null> {
     return this.commentModel.findOne({ id: id }, { postId: false, _id: false });
   }
+
   async getCommentForUser(
     commentId: string,
     user: User,
@@ -45,6 +47,7 @@ export class CommentRepository {
 
     return commentUpgrade;
   }
+
   async updateComment(id: string, content: string): Promise<boolean> {
     const commentUpdate: UpdateQuery<CommentDocument> =
       await this.commentModel.updateOne(
@@ -62,6 +65,7 @@ export class CommentRepository {
     await this.commentModel.deleteOne({ id: commentId });
     return;
   }
+
   async updateCountReactionComment(
     commentId: string,
     countLikes: number,
@@ -80,5 +84,92 @@ export class CommentRepository {
         },
       );
     return updateCountLikeAndDislike.matchedCount === 1;
+  }
+
+  async createCommentForPost(newComment: Comment) {
+    const createComment = new this.commentModel(newComment);
+    await createComment.save();
+    return;
+  }
+
+  async getCommentsForPost(
+    pagination: PaginationDTO,
+    filter,
+  ) /*: Promise<outputModel<PostViewModel>>*/ {
+    const countCommentsForPost = await this.commentModel.countDocuments(filter);
+    const paginationFromHelperForComments =
+      helper.getPaginationFunctionSkipSortTotal(
+        pagination.pageNumber,
+        pagination.pageSize,
+        countCommentsForPost,
+      );
+
+    const sortCommentsForPosts = await this.commentModel
+      .find(filter, {
+        postId: false,
+        _id: false,
+      })
+      .sort({ [pagination.sortBy]: pagination.sortDirection })
+      .skip(paginationFromHelperForComments.skipPage)
+      .limit(pagination.pageSize)
+      .lean();
+
+    return {
+      pagesCount: paginationFromHelperForComments.totalCount,
+      page: pagination.pageNumber,
+      pageSize: pagination.pageSize,
+      totalCount: countCommentsForPost,
+      items: sortCommentsForPosts,
+    };
+  }
+
+  async getCommentsForPostUser(
+    pagination: PaginationDTO,
+    filter,
+    user: User,
+  ) /*: Promise<outputModel<CommentViewModel>>*/ {
+    const countCommentsForPost = await this.commentModel.countDocuments(filter);
+    const paginationFromHelperForComments =
+      helper.getPaginationFunctionSkipSortTotal(
+        pagination.pageNumber,
+        pagination.pageSize,
+        countCommentsForPost,
+      );
+
+    const sortCommentsForPosts = await this.commentModel
+      .find(filter, {
+        postId: false,
+        _id: false,
+      })
+      .sort({ [pagination.sortBy]: pagination.sortDirection })
+      .skip(paginationFromHelperForComments.skipPage)
+      .limit(pagination.pageSize)
+      .lean();
+    //TODO 2 errorrs typy method , agregate может быть
+    const resultCommentsAddLikes = await Promise.all(
+      sortCommentsForPosts.map(async (comment: Comment) => {
+        const commentUpgrade = await mapObject.mapComment(comment);
+        const searchReaction =
+          await this.reactionRepository.getReactionUserForParent(
+            commentUpgrade.id,
+            user.id,
+          );
+        if (!searchReaction) {
+          return comment;
+        }
+
+        commentUpgrade.likesInfo.myStatus = searchReaction.status;
+
+        return commentUpgrade;
+      }),
+    );
+
+    return {
+      pagesCount: paginationFromHelperForComments.totalCount,
+      page: pagination.pageNumber,
+      pageSize: pagination.pageSize,
+      totalCount: countCommentsForPost,
+      items: resultCommentsAddLikes,
+    };
   }
 }

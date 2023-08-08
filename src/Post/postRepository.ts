@@ -46,12 +46,7 @@ export class PostRepository {
   }
 
   async getPost(postId: string): Promise<Post> {
-    console.log(postId);
-    const post = await this.postModel.findOne(
-      { id: postId },
-      { _id: 0, __v: 0 },
-    );
-    console.log(post);
+    const post = await this.postModel.findOne({ id: postId });
     if (!post) {
       throw new NotFoundException('If specified blog is not exists');
     }

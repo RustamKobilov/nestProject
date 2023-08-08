@@ -50,6 +50,11 @@ import {
   LikesInfo,
   LikesInfoSchema,
 } from './Comment/Comment';
+import { CommentController } from './Comment/commentController';
+import { CommentService } from './Comment/commentService';
+import { CommentRepository } from './Comment/commentRepository';
+import { ReactionRepository } from './Like/reactionRepository';
+import { Reaction, ReactionSchema } from './Like/Reaction';
 dotenv.config();
 
 @Module({
@@ -75,6 +80,7 @@ dotenv.config();
       { name: Comment.name, schema: CommentSchema },
       { name: CommentatorInfo.name, schema: CommentatorInfoSchema },
       { name: LikesInfo.name, schema: LikesInfoSchema },
+      { name: Reaction.name, schema: ReactionSchema },
     ]),
     PassportModule,
     JwtModule.register({
@@ -121,6 +127,7 @@ dotenv.config();
     BlogController,
     PostController,
     AuthController,
+    CommentController,
   ],
   providers: [
     UserService,
@@ -135,6 +142,9 @@ dotenv.config();
     EmailAdapters,
     DeviceService,
     DeviceRepository,
+    CommentService,
+    CommentRepository,
+    ReactionRepository,
     // {
     //   provide: APP_GUARD,
     //   useClass: ThrottlerGuard,

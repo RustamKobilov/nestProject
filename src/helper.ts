@@ -38,6 +38,14 @@ export const helper = {
       sortDirection: query.sortDirection === 'asc' ? 1 : -1,
     };
   },
+  getCommentPaginationValues(query: any): PaginationDTO {
+    return {
+      pageNumber: query.pageNumber || 1,
+      pageSize: query.pageSize || 10,
+      sortBy: query.sortBy || 'createdAt',
+      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
+    };
+  },
   getValueTrim(value: string): string {
     return value.trim();
   },

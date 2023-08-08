@@ -1,7 +1,5 @@
 import { ExtendedLikesInfo } from './Post/Post';
-import { IsString } from 'class-validator';
-import { Transform } from 'class-transformer';
-import { helper } from './helper';
+import { CommentatorInfo, LikesInfo } from './Comment/Comment';
 
 export class UserViewModel {
   id: string;
@@ -28,6 +26,13 @@ export class PostViewModel {
   blogName: string;
   createdAt: string;
   extendedLikesInfo: ExtendedLikesInfo;
+}
+export class CommentViewModel {
+  id: string;
+  content: string;
+  commentatorInfo: CommentatorInfo;
+  createdAt: string;
+  likesInfo: LikesInfo;
 }
 export class MeViewModel {
   email: string;

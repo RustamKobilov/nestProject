@@ -3,17 +3,14 @@ import { Reaction, ReactionDocument } from './Reaction';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { likeStatus } from '../Enum';
-import { Comment } from '../Comment/Comment';
 import { User } from '../User/User';
-import { UpdateLikeStatusCommentDto } from '../DTO';
 import { CommentRepository } from '../Comment/commentRepository';
 
 Injectable();
 export class ReactionRepository {
   constructor(
     @InjectModel(Reaction.name)
-    private readonly reactionModel: Model<ReactionDocument>,
-    private readonly commentRepository: CommentRepository,
+    private reactionModel: Model<ReactionDocument>,
   ) {}
   private createReaction(
     parentId: string,
@@ -38,7 +35,7 @@ export class ReactionRepository {
     );
     return reaction;
   }
-  async changeCountLikeStatusUser(
+  async getCountLikeStatusUser(
     commentId: string,
     user: User,
     likeStatusUpdate: likeStatus,
@@ -69,14 +66,6 @@ export class ReactionRepository {
       parentId: commentId,
       status: likeStatus.Dislike,
     });
-
-    const updateCountLike =
-      await this.commentRepository.updateCountReactionComment(
-        commentId,
-        likesCount,
-        dislikesCount,
-      );
-
-    return updateCountLike;
+    return { likesCount: likesCount, dislikesCount: dislikesCount };
   }
 }

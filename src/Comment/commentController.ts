@@ -59,6 +59,8 @@ export class CommentController {
     await this.commentService.deleteComment(commentId);
     return res.sendStatus(204);
   }
+  @UseGuards(BearerGuard)
+  @UseGuards(AuthCommentForUserGuard)
   @Put('/:id')
   async updateLikeStatus(
     @Param('id') commentId: string,

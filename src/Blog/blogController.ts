@@ -8,7 +8,9 @@ import {
   Post,
   Put,
   Query,
+  Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import {
   BlogPaginationDTO,
@@ -18,6 +20,8 @@ import {
 } from '../DTO';
 import { BlogService } from './blogService';
 import { Response } from 'express';
+import { BearerGuard } from '../auth/Guard/bearerGuard';
+import { CommentService } from '../Comment/commentService';
 
 @Controller('blogs')
 export class BlogController {
@@ -48,13 +52,32 @@ export class BlogController {
     await this.blogService.deleteBlog(blogId);
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
+  @UseGuards(BearerGuard)
   @Get('/:id/posts')
   async getPostsByBlog(
+    @Query() getPagination: PaginationDTO,
     @Param('id') blogId: string,
     @Query() postPagination: PaginationDTO,
+    @Res() res: Response,
+    @Req() req,
   ) {
-    return this.blogService.getPostsbyBlog(blogId, postPagination);
+    const blog = await this.blogService.getBlog(blogId);
+    let resultAllPostsByBlog;
+    if (!req.user) {
+      resultAllPostsByBlog = await this.blogService.getPostsbyBlog(
+        blogId,
+        getPagination,
+      );
+      return res.status(200).send(resultAllPostsByBlog);
+    }
+    resultAllPostsByBlog = await this.blogService.getPostForBlogUser(
+      blogId,
+      getPagination,
+      req.user.id,
+    );
+    return res.status(200).send(resultAllPostsByBlog);
   }
+  @UseGuards(BearerGuard)
   @Post('/:id/posts')
   async createPostByBlog(
     @Body() createPostDto: CreatePostByBlogDTO,

@@ -91,7 +91,7 @@ export class PostController {
     resultAllCommentsByPosts = await this.commentService.getCommentsForPostUser(
       getPagination,
       postId,
-      req.user,
+      req.user.id,
     );
     return res.status(200).send(resultAllCommentsByPosts);
   }

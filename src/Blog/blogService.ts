@@ -11,14 +11,12 @@ import { randomUUID } from 'crypto';
 import { mapObject } from '../mapObject';
 import { BlogViewModel } from '../viewModelDTO';
 import { helper } from '../helper';
-import { PostRepository } from '../Post/postRepository';
 import { PostService } from '../Post/postService';
 
 @Injectable()
 export class BlogService {
   constructor(
     private readonly blogRepository: BlogRepository,
-    private readonly postRepository: PostRepository,
     private readonly postService: PostService,
   ) {}
 
@@ -63,11 +61,22 @@ export class BlogService {
     await this.blogRepository.getBlog(blogId);
     const pagination = helper.getPostPaginationValues(postPagination);
     const filter = { blogId: blogId };
-    return this.postRepository.getPosts(pagination, filter);
+    return this.postService.getPostsByBlog(pagination, filter);
   }
   async createPostByBlog(createPostDto: CreatePostByBlogDTO, blogId: string) {
     await this.blogRepository.getBlog(blogId);
     const postByBlog = { ...createPostDto, blogId };
     return this.postService.createNewPost(postByBlog);
+  }
+  async getPostForBlogUser(
+    blogId: string,
+    getPagination: PaginationDTO,
+    userId: string,
+  ) {
+    return await this.postService.getPostForBlogUser(
+      blogId,
+      getPagination,
+      userId,
+    );
   }
 }

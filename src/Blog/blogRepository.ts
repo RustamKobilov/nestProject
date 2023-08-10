@@ -6,7 +6,12 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from './Blog';
 import { FilterQuery, Model } from 'mongoose';
-import { BlogPaginationDTO, CreateBlogDTO, outputModel } from '../DTO';
+import {
+  BlogPaginationDTO,
+  CreateBlogDTO,
+  outputModel,
+  PaginationDTO,
+} from '../DTO';
 import { helper } from '../helper';
 
 @Injectable()

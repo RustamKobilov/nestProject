@@ -122,17 +122,15 @@ export class CommentService {
   ) /*: Promise<outputModel<PostViewModel>>*/ {
     const filter = { postId: postId };
     const pagination = helper.getCommentPaginationValues(getPagination);
-    return await this.commentRepository.getCommentsForPost(
-      getPagination,
-      filter,
-    );
+    return await this.commentRepository.getCommentsForPost(pagination, filter);
   }
 
   async getCommentsForPostUser(
     getPagination: PaginationDTO,
     postId: string,
-    user,
+    userId: string,
   ) {
-    return true;
+    const pagination = helper.getCommentPaginationValues(getPagination);
+    return await this.getCommentsForPostUser(pagination, postId, userId);
   }
 }

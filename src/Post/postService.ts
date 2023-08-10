@@ -1,13 +1,15 @@
 import { PostRepository } from './postRepository';
 import { CreatePostDTO, PaginationDTO } from '../DTO';
 import { BlogRepository } from '../Blog/blogRepository';
-import { Post } from './Post';
+import { Post, PostDocument } from './Post';
 import { randomUUID } from 'crypto';
 import { likeStatus } from '../Enum';
 import { mapObject } from '../mapObject';
 import { PostViewModel } from '../viewModelDTO';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { helper } from '../helper';
+import { FilterQuery } from 'mongoose';
+
 @Injectable()
 export class PostService {
   constructor(
@@ -40,7 +42,13 @@ export class PostService {
     console.log(postPagination);
     const pagination = helper.getPostPaginationValues(postPagination);
     console.log(pagination);
-    return this.postRepository.getPosts(pagination, {});
+    return this.postRepository.getPosts(pagination);
+  }
+  async getPostsByBlog(postPagination: PaginationDTO, filter) {
+    console.log(postPagination);
+    const pagination = helper.getPostPaginationValues(postPagination);
+    console.log(pagination);
+    return await this.postRepository.getPostsForBlog(pagination, filter);
   }
   async getPost(postId: string): Promise<Post> {
     return await this.postRepository.getPost(postId);
@@ -53,5 +61,18 @@ export class PostService {
   async deletePost(postId: string) {
     await this.postRepository.getPost(postId);
     return this.postRepository.deletePost(postId);
+  }
+  async getPostForBlogUser(
+    blogId: string,
+    getPagination: PaginationDTO,
+    userId: string,
+  ) {
+    const filter = { blogId: blogId };
+    const pagination = helper.getCommentPaginationValues(getPagination);
+    return await this.postRepository.getPostsForBlogUser(
+      filter,
+      pagination,
+      userId,
+    );
   }
 }

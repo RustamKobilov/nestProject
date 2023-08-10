@@ -126,7 +126,7 @@ export class CommentRepository {
   async getCommentsForPostUser(
     pagination: PaginationDTO,
     filter,
-    user: User,
+    userId: string,
   ) /*: Promise<outputModel<CommentViewModel>>*/ {
     const countCommentsForPost = await this.commentModel.countDocuments(filter);
     const paginationFromHelperForComments =
@@ -137,14 +137,26 @@ export class CommentRepository {
       );
 
     const sortCommentsForPosts = await this.commentModel
-      .find(filter, {
-        postId: false,
-        _id: false,
-      })
-      .sort({ [pagination.sortBy]: pagination.sortDirection })
-      .skip(paginationFromHelperForComments.skipPage)
-      .limit(pagination.pageSize)
-      .lean();
+      .aggregate([
+        { $match: filter },
+        { $sort: { [pagination.sortBy]: pagination.sortDirection } },
+        { $skip: paginationFromHelperForComments.skipPage },
+        { $limit: pagination.pageSize },
+      ])
+      .exec()
+      .catch((err) => {
+        return err;
+      });
+
+    //    const sortCommentsForPosts = await this.commentModel
+    //       .find(filter, {
+    //         postId: false,
+    //         _id: false,
+    //       })
+    //       .sort({ [pagination.sortBy]: pagination.sortDirection })
+    //       .skip(paginationFromHelperForComments.skipPage)
+    //       .limit(pagination.pageSize)
+    //       .lean();
     //TODO 2 errorrs typy method , agregate может быть
     const resultCommentsAddLikes = await Promise.all(
       sortCommentsForPosts.map(async (comment: Comment) => {
@@ -152,7 +164,7 @@ export class CommentRepository {
         const searchReaction =
           await this.reactionRepository.getReactionUserForParent(
             commentUpgrade.id,
-            user.id,
+            userId,
           );
         if (!searchReaction) {
           return comment;

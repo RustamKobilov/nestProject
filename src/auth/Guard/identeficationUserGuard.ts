@@ -1,10 +1,11 @@
 import { CanActivate, ExecutionContext } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { UserRepository } from '../../User/userRepository';
+import { JwtServices } from '../../application/jwtService';
 
 export class IdenteficationUserGuard implements CanActivate {
   constructor(
-    private authService: AuthService,
+    private jwtService: JwtServices,
     private userRepository: UserRepository,
   ) {}
 
@@ -21,7 +22,7 @@ export class IdenteficationUserGuard implements CanActivate {
       request.user = null;
       return true;
     }
-    const payload = await this.authService.verifyToken(token);
+    const payload = await this.jwtService.verifyToken(token);
     if (!payload) {
       request.user = null;
       return true;

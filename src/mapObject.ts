@@ -2,6 +2,9 @@ import { User } from './User/User';
 import {
   BlogViewModel,
   CommentViewModel,
+  DeviceViewModel,
+  MeViewModel,
+  newestLikeViewModel,
   PostViewModel,
   UserViewModel,
 } from './viewModelDTO';
@@ -9,9 +12,10 @@ import { Blog } from './Blog/Blog';
 import { Post } from './Post/Post';
 import { Reaction } from './Like/Reaction';
 import { Comment } from './Comment/Comment';
+import { Device } from './Device/Device';
 
 export const mapObject = {
-  async mapUserForViewModel(user: User): Promise<UserViewModel> {
+  mapUserForViewModel(user: User): UserViewModel {
     return {
       id: user.id,
       login: user.login,
@@ -19,7 +23,7 @@ export const mapObject = {
       createdAt: user.createdAt,
     };
   },
-  async mapBlogForViewModel(blog: Blog): Promise<BlogViewModel> {
+  mapBlogForViewModel(blog: Blog): BlogViewModel {
     return {
       id: blog.id,
       name: blog.name,
@@ -29,7 +33,7 @@ export const mapObject = {
       isMembership: blog.isMembership,
     };
   },
-  async mapPost(post: Post): Promise<PostViewModel> {
+  mapPost(post: Post): PostViewModel {
     return {
       id: post.id,
       title: post.title,
@@ -41,7 +45,7 @@ export const mapObject = {
       extendedLikesInfo: post.extendedLikesInfo,
     };
   },
-  async mapComment(comment: Comment): Promise<CommentViewModel> {
+  mapComment(comment: Comment): CommentViewModel {
     return {
       id: comment.id,
       content: comment.content,
@@ -50,18 +54,26 @@ export const mapObject = {
       likesInfo: comment.likesInfo,
     };
   },
-  async mapNewestLikes(reaction: Reaction) {
+  mapNewestLikes(reaction: Reaction): newestLikeViewModel {
     return {
       addedAt: reaction.createdAt,
       userId: reaction.userId,
       login: reaction.userLogin,
     };
   },
-  async mapMeUserInformation(user: User) {
+  mapMeUserInformation(user: User): MeViewModel {
     return {
       userId: user.id,
       login: user.login,
       email: user.email,
+    };
+  },
+  mapDevice(device: Device): DeviceViewModel {
+    return {
+      ip: device.ip,
+      title: device.title,
+      lastActiveDate: device.lastActiveDate,
+      deviceId: device.deviceId,
     };
   },
 };

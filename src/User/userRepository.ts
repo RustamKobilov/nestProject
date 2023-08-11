@@ -39,11 +39,13 @@ export class UserRepository {
     return;
   }
 
-  async getUser(idUser: string): Promise<User> {
-    const user = await this.userModel.findOne({ id: idUser });
-    if (!user) {
-      throw new NotFoundException(`If specified user is not exists`);
-    }
+  async getUser(userId: string): Promise<User | null> {
+    console.log('zahli v repy');
+    console.log(userId);
+    console.log('ttt');
+    const user = await this.userModel.findOne({ id: userId });
+    console.log(user);
+    console.log('vyshli s repy');
     return user;
   }
 

@@ -34,8 +34,19 @@ export class CommentViewModel {
   createdAt: string;
   likesInfo: LikesInfo;
 }
+export class newestLikeViewModel {
+  addedAt: string;
+  userId: string;
+  login: string;
+}
 export class MeViewModel {
   email: string;
   login: string;
   userId: string;
+}
+export class DeviceViewModel {
+  ip: string;
+  title: string;
+  lastActiveDate: string;
+  deviceId: string;
 }

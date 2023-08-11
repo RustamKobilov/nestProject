@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Device, DeviceDocument } from './Device';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 
 @Injectable()
 export class DeviceRepository {
@@ -81,6 +81,28 @@ export class DeviceRepository {
     );
     return tokenUpdate.matchedCount === 1;
   }
+
+  async deleteDevice(deviceId: string) {
+    return await this.deviceModel.deleteOne({
+      deviceId: deviceId,
+    });
+  }
+  async getDevices(userId: string): Promise<Device> {
+    const devices = await this.deviceModel.find({
+      userId: userId,
+    });
+    if (devices) {
+      throw new NotFoundException('device no, devRep');
+    }
+    return devices;
+  }
+  async deleteDevicesExceptForHim(deviceId: string, userId: string) {
+    await this.deviceModel.deleteMany({
+      userId: userId,
+      deviceId: { $ne: deviceId },
+    });
+  }
+  //_____________________________________________
   async deleteDevicesAdmin() {
     console.log('delete all device');
     return await this.deviceModel.deleteOne({});
@@ -91,12 +113,5 @@ export class DeviceRepository {
       /*deviceId: deviceId,*/
     });
     return result;
-  }
-
-  async deleteDevice(userId: string, deviceId: string) {
-    return await this.deviceModel.deleteOne({
-      userId: userId,
-      deviceId: deviceId,
-    });
   }
 }

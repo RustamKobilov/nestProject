@@ -57,7 +57,10 @@ export class UserService {
   }
 
   async deleteUser(userId: string) {
-    const findUser = await this.userRepository.getUser(userId);
+    const user = await this.userRepository.getUser(userId);
+    if (!user) {
+      throw new NotFoundException(`If specified user is not exists`);
+    }
     return await this.userRepository.deleteUser(userId);
   }
 
@@ -92,10 +95,6 @@ export class UserService {
     return user.userConfirmationInfo.code;
   }
 
-  getUserAdmin(userId: string) {
-    return this.userRepository.getUser(userId);
-  }
-
   async deleteUserbyConfirmationCode(userConfirmationCode: string) {
     return this.userRepository.deleteUserByConfirmationCode(
       userConfirmationCode,
@@ -104,6 +103,8 @@ export class UserService {
 
   async getUserInformation(userId: string): Promise<MeViewModel> {
     const user = await this.userRepository.getUser(userId);
+    console.log('service');
+    console.log(user);
     if (!user) {
       throw new NotFoundException('user not found');
     }

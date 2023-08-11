@@ -16,12 +16,15 @@ import { token } from '../Enum';
 import { CreateUserDto, RegistrationConfirmation } from '../DTO';
 import { UserService } from '../User/userService';
 import { JwtAuthGuard } from './Guard/jwtGuard';
+import { RefreshTokenGuard } from './Guard/refreshTokenGuard';
+import { JwtServices } from '../application/jwtService';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(
-    private userService: UserService,
-    private authService: AuthService /*private jwtService: ApiJwtService,*/,
+    private authService: AuthService,
+    private jwtService: JwtServices,
   ) {}
 
   @Post('/registration')
@@ -34,7 +37,9 @@ export class AuthController {
     @Body() registrationConfirmation: RegistrationConfirmation,
     @Res() res,
   ) {
-    await this.userService.confirmationUser(registrationConfirmation.code);
+    await this.authService.confirmationUserAfterRegistration(
+      registrationConfirmation.code,
+    );
     return res.sendStatus(204);
   }
 
@@ -59,30 +64,24 @@ export class AuthController {
     //TODO не забыть поставиь поле accees tokens in body
   }
 
+  @UseGuards(RefreshTokenGuard)
   @Post('/refresh-token')
   async refreshToken(@Res() res, @Req() req) {
     const refreshToken = req.cookies.refreshToken;
-    console.log(refreshToken);
-    if (!refreshToken) {
-      throw new UnauthorizedException('refreshToken 0 //refresh auth');
-    }
-    const payload = await this.authService.verifyToken(refreshToken);
-    if (!payload) {
-      throw new UnauthorizedException('refreshToken expired controller');
-    }
+    const refreshTokenPayload = req.refreshTokenPayload; //опвесить гард ревреша
     const checkTokenForUser = await this.authService.checkRefreshTokenForUser(
       refreshToken,
-      payload.userId,
-      payload.deviceId,
+      refreshTokenPayload.userId,
+      refreshTokenPayload.deviceId,
     );
-    const tokens = await this.authService.getTokens(
-      payload.userId,
-      payload.deviceId,
+    const tokens = await this.jwtService.getTokens(
+      refreshTokenPayload.userId,
+      refreshTokenPayload.deviceId,
     );
     const refreshTokenDevice = await this.authService.refreshTokenDevice(
       tokens.refreshToken,
-      payload.userId,
-      payload.deviceId,
+      refreshTokenPayload.userId,
+      refreshTokenPayload.deviceId,
     );
     if (!refreshTokenDevice) {
       throw new UnauthorizedException('no update Token');
@@ -97,26 +96,19 @@ export class AuthController {
 
     //const refreshToken = await req.user.payload.userId.sub;
   }
-
+  @UseGuards(RefreshTokenGuard)
   @Post('/logout')
   async logout(@Res() res, @Req() req) {
     const refreshToken = req.cookies.refreshToken;
+    const refreshTokenPayload = req.refreshTokenPayload;
     console.log(refreshToken);
-    if (!refreshToken) {
-      throw new UnauthorizedException('refreshToken 0 //refresh auth');
-    }
-    const payload = await this.authService.verifyToken(refreshToken);
-    if (!payload) {
-      throw new UnauthorizedException('refreshToken expired controller');
-    }
     const checkTokenForUser = await this.authService.checkRefreshTokenForUser(
       refreshToken,
-      payload.userId,
-      payload.deviceId,
+      refreshTokenPayload.userId,
+      refreshTokenPayload.deviceId,
     );
     const deleteDeviceUser = await this.authService.deleteDeviceInLogout(
-      payload.userId,
-      payload.deviceId,
+      refreshTokenPayload.deviceId,
     );
     if (!deleteDeviceUser) {
       return res.status(404).send('delete not successful');
@@ -124,21 +116,24 @@ export class AuthController {
     return res.sendStatus(204);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(RefreshTokenGuard)
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {
-    console.log(req.user.userId);
-    const outputUser = await this.userService.getUserInformation(
-      req.user.userId,
+    const refreshTokenPayload = req.refreshTokenPayload;
+    //TODO null prihodit
+    console.log(refreshTokenPayload.id);
+    console.log('controller');
+    const outputUser = await this.authService.getUserInformation(
+      refreshTokenPayload.id,
     );
     return res.status(200).send(outputUser);
   }
 
   //___________________________________________________
-  @Get('/admin/user/:userId')
-  async userAdmin(@Param('userId') userId: string, @Req() req) {
-    return this.userService.getUserAdmin(userId);
-  }
+  // @Get('/admin/user/:userId')
+  // async userAdmin(@Param('userId') userId: string, @Req() req) {
+  //   return this.userService.getUserAdmin(userId);
+  // }
   @Get('/admin/device/:deviceId')
   async getDeviceAdmin(@Param('deviceId') deviceId: string, @Res() res) {
     const device = await this.authService.getDeviceAdmin(deviceId);

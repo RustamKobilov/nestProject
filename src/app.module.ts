@@ -55,6 +55,8 @@ import { CommentService } from './Comment/commentService';
 import { CommentRepository } from './Comment/commentRepository';
 import { ReactionRepository } from './Like/reactionRepository';
 import { Reaction, ReactionSchema } from './Like/Reaction';
+import { SecurityController } from './Device/securityController';
+import { JwtServices } from './application/jwtService';
 dotenv.config();
 
 @Module({
@@ -115,10 +117,14 @@ dotenv.config();
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        ttl: parseInt(<string>config.get('THROTTLE_TTL'), 10),
-        limit: parseInt(<string>config.get('THROTTLE_LIMIT'), 10),
-      }),
+      useFactory: (config: ConfigService) => {
+        const ttl: number = parseInt(config.get('THROTTLE_TTL') as string, 10);
+        const limit: number = parseInt(
+          config.get('THROTTLE_LIMIT') as string,
+          10,
+        );
+        return { ttl: ttl, limit: limit };
+      },
     }),
   ],
   controllers: [
@@ -128,6 +134,7 @@ dotenv.config();
     PostController,
     AuthController,
     CommentController,
+    SecurityController,
   ],
   providers: [
     UserService,
@@ -145,10 +152,11 @@ dotenv.config();
     CommentService,
     CommentRepository,
     ReactionRepository,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ThrottlerGuard,
-    // },
+    JwtServices,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

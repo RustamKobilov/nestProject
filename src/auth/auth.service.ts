@@ -5,13 +5,12 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../User/userService';
 import { bcriptService } from '../bcryptService';
-import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../DTO';
 import { EmailAdapters } from '../adapters/email-adapters';
 import * as dotenv from 'dotenv';
-import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
 import { DeviceService } from '../Device/deviceService';
+import { JwtServices } from '../application/jwtService';
 
 dotenv.config();
 
@@ -20,9 +19,8 @@ export class AuthService {
   constructor(
     private usersService: UserService,
     /*private usersRepository: UserRepository,*/
-    private jwtService: JwtService,
     private emailAdapters: EmailAdapters,
-    private configService: ConfigService,
+    private jwtService: JwtServices,
     private deviceService: DeviceService,
   ) {}
 
@@ -40,30 +38,10 @@ export class AuthService {
     if (!resultCompare) {
       throw new UnauthorizedException();
     }
-    // const refreshToken = await this.registrationAttempt(ip, user.id, title);
-    // const accessToken = await this.getAccessToken(user.id)
     return {
-      accessToken: await this.getAccessToken(user.id),
+      accessToken: await this.jwtService.getAccessToken(user.id),
       refreshToken: await this.registrationAttempt(user.id, ip, title),
     };
-  }
-  async getAccessToken(userId: string) {
-    return await this.jwtService.signAsync(
-      { userId },
-      {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRED'),
-      },
-    );
-  }
-  async getRefreshToken(userId: string, deviceId: string) {
-    return await this.jwtService.signAsync(
-      { userId, deviceId },
-      {
-        secret: this.configService.get<string>('JWT_SECRET'),
-        expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRED'),
-      },
-    );
   }
   async checkRefreshTokenForUser(
     refreshToken: string,
@@ -82,7 +60,6 @@ export class AuthService {
         'refreshtoken ykrali, ispolzavali starye',
       );
     }
-    console.log('est vnutri raz');
     return true;
   }
 
@@ -114,7 +91,7 @@ export class AuthService {
     );
     if (!device) {
       const deviceId = randomUUID();
-      refreshToken = await this.getRefreshToken(userId, deviceId);
+      refreshToken = await this.jwtService.getRefreshToken(userId, deviceId);
       await this.deviceService.addDevice(
         refreshToken,
         userId,
@@ -125,52 +102,17 @@ export class AuthService {
     } else {
       console.log('else');
       console.log(device);
-      refreshToken = await this.getRefreshToken(userId, device.deviceId);
+      refreshToken = await this.jwtService.getRefreshToken(
+        userId,
+        device.deviceId,
+      );
       await this.deviceService.updateDevice(refreshToken, userId, title);
     }
 
     return refreshToken;
   }
-  async getTokens(userId: string, deviceId: string) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        {
-          userId,
-        },
-        {
-          secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: this.configService.get<string>('JWT_ACCESS_EXPIRED'),
-        },
-      ),
-      this.jwtService.signAsync(
-        {
-          userId,
-          deviceId,
-        },
-        {
-          secret: this.configService.get<string>('JWT_SECRET'),
-          expiresIn: this.configService.get<string>('JWT_REFRESH_EXPIRED'),
-        },
-      ),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
   async deleteAdminDevice() {
     return await this.deviceService.deleteAdmin();
-  }
-  async verifyToken(token: string) {
-    try {
-      const payload = await this.jwtService.verify(token);
-      console.log(payload);
-      return payload;
-    } catch (e) {
-      console.log(e);
-      return false;
-    }
   }
 
   async refreshTokenDevice(
@@ -184,13 +126,18 @@ export class AuthService {
       deviceId,
     );
   }
-
+  async confirmationUserAfterRegistration(code: string) {
+    await this.usersService.confirmationUser(code);
+  }
+  async getUserInformation(id: string) {
+    await this.usersService.getUserInformation(id);
+  }
+  async deleteDeviceInLogout(deviceId: string) {
+    return await this.deviceService.deleteDevice(deviceId);
+  }
+  //__________ADMIN____________________
   async getDeviceAdmin(deviceId: string) {
     return await this.deviceService.getDeviceAdminById(deviceId);
-  }
-
-  async deleteDeviceInLogout(userId: string, deviceId: string) {
-    return await this.deviceService.deleteDevice(userId, deviceId);
   }
 }
 //verify work , service adapter

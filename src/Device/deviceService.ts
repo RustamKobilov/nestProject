@@ -24,6 +24,9 @@ export class DeviceService {
 
     return device;
   }
+  async getDevices(userId: string): Promise<Device> {
+    return await this.deviceRepository.getDevices(userId);
+  }
   async getLastActiveDateFromRefreshToken(refreshToken: string) {
     console.log(refreshToken);
     console.log('refreshToken');
@@ -126,7 +129,14 @@ export class DeviceService {
     return await this.deviceRepository.getDeviceByIdAdmin(deviceId);
   }
 
-  async deleteDevice(userId: string, deviceId: string) {
-    return await this.deviceRepository.deleteDevice(userId, deviceId);
+  async deleteDevice(deviceId: string) {
+    return await this.deviceRepository.deleteDevice(deviceId);
+  }
+
+  async deleteDevicesUserExceptForHim(userId: string, deviceId: string) {
+    return await this.deviceRepository.deleteDevicesExceptForHim(
+      userId,
+      deviceId,
+    );
   }
 }

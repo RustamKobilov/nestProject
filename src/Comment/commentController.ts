@@ -14,6 +14,8 @@ import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
 import { CreateCommentDto, UpdateLikeStatusCommentDto } from '../DTO';
 import { AuthCommentForUserGuard } from '../auth/Guard/authCommentForUserGuard';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
+@SkipThrottle()
 @Controller('comments')
 export class CommentController {
   constructor(private readonly commentService: CommentService) {}

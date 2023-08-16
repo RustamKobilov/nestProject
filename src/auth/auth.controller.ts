@@ -18,7 +18,7 @@ import { UserService } from '../User/userService';
 import { JwtAuthGuard } from './Guard/jwtGuard';
 import { RefreshTokenGuard } from './Guard/refreshTokenGuard';
 import { JwtServices } from '../application/jwtService';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -96,6 +96,7 @@ export class AuthController {
 
     //const refreshToken = await req.user.payload.userId.sub;
   }
+  @SkipThrottle()
   @UseGuards(RefreshTokenGuard)
   @Post('/logout')
   async logout(@Res() res, @Req() req) {
@@ -115,7 +116,7 @@ export class AuthController {
     }
     return res.sendStatus(204);
   }
-
+  @SkipThrottle()
   @UseGuards(RefreshTokenGuard)
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {

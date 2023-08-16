@@ -139,7 +139,6 @@ export class UserRepository {
           'userConfirmationInfo.userConformation': true,
         },
       );
-    //TODO как проверить обновление, нет свойства matchedCount
     return updateConfirmation.matchedCount === 1;
   }
 

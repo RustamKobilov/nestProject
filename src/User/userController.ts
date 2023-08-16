@@ -12,7 +12,8 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto, UserPaginationDTO } from '../DTO';
 import { Response } from 'express';
-
+import { SkipThrottle } from '@nestjs/throttler';
+@SkipThrottle()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}

@@ -40,7 +40,6 @@ export class ReactionRepository {
     user: User,
     likeStatusUpdate: likeStatus,
   ) {
-    //TODO как передать в метод enum
     const newReaction: Reaction = this.createReaction(
       commentId,
       user.id,

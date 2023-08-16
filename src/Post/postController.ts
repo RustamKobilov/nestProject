@@ -17,7 +17,8 @@ import { CreateCommentDto, CreatePostDTO, PaginationDTO } from '../DTO';
 import { Response } from 'express';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { CommentService } from '../Comment/commentService';
-
+import { SkipThrottle } from '@nestjs/throttler';
+@SkipThrottle()
 @Controller('posts')
 export class PostController {
   constructor(

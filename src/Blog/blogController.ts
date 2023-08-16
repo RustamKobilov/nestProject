@@ -22,7 +22,8 @@ import { BlogService } from './blogService';
 import { Response } from 'express';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { CommentService } from '../Comment/commentService';
-
+import { SkipThrottle } from '@nestjs/throttler';
+@SkipThrottle()
 @Controller('blogs')
 export class BlogController {
   constructor(private readonly blogService: BlogService) {}

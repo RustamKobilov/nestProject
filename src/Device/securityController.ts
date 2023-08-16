@@ -9,7 +9,8 @@ import {
 } from '@nestjs/common';
 import { DeviceService } from './deviceService';
 import { RefreshTokenGuard } from '../auth/Guard/refreshTokenGuard';
-
+import { SkipThrottle } from '@nestjs/throttler';
+@SkipThrottle()
 @Controller('security')
 export class SecurityController {
   constructor(private readonly devicesService: DeviceService) {}

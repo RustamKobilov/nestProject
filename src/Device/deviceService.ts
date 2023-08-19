@@ -24,7 +24,7 @@ export class DeviceService {
 
     return device;
   }
-  async getDevices(userId: string): Promise<Device> {
+  async getDevices(userId: string): Promise<Device[]> {
     return await this.deviceRepository.getDevices(userId);
   }
   async getLastActiveDateFromRefreshToken(refreshToken: string) {

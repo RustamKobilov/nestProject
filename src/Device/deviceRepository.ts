@@ -87,17 +87,17 @@ export class DeviceRepository {
       deviceId: deviceId,
     });
   }
-  async getDevices(userId: string): Promise<Device> {
+  async getDevices(userId: string): Promise<Device[]> {
     const devices = await this.deviceModel.find({
       userId: userId,
     });
-    if (devices) {
+    if (!devices) {
       throw new NotFoundException('device no, devRep');
     }
     return devices;
   }
   async deleteDevicesExceptForHim(deviceId: string, userId: string) {
-    await this.deviceModel.deleteMany({
+    return await this.deviceModel.deleteMany({
       userId: userId,
       deviceId: { $ne: deviceId },
     });

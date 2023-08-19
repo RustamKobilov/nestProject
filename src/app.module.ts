@@ -5,10 +5,12 @@ import { UserRepository } from './User/userRepository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
+  UserRecoveryPasswordInfo,
   User,
   UserConfirmationInfo,
   UserConfirmationInfoSchema,
   UserSchema,
+  UserRecoveryPasswordInfoSchema,
 } from './User/User';
 import { DeleteBase } from './deleteBase';
 import { Blog, BlogSchema } from './Blog/Blog';
@@ -74,6 +76,10 @@ dotenv.config();
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: UserConfirmationInfo.name, schema: UserConfirmationInfoSchema },
+      {
+        name: UserRecoveryPasswordInfo.name,
+        schema: UserRecoveryPasswordInfoSchema,
+      },
       { name: Blog.name, schema: BlogSchema },
       { name: Post.name, schema: PostSchema },
       { name: ExtendedLikesInfo.name, schema: ExtendedLikesInfoSchema },

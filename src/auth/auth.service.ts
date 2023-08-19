@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../User/userService';
 import { bcriptService } from '../bcryptService';
-import { CreateUserDto } from '../DTO';
+import { CreateUserDto, newPasswordDTO } from '../DTO';
 import { EmailAdapters } from '../adapters/email-adapters';
 import * as dotenv from 'dotenv';
 import { randomUUID } from 'crypto';
@@ -25,7 +25,7 @@ export class AuthService {
   ) {}
 
   async signIn(login, password, ip, title) {
-    const user = await this.usersService.searchUserLoginAndEmail(login);
+    const user = await this.usersService.searchUserByLogin(login);
     if (!user) {
       throw new UnauthorizedException();
     }
@@ -64,6 +64,13 @@ export class AuthService {
   }
 
   async registration(createUserDto: CreateUserDto) {
+    const checkLoginAndEmail = await this.usersService.checkLoginAndEmail(
+      createUserDto.login,
+      createUserDto.email,
+    );
+    if (checkLoginAndEmail) {
+      throw new BadRequestException('email and login busy');
+    }
     const userConfirmationCode =
       await this.usersService.createNewUserRegistration(createUserDto);
     console.log(userConfirmationCode);
@@ -78,9 +85,11 @@ export class AuthService {
       await this.usersService.deleteUserbyConfirmationCode(
         userConfirmationCode,
       );
-      throw new BadRequestException(`If email send out`);
+      console.log('oshibka tyt');
+      return false;
     }
-    return;
+    console.log('good job');
+    return true;
   }
 
   async registrationAttempt(userId: string, ip: string, title: string) {
@@ -135,10 +144,33 @@ export class AuthService {
   async deleteDeviceInLogout(deviceId: string) {
     return await this.deviceService.deleteDevice(deviceId);
   }
+  async recoveryPassword(email: string) {
+    const recoveryCode = randomUUID();
+    const expiredRecoveryCode = 30000;
+    const diesAtDate = new Date(Date.now() + expiredRecoveryCode).toISOString();
+    const user = await this.usersService.checkEmail(email);
+    await this.usersService.passwordRecovery(user.id, recoveryCode, diesAtDate);
+    try {
+      await this.emailAdapters.gmailSendEmailPasswordRecovery(
+        email,
+        recoveryCode,
+      );
+    } catch (error) {
+      console.error('email send out');
+      return false;
+    }
+  }
   //__________ADMIN____________________
   async getDeviceAdmin(deviceId: string) {
     return await this.deviceService.getDeviceAdminById(deviceId);
   }
+
+  async updatePasswordUserAuthService(newPasswordBody: newPasswordDTO) {
+    await this.usersService.updatePasswordUserUserService(newPasswordBody);
+  }
+
+  async getUserAdmin(userId: string) {
+    return await this.usersService.getUsersAdmin(userId);
+  }
 }
 //verify work , service adapter
-//TODO сделать декод на jonwebtoken смотреть проект express HT

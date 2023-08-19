@@ -1,5 +1,10 @@
 import { UserRepository } from './userRepository';
-import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
+import {
+  CreateUserDto,
+  newPasswordDTO,
+  outputModel,
+  UserPaginationDTO,
+} from '../DTO';
 import { User } from './User';
 import { mapObject } from '../mapObject';
 import { bcriptService } from '../bcryptService';
@@ -37,6 +42,10 @@ export class UserService {
         code: randomUUID(),
         expirationCode: addHours(new Date(), 1).toISOString(),
       },
+      recoveryPasswordInfo: {
+        recoveryCode: 'registration password',
+        diesAtDate: 'registration password',
+      },
     };
     await this.userRepository.createUser(user);
     return user;
@@ -50,7 +59,7 @@ export class UserService {
   }
   async getUsers(
     userPagination: UserPaginationDTO,
-  ): Promise<outputModel<User>> {
+  ): Promise<outputModel<UserViewModel>> {
     const pagination = helper.getUserPaginationValues(userPagination);
     const createFilter = this.userRepository.getFilterGetUsers(pagination);
     return await this.userRepository.getUsers(pagination, createFilter);
@@ -64,7 +73,7 @@ export class UserService {
     return await this.userRepository.deleteUser(userId);
   }
 
-  async searchUserLoginAndEmail(login: string): Promise<User> {
+  async searchUserByLogin(login: string): Promise<User> {
     const user = await this.userRepository.getUserByLoginOrEmail(login);
     if (user.userConfirmationInfo.userConformation === false) {
       throw new BadRequestException('confirmation false');
@@ -110,5 +119,48 @@ export class UserService {
     }
     const outputMeModelUserInformation = mapObject.mapMeUserInformation(user);
     return outputMeModelUserInformation;
+  }
+
+  async checkEmail(email: string) {
+    return await this.userRepository.findUserByEmail(email);
+  }
+
+  async checkLoginAndEmail(login: string, email: string) {
+    return await this.userRepository.findUserByLoginAndEmail(login, email);
+  }
+
+  async passwordRecovery(
+    userId: string,
+    recoveryCode: string,
+    diesAtDate: string,
+  ) {
+    return await this.userRepository.recoveryPassword(
+      userId,
+      recoveryCode,
+      diesAtDate,
+    );
+  }
+
+  async updatePasswordUserUserService(newPasswordBody: newPasswordDTO) {
+    const salt = await bcriptService.getSalt(8);
+    const hash = await bcriptService.getHashPassword(
+      newPasswordBody.newPassword,
+      salt,
+    );
+    const resultUpdate =
+      await this.userRepository.updatePasswordUserByRecoveryCode(
+        newPasswordBody.recoveryCode,
+        hash,
+      );
+    if (!resultUpdate) {
+      throw new NotFoundException(
+        'not found recoverycode and expired recoverycode',
+      );
+    }
+    return;
+  }
+
+  async getUsersAdmin(userId: string) {
+    return await this.userRepository.getUser(userId);
   }
 }

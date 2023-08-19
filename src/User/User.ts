@@ -15,6 +15,17 @@ export class UserConfirmationInfo {
 export const UserConfirmationInfoSchema =
   SchemaFactory.createForClass(UserConfirmationInfo);
 
+@Schema({ _id: false, versionKey: false })
+export class UserRecoveryPasswordInfo {
+  @Prop({ type: String, required: true })
+  recoveryCode: string;
+  @Prop({ type: String, required: true })
+  diesAtDate: string;
+}
+export const UserRecoveryPasswordInfoSchema = SchemaFactory.createForClass(
+  UserRecoveryPasswordInfo,
+);
+
 @Schema({ versionKey: false })
 export class User {
   @Prop({ required: true, unique: true, type: String })
@@ -31,6 +42,8 @@ export class User {
   salt: string;
   @Prop({ required: true, type: UserConfirmationInfoSchema })
   userConfirmationInfo: UserConfirmationInfo;
+  @Prop({ required: true, type: UserRecoveryPasswordInfoSchema })
+  recoveryPasswordInfo: UserRecoveryPasswordInfo;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

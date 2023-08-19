@@ -13,7 +13,12 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './Guard/localGuard';
 import { token } from '../Enum';
-import { CreateUserDto, RegistrationConfirmation } from '../DTO';
+import {
+  CreateUserDto,
+  emailPasswordRecoveryDTO,
+  newPasswordDTO,
+  RegistrationConfirmation,
+} from '../DTO';
 import { UserService } from '../User/userService';
 import { JwtAuthGuard } from './Guard/jwtGuard';
 import { RefreshTokenGuard } from './Guard/refreshTokenGuard';
@@ -29,7 +34,19 @@ export class AuthController {
 
   @Post('/registration')
   async registrationUser(@Res() res, @Body() createUserDto: CreateUserDto) {
-    await this.authService.registration(createUserDto);
+    const sendEmailRegistrationUser = await this.authService.registration(
+      createUserDto,
+    );
+    if (!sendEmailRegistrationUser) {
+      return res.status(400).send({
+        errorsMessages: [
+          {
+            message: 'email invalid',
+            field: 'email',
+          },
+        ],
+      });
+    }
     return res.sendStatus(204);
   }
   @Post('/registration-confirmation')
@@ -60,7 +77,7 @@ export class AuthController {
       // secure: true,
     });
     //60000
-    return res.status(200).send(token.accessToken);
+    return res.status(200).send(tokens.accessToken);
     //TODO не забыть поставиь поле accees tokens in body
   }
 
@@ -92,7 +109,7 @@ export class AuthController {
       // secure: true,
     });
     //60000
-    return res.status(200).send(token.accessToken);
+    return res.status(200).send(tokens.accessToken);
 
     //const refreshToken = await req.user.payload.userId.sub;
   }
@@ -129,12 +146,45 @@ export class AuthController {
     );
     return res.status(200).send(outputUser);
   }
+  @Post('/password-recovery')
+  async passwordRecoveryUser(
+    @Res() res,
+    @Req() req,
+    @Body() email: emailPasswordRecoveryDTO,
+  ) {
+    const sendMailRecoveryPassword = await this.authService.recoveryPassword(
+      email.email,
+    );
+    if (!sendMailRecoveryPassword) {
+      return res.status(400).send({
+        errorsMessages: [
+          {
+            message: 'email invalid',
+            field: 'email',
+          },
+        ],
+      });
+    }
+    return res.sendStatus(204);
+  }
+  @Post('/new-password')
+  async updatePasswordUser(
+    @Res() res,
+    @Req() req,
+    @Body() newPasswordBody: newPasswordDTO,
+  ) {
+    const passwordUpdate = await this.authService.updatePasswordUserAuthService(
+      newPasswordBody,
+    );
+    return res.sendStatus(204);
+  }
 
   //___________________________________________________
-  // @Get('/admin/user/:userId')
-  // async userAdmin(@Param('userId') userId: string, @Req() req) {
-  //   return this.userService.getUserAdmin(userId);
-  // }
+  @Get('/admin/user/:userId')
+  async userAdmin(@Param('userId') userId: string, @Req() req) {
+    console.log('admin zapros');
+    return this.authService.getUserAdmin(userId);
+  }
   @Get('/admin/device/:deviceId')
   async getDeviceAdmin(@Param('deviceId') deviceId: string, @Res() res) {
     const device = await this.authService.getDeviceAdmin(deviceId);

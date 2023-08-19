@@ -146,3 +146,15 @@ export class RegistrationConfirmation {
   @Transform(({ value }) => helper.getValueTrim(value))
   code: string;
 }
+export class emailPasswordRecoveryDTO {
+  @IsString()
+  @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+  email: string;
+}
+export class newPasswordDTO {
+  @IsString()
+  @Length(6, 20)
+  newPassword: string;
+  @IsString()
+  recoveryCode: string;
+}

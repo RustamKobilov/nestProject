@@ -7,9 +7,17 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './User';
 import { FilterQuery, Model, UpdateQuery, UpdateWriteOpResult } from 'mongoose';
-import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
+import {
+  CreateUserDto,
+  newPasswordDTO,
+  outputModel,
+  UserPaginationDTO,
+} from '../DTO';
 import { helper } from '../helper';
 import { randomUUID } from 'crypto';
+import { Comment } from '../Comment/Comment';
+import { mapObject } from '../mapObject';
+import { UserViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class UserRepository {
@@ -72,7 +80,7 @@ export class UserRepository {
   async getUsers(
     paginationUser: UserPaginationDTO,
     filter: FilterQuery<UserDocument>[],
-  ): Promise<outputModel<User>> {
+  ): Promise<outputModel<UserViewModel>> {
     const totalCountUser = await this.userModel.count({ $or: filter });
     console.log(totalCountUser);
     const paginationFromHelperForUsers =
@@ -81,6 +89,17 @@ export class UserRepository {
         paginationUser.pageSize,
         totalCountUser,
       );
+    // const sortUser = await this.userModel
+    //   .aggregate([
+    //     { $math: { $or: filter } },
+    //     { $sort: { [paginationUser.sortBy]: paginationUser.sortDirection } },
+    //     { $skip: paginationFromHelperForUsers.skipPage },
+    //     { $limit: paginationUser.pageSize },
+    //   ])
+    //   .exec()
+    //   .catch((err) => {
+    //     return err;
+    //   });
 
     const sortUser = await this.userModel
       .find(
@@ -97,14 +116,20 @@ export class UserRepository {
       .sort({ [paginationUser.sortBy]: paginationUser.sortDirection })
       .skip(paginationFromHelperForUsers.skipPage)
       .limit(paginationUser.pageSize)
-      .lean();
-
+      .lean()
+      .exec();
+    const resultUsers = await Promise.all(
+      sortUser.map(async (user: User) => {
+        const userView = await mapObject.mapUserForViewModel(user);
+        return userView;
+      }),
+    );
     return {
       pagesCount: paginationFromHelperForUsers.totalCount,
       page: paginationUser.pageNumber,
       pageSize: paginationUser.pageSize,
       totalCount: totalCountUser,
-      items: sortUser,
+      items: resultUsers,
     };
   }
 
@@ -147,6 +172,59 @@ export class UserRepository {
       'userConfirmationInfo.code': userConfirmationCode,
     });
     return;
+  }
+  async findUserByEmail(email: string): Promise<User> {
+    const user = await this.userModel.findOne({
+      email: email,
+    });
+    if (!user) {
+      throw new NotFoundException('user  not found');
+    }
+    return user;
+  }
+
+  async findUserByLoginAndEmail(
+    login: string,
+    email: string,
+  ): Promise<User | false> {
+    const user = await this.userModel.findOne({
+      $or: [{ login: login }, { email: email }],
+    });
+    if (!user) {
+      return false;
+    }
+    return user;
+  }
+
+  async recoveryPassword(
+    userId: string,
+    recoveryCode: string,
+    diesAtDate: string,
+  ) {
+    const updateConfirmation: UpdateWriteOpResult =
+      await this.userModel.updateOne(
+        { id: userId },
+        {
+          'recoveryPasswordInfo.recoveryCode': recoveryCode,
+          'recoveryPasswordInfo.diesAtDate': diesAtDate,
+        },
+      );
+    return updateConfirmation.matchedCount === 1;
+  }
+
+  async updatePasswordUserByRecoveryCode(recoveryCode: string, hash: string) {
+    const userPasswordUpdate: UpdateWriteOpResult =
+      await this.userModel.updateOne(
+        {
+          'recoveryPasswordInfo.recoveryCode': recoveryCode,
+          'recoveryPasswordInfo.diesAtDate': { $gte: new Date().toISOString() },
+        },
+        {
+          password: hash,
+        },
+      );
+
+    return userPasswordUpdate.matchedCount === 1;
   }
 }
 

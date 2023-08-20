@@ -36,9 +36,18 @@ export class SecurityController {
 
   @UseGuards(RefreshTokenGuard)
   @Delete('/devices/:deviceId')
-  async deleteDevice(@Param('id') deviceId: string, @Req() req, @Res() res) {
-    if (!deviceId) {
-      throw new BadRequestException('id device not found/ control,dev');
+  async deleteDevice(
+    @Param('deviceId') deviceId: string,
+    @Req() req,
+    @Res() res,
+  ) {
+    const userId = req.refreshTokenPayload.userId;
+    const device = await this.devicesService.getDevice(deviceId);
+    if (!device) {
+      return res.sendStatus(404);
+    }
+    if (device.userId !== userId) {
+      return res.sendStatus(403);
     }
     await this.devicesService.deleteDevice(deviceId);
 

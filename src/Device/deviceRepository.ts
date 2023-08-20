@@ -1,7 +1,14 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Device, DeviceDocument } from './Device';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Post } from '../Post/Post';
+import { mapObject } from '../mapObject';
+import { DeviceViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class DeviceRepository {
@@ -83,25 +90,50 @@ export class DeviceRepository {
   }
 
   async deleteDevice(deviceId: string) {
+    console.log(deviceId);
     return await this.deviceModel.deleteOne({
       deviceId: deviceId,
     });
   }
-  async getDevices(userId: string): Promise<Device[]> {
-    const devices = await this.deviceModel.find({
-      userId: userId,
+  async getDevice(deviceId: string): Promise<Device | false> {
+    const device = await this.deviceModel.findOne({
+      deviceId: deviceId,
     });
-    if (!devices) {
-      throw new NotFoundException('device no, devRep');
+    if (!device) {
+      return false;
     }
-    return devices;
+    return device;
+  }
+  async getDevices(userId: string): Promise<DeviceViewModel[]> {
+    const devices = await this.deviceModel
+      .find({
+        userId: userId,
+      })
+      .exec();
+    const devicesViewModel = await Promise.all(
+      devices.map(async (device: Device) => {
+        const deviceViewModel = await mapObject.mapDevice(device);
+        return deviceViewModel;
+      }),
+    );
+    return devicesViewModel;
   }
   async deleteDevicesExceptForHim(deviceId: string, userId: string) {
-    return await this.deviceModel.deleteMany({
-      userId: userId,
-      deviceId: { $ne: deviceId },
-    });
+    console.log(deviceId);
+    console.log(userId);
+    await this.deviceModel
+      .deleteMany({
+        userId: userId,
+        deviceId: { $ne: deviceId },
+      })
+      .then(function () {
+        console.log('Data deleted'); // Success
+      })
+      .catch(function (error) {
+        console.log(error); // Failure
+      });
   }
+  //TODO не удаляются, все кроме данного, не сраюбатывает запрос
   //_____________________________________________
   async deleteDevicesAdmin() {
     console.log('delete all device');

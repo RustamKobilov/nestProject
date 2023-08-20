@@ -2,6 +2,8 @@ import { DeviceRepository } from './deviceRepository';
 import { Device } from './Device';
 import jwt from 'jsonwebtoken';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { de } from 'date-fns/locale';
+import { DeviceViewModel } from '../viewModelDTO';
 @Injectable()
 export class DeviceService {
   constructor(private deviceRepository: DeviceRepository) {}
@@ -24,7 +26,7 @@ export class DeviceService {
 
     return device;
   }
-  async getDevices(userId: string): Promise<Device[]> {
+  async getDevices(userId: string): Promise<DeviceViewModel[]> {
     return await this.deviceRepository.getDevices(userId);
   }
   async getLastActiveDateFromRefreshToken(refreshToken: string) {
@@ -138,5 +140,8 @@ export class DeviceService {
       userId,
       deviceId,
     );
+  }
+  async getDevice(deviceId: string) {
+    return await this.deviceRepository.getDevice(deviceId);
   }
 }

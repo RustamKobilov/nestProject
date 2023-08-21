@@ -1,12 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Device, DeviceDocument } from './Device';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
-import { Post } from '../Post/Post';
+import { Injectable } from '@nestjs/common';
 import { mapObject } from '../mapObject';
 import { DeviceViewModel } from '../viewModelDTO';
 
@@ -15,11 +10,10 @@ export class DeviceRepository {
   constructor(
     @InjectModel(Device.name) private deviceModel: Model<DeviceDocument>,
   ) {}
-  async checkTokenInbyUserIdAndTitle(
+  async checkTokenInByUserIdAndTitle(
     userId: string,
     title: string,
   ): Promise<Device | false> {
-    console.log('tut repa');
     const device = await this.deviceModel.findOne({
       userId: userId,
       title: title,
@@ -41,7 +35,7 @@ export class DeviceRepository {
     lastActiveDate: string,
     diesAtDate: string,
   ) {
-    const tokenUpdate = await this.deviceModel.updateOne(
+    const tokenUpdate: UpdateWriteOpResult = await this.deviceModel.updateOne(
       { userId: userId, title: title },
       {
         $set: {
@@ -50,22 +44,20 @@ export class DeviceRepository {
         },
       },
     );
-    return;
+    return tokenUpdate.matchedCount === 1;
   }
 
   async checkTokenByDeviceInBase(
     userId: string,
     deviceId: string,
     lastActiveDate: string,
-  ) {
-    console.log('repa');
+  ): Promise<Device | boolean> {
     console.log(userId, deviceId, lastActiveDate);
     const result = await this.deviceModel.findOne({
       userId: userId,
       deviceId: deviceId,
       lastActiveDate: lastActiveDate,
     });
-    console.log(result);
     if (!result) {
       return false;
     }

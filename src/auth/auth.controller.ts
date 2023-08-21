@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -54,9 +55,10 @@ export class AuthController {
     @Body() registrationConfirmation: RegistrationConfirmation,
     @Res() res,
   ) {
-    await this.authService.confirmationUserAfterRegistration(
-      registrationConfirmation.code,
-    );
+    const checkConfirmation =
+      await this.authService.confirmationUserAfterRegistration(
+        registrationConfirmation.code,
+      );
     return res.sendStatus(204);
   }
 
@@ -100,9 +102,9 @@ export class AuthController {
       refreshTokenPayload.userId,
       refreshTokenPayload.deviceId,
     );
-    if (!refreshTokenDevice) {
-      throw new UnauthorizedException('no update Token');
-    }
+    // if (!refreshTokenDevice) {
+    //   throw new UnauthorizedException('no update Token');
+    // }
     res.cookie([token.refreshToken], tokens.refreshToken, {
       expires: new Date(Date.now() + 60000),
       // httpOnly: true,
@@ -138,7 +140,6 @@ export class AuthController {
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {
     const refreshTokenPayload = req.refreshTokenPayload;
-    //TODO null prihodit
     console.log(refreshTokenPayload.id);
     console.log('controller');
     const outputUser = await this.authService.getUserInformation(

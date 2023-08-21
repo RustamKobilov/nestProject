@@ -15,6 +15,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { helper } from '../helper';
 
@@ -22,9 +23,17 @@ import { helper } from '../helper';
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  private async createNewUser(createUserDto: CreateUserDto): Promise<User> {
-    await this.userRepository.checkDuplicateLoginAndEmail(createUserDto);
-
+  private async createNewUser(
+    createUserDto: CreateUserDto,
+    adminCreate: boolean,
+  ): Promise<User> {
+    //TODO realize user add ,confirm true
+    const checkDublicateUser =
+      await this.userRepository.checkDuplicateLoginAndEmail(createUserDto);
+    if (!checkDublicateUser) {
+      throw new UnauthorizedException(`login and email dublicate /userService`);
+      //throw new BadRequestException(`login and email dublicate /userService`);
+    }
     const salt = await bcriptService.getSalt(8);
     const hash = await bcriptService.getHashPassword(
       createUserDto.password,
@@ -47,13 +56,16 @@ export class UserService {
         diesAtDate: 'registration password',
       },
     };
+    if (adminCreate === true) {
+      user.userConfirmationInfo.userConformation = true;
+    }
     await this.userRepository.createUser(user);
     return user;
   }
   async createUserOutputUserViewModel(
     createUserDto: CreateUserDto,
   ): Promise<UserViewModel> {
-    const user = await this.createNewUser(createUserDto);
+    const user = await this.createNewUser(createUserDto, true);
     const outputUserModel = mapObject.mapUserForViewModel(user);
     return outputUserModel;
   }
@@ -68,15 +80,19 @@ export class UserService {
   async deleteUser(userId: string) {
     const user = await this.userRepository.getUser(userId);
     if (!user) {
-      throw new NotFoundException(`If specified user is not exists`);
+      throw new NotFoundException(`userId not found /userService`);
     }
     return await this.userRepository.deleteUser(userId);
   }
 
   async searchUserByLogin(login: string): Promise<User> {
     const user = await this.userRepository.getUserByLoginOrEmail(login);
+    if (!user) {
+      throw new BadRequestException('loginOrEmail not found user /userService');
+    }
     if (user.userConfirmationInfo.userConformation === false) {
-      throw new BadRequestException('confirmation false');
+      throw new UnauthorizedException('code not confirmation /userService');
+      //throw new BadRequestException('code not confirmation /userService');
     }
     return user;
   }
@@ -84,15 +100,21 @@ export class UserService {
     const user = await await this.userRepository.getCodeConfirmationByUserId(
       code,
     );
+    if (!user) {
+      throw new NotFoundException('code not found for user /userService');
+    }
     if (user.userConfirmationInfo.userConformation === true) {
-      throw new BadRequestException('user not found by cod');
+      throw new UnauthorizedException('code  steal /userService');
+      //throw new BadRequestException('code  steal /userService');
     }
     const dateNow = new Date(new Date().getTime());
     const dateCode = new Date(
       new Date(user.userConfirmationInfo.expirationCode).getTime(),
     );
     if (dateCode < dateNow) {
-      throw new BadRequestException('user confirmation time expire');
+      throw new BadRequestException(
+        'code confirmation time expire /userService',
+      );
     }
     await this.userRepository.updateCodeConfirmationByUserId(user.id);
     return;
@@ -100,7 +122,7 @@ export class UserService {
   async createNewUserRegistration(
     createUserDto: CreateUserDto,
   ): Promise<string> {
-    const user = await this.createNewUser(createUserDto);
+    const user = await this.createNewUser(createUserDto, false);
     return user.userConfirmationInfo.code;
   }
 
@@ -112,21 +134,28 @@ export class UserService {
 
   async getUserInformation(userId: string): Promise<MeViewModel> {
     const user = await this.userRepository.getUser(userId);
-    console.log('service');
-    console.log(user);
     if (!user) {
-      throw new NotFoundException('user not found');
+      throw new NotFoundException('userId user not found /userService');
     }
     const outputMeModelUserInformation = mapObject.mapMeUserInformation(user);
     return outputMeModelUserInformation;
   }
 
   async checkEmail(email: string) {
-    return await this.userRepository.findUserByEmail(email);
+    const user = await this.userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new NotFoundException('email not found for user /userService');
+    }
+    return user;
   }
 
   async checkLoginAndEmail(login: string, email: string) {
-    return await this.userRepository.findUserByLoginAndEmail(login, email);
+    const checkLoginAndEmail =
+      await this.userRepository.findUserByLoginAndEmail(login, email);
+    if (checkLoginAndEmail) {
+      throw new BadRequestException('email and login busy');
+    }
+    return;
   }
 
   async passwordRecovery(
@@ -154,13 +183,17 @@ export class UserService {
       );
     if (!resultUpdate) {
       throw new NotFoundException(
-        'not found recoverycode and expired recoverycode',
+        'recoverycode not found, expired recoverycode /userService',
       );
     }
     return;
   }
 
   async getUsersAdmin(userId: string) {
-    return await this.userRepository.getUser(userId);
+    const user = await this.userRepository.getUser(userId);
+    if (!user) {
+      throw new NotFoundException(`userId not found /userService`);
+    }
+    return user;
   }
 }

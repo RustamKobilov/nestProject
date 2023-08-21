@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  NotFoundException,
   Param,
   Post,
   Query,

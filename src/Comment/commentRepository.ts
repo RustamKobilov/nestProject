@@ -22,14 +22,14 @@ export class CommentRepository {
   async getCommentForUser(
     commentId: string,
     user: User,
-  ): Promise<CommentDocument | OutputCommentType> {
+  ): Promise<CommentDocument | OutputCommentType | false> {
     const commentForUser = await this.commentModel.findOne(
       { id: commentId },
       { postId: false, _id: false },
     );
 
     if (!commentForUser) {
-      throw new NotFoundException('comment not found');
+      return false;
     }
     const searchReaction =
       await this.reactionRepository.getReactionUserForParent(
@@ -62,8 +62,7 @@ export class CommentRepository {
   }
 
   async deleteComment(commentId: string) {
-    await this.commentModel.deleteOne({ id: commentId });
-    return;
+    return await this.commentModel.deleteOne({ id: commentId });
   }
 
   async updateCountReactionComment(

@@ -1,6 +1,6 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './Post';
-import { Model } from 'mongoose';
+import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
@@ -80,16 +80,15 @@ export class PostRepository {
       items: sortPost,
     };
   }
-  async getPost(postId: string): Promise<Post> {
+  async getPost(postId: string): Promise<Post | false> {
     const post = await this.postModel.findOne({ id: postId });
     if (!post) {
-      throw new NotFoundException('If specified blog is not exists');
+      return false;
     }
     return post;
   }
   async updatePost(postId: string, updatePostDto: CreatePostDTO) {
-    await this.getPost(postId);
-    const updatePost = await this.postModel.updateOne(
+    const updatePost: UpdateWriteOpResult = await this.postModel.updateOne(
       { id: postId },
       {
         title: updatePostDto.title,
@@ -98,11 +97,10 @@ export class PostRepository {
         blogId: updatePostDto.blogId,
       },
     );
-    return;
+    return updatePost.matchedCount === 1;
   }
   async deletePost(postId: string) {
-    await this.postModel.deleteOne({ id: postId });
-    return;
+    return await this.postModel.deleteOne({ id: postId });
   }
 
   async getPostsForBlogUser(

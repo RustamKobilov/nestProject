@@ -26,9 +26,6 @@ export class AuthService {
 
   async signIn(login, password, ip, title) {
     const user = await this.usersService.searchUserByLogin(login);
-    if (!user) {
-      throw new UnauthorizedException();
-    }
     const resultCompare = await bcriptService.comparePassword(
       password,
       user.password,
@@ -57,7 +54,7 @@ export class AuthService {
     );
     if (!resultCheckTokenInBase) {
       throw new UnauthorizedException(
-        'refreshtoken ykrali, ispolzavali starye',
+        'refreshtoken ykrali, ispolzavali starye /authService ',
       );
     }
     return true;
@@ -68,9 +65,6 @@ export class AuthService {
       createUserDto.login,
       createUserDto.email,
     );
-    if (checkLoginAndEmail) {
-      throw new BadRequestException('email and login busy');
-    }
     const userConfirmationCode =
       await this.usersService.createNewUserRegistration(createUserDto);
     console.log(userConfirmationCode);

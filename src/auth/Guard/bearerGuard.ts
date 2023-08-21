@@ -16,7 +16,9 @@ export class BearerGuard implements CanActivate {
     // we use a hardcoded string to validate the user for sake of simplicity
     const inputToken = request.headers.authorization;
     if (!inputToken) {
-      throw new UnauthorizedException('not found authorization token');
+      throw new UnauthorizedException(
+        'not found authorization token /bearerGuard',
+      );
     }
     const [typeToken, token] = inputToken.split(' ');
     if (typeToken !== 'Bearer' || !token) {
@@ -24,11 +26,11 @@ export class BearerGuard implements CanActivate {
     }
     const payload = await this.jwtService.verifyToken(token);
     if (!payload) {
-      throw new UnauthorizedException('verify failed');
+      throw new UnauthorizedException('verify failed /bearerGuard');
     }
     const user = await this.userRepository.getUser(payload.userId);
     if (!user) {
-      throw new UnauthorizedException('user not found');
+      throw new UnauthorizedException('user not found /bearerGuard');
     }
     request.user = user;
     return true;

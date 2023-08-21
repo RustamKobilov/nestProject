@@ -20,13 +20,21 @@ export class CommentService {
   async getComment(commentId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException('comment not found');
+      throw new NotFoundException(
+        'commentId not found for comment /commentService',
+      );
     }
     return comment;
   }
 
   async getCommentOnIdForUser(id: string, user: User) {
-    return this.commentRepository.getCommentForUser(id, user);
+    const comment = await this.commentRepository.getCommentForUser(id, user);
+    if (!comment) {
+      throw new NotFoundException(
+        'commentId not found for comment /commentService',
+      );
+    }
+    return comment;
   }
 
   async createCommentForPost(postId: string, content: string, user: User) {
@@ -60,9 +68,7 @@ export class CommentService {
       content,
     );
     if (!updateResult) {
-      throw new NotFoundException(
-        'comment ne obnovilsya, CommentService ,update',
-      );
+      throw new NotFoundException('comment no update /commentService');
     }
     return;
   }
@@ -70,7 +76,9 @@ export class CommentService {
   async deleteComment(commentId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException('comment not found CommentService ,delete');
+      throw new NotFoundException(
+        'commentId not found for comment /commentService',
+      );
     }
     return await this.commentRepository.deleteComment(commentId);
   }
@@ -82,7 +90,9 @@ export class CommentService {
   ) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException('comment not found CommentService ,delete');
+      throw new NotFoundException(
+        'commentId not found for comment /commentService',
+      );
     }
     const updateReaction = await this.reactionRepository.getCountLikeStatusUser(
       comment.id,
@@ -102,7 +112,7 @@ export class CommentService {
         updateReaction.dislikesCount,
       );
     if (!updateCountLike) {
-      throw new NotFoundException('no update reaction');
+      throw new NotFoundException('no update reaction /commentService');
     }
     return;
   }
@@ -110,7 +120,9 @@ export class CommentService {
   async getCommentViewModel(commentId: string): Promise<CommentViewModel> {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException('comment not found');
+      throw new NotFoundException(
+        'commentId not found for comment /commentService',
+      );
     }
     const commentViewModel = mapObject.mapComment(comment);
     return commentViewModel;

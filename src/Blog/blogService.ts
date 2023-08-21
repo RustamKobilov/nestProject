@@ -1,5 +1,5 @@
 import { BlogRepository } from './blogRepository';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   BlogPaginationDTO,
   CreateBlogDTO,
@@ -38,6 +38,9 @@ export class BlogService {
 
   async getBlog(blogId: string): Promise<BlogViewModel> {
     const blog = await this.blogRepository.getBlog(blogId);
+    if (!blog) {
+      throw new NotFoundException('blogId not found for blog /blogService');
+    }
     const outputBlogModel = mapObject.mapBlogForViewModel(blog);
     return outputBlogModel;
   }
@@ -50,21 +53,41 @@ export class BlogService {
   }
 
   async updateBlog(blogId: string, updateBlogDto: CreateBlogDTO) {
-    return this.blogRepository.updateBlog(blogId, updateBlogDto);
+    const blog = await this.blogRepository.getBlog(blogId);
+    if (!blog) {
+      throw new NotFoundException('blogId not found for blog /blogService');
+    }
+    const updateBlog = await this.blogRepository.updateBlog(
+      blogId,
+      updateBlogDto,
+    );
+    if (!updateBlog) {
+      throw new NotFoundException('blog not update /blogService');
+    }
+    return;
   }
 
   async deleteBlog(blogId: string) {
-    await this.blogRepository.getBlog(blogId);
+    const blog = await this.blogRepository.getBlog(blogId);
+    if (!blog) {
+      throw new NotFoundException('blogId not found for blog /blogService');
+    }
     return this.blogRepository.deleteBlog(blogId);
   }
   async getPostsbyBlog(blogId: string, postPagination: PaginationDTO) {
-    await this.blogRepository.getBlog(blogId);
+    const blog = await this.blogRepository.getBlog(blogId);
+    if (!blog) {
+      throw new NotFoundException('blogId not found for blog /blogService');
+    }
     const pagination = helper.getPostPaginationValues(postPagination);
     const filter = { blogId: blogId };
     return this.postService.getPostsByBlog(pagination, filter);
   }
   async createPostByBlog(createPostDto: CreatePostByBlogDTO, blogId: string) {
-    await this.blogRepository.getBlog(blogId);
+    const blog = await this.blogRepository.getBlog(blogId);
+    if (!blog) {
+      throw new NotFoundException('blogId not found for blog /blogService');
+    }
     const postByBlog = { ...createPostDto, blogId };
     return this.postService.createNewPost(postByBlog);
   }

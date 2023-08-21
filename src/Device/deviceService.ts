@@ -1,7 +1,11 @@
 import { DeviceRepository } from './deviceRepository';
 import { Device } from './Device';
 import jwt from 'jsonwebtoken';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { de } from 'date-fns/locale';
 import { DeviceViewModel } from '../viewModelDTO';
 @Injectable()
@@ -75,12 +79,16 @@ export class DeviceService {
       refreshToken,
     );
     const diesAtDate = await this.getDiesAtDate(refreshToken);
-    await this.deviceRepository.updateExpiredTimeTokenInBaseByDevice(
-      userId,
-      title,
-      lastActiveDate,
-      diesAtDate,
-    );
+    const deviceUpdate =
+      await this.deviceRepository.updateExpiredTimeTokenInBaseByDevice(
+        userId,
+        title,
+        lastActiveDate,
+        diesAtDate,
+      );
+    if (!deviceUpdate) {
+      throw new BadRequestException('deviceId no update /deviceService');
+    }
     return;
   }
 
@@ -88,9 +96,7 @@ export class DeviceService {
     userId: string,
     title: string,
   ): Promise<Device | false> {
-    console.log('tut');
-    console.log(userId, title);
-    return await this.deviceRepository.checkTokenInbyUserIdAndTitle(
+    return await this.deviceRepository.checkTokenInByUserIdAndTitle(
       userId,
       title,
     );
@@ -99,7 +105,7 @@ export class DeviceService {
     userId: string,
     deviceId: string,
     lastActiveDate: string,
-  ) {
+  ): Promise<Device | boolean> {
     return await this.deviceRepository.checkTokenByDeviceInBase(
       userId,
       deviceId,
@@ -115,13 +121,19 @@ export class DeviceService {
     const lastActiveDate = await this.getLastActiveDateFromRefreshToken(
       refreshToken,
     );
-
-    return await this.deviceRepository.refreshTokenDeviceInBase(
-      userId,
-      deviceId,
-      lastActiveDate,
-      diesAtDate,
-    );
+    const updateRefreshTokenDevice =
+      await this.deviceRepository.refreshTokenDeviceInBase(
+        userId,
+        deviceId,
+        lastActiveDate,
+        diesAtDate,
+      );
+    if (!updateRefreshTokenDevice) {
+      throw new BadRequestException(
+        'refreshTokenDevice no update /deviceService',
+      );
+    }
+    return;
   }
   async deleteAdmin() {
     return await this.deviceRepository.deleteDevicesAdmin();
@@ -132,6 +144,12 @@ export class DeviceService {
   }
 
   async deleteDevice(deviceId: string) {
+    const device = await this.deviceRepository.getDevice(deviceId);
+    if (!device) {
+      throw new BadRequestException(
+        'deviceId not found for device /deviceService',
+      );
+    }
     return await this.deviceRepository.deleteDevice(deviceId);
   }
 
@@ -142,6 +160,12 @@ export class DeviceService {
     );
   }
   async getDevice(deviceId: string) {
-    return await this.deviceRepository.getDevice(deviceId);
+    const device = await this.deviceRepository.getDevice(deviceId);
+    if (!device) {
+      throw new BadRequestException(
+        'deviceId not found for device /deviceService',
+      );
+    }
+    return device;
   }
 }

@@ -16,11 +16,29 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const errorResponse = {
         errorsMessages: [],
       };
-      return response.status(status).send(errorResponse);
+      const resp: any = exception.getResponse();
+      try {
+        resp.message.forEach((x) =>
+          errorResponse.errorsMessages.push(x as never),
+        );
+        //TODO never?
+        return response.status(status).json(errorResponse);
+      } catch (e) {
+        const fieldRandom = exception.message.split(' ')[0];
+        return response.status(status).json({
+          errorsMessages: [
+            {
+              message: exception.message,
+              field: fieldRandom,
+            },
+          ],
+        });
+      }
     }
     response.status(status).json({
-      message: exception.message,
-      field: 'fggg',
+      statusCode: status,
+      timestamp: new Date().toISOString(),
+      path: request.url,
     });
   }
 }

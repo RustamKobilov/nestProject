@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from './Blog';
-import { FilterQuery, Model } from 'mongoose';
+import { FilterQuery, Model, UpdateWriteOpResult } from 'mongoose';
 import {
   BlogPaginationDTO,
   CreateBlogDTO,
@@ -81,16 +81,15 @@ export class BlogRepository {
     };
   }
 
-  async getBlog(blogId: string): Promise<Blog> {
+  async getBlog(blogId: string): Promise<Blog | false> {
     const blog = await this.blogModel.findOne({ id: blogId });
     if (!blog) {
-      throw new NotFoundException('If specified blog is not exists');
+      return false;
     }
     return blog;
   }
   async updateBlog(blogId: string, updateBlogDto: CreateBlogDTO) {
-    await this.getBlog(blogId);
-    const updateBlog = await this.blogModel.updateOne(
+    const updateBlog: UpdateWriteOpResult = await this.blogModel.updateOne(
       { id: blogId },
       {
         name: updateBlogDto.name,
@@ -98,11 +97,10 @@ export class BlogRepository {
         websiteUrl: updateBlogDto.websiteUrl,
       },
     );
-    return;
+    return updateBlog.matchedCount === 1;
   }
 
   async deleteBlog(blogId: string) {
-    await this.blogModel.deleteOne({ id: blogId });
-    return;
+    return await this.blogModel.deleteOne({ id: blogId });
   }
 }

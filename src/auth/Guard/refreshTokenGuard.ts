@@ -18,12 +18,13 @@ export class RefreshTokenGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const refreshToken = request.cookies.refreshToken;
-    if (!refreshToken) throw new UnauthorizedException();
+    if (!refreshToken)
+      throw new UnauthorizedException('refresh token not found /refreshGuard');
     const payload = await this.jwtService.verifyToken(refreshToken);
-    if (!payload) throw new UnauthorizedException();
+    if (!payload)
+      throw new UnauthorizedException('verify failed /refreshGuard');
     const user = await this.userRepository.getUser(payload.userId);
-    if (!user) throw new UnauthorizedException();
-    console.log('payload v refresh guard');
+    if (!user) throw new UnauthorizedException('user not found /refreshGuard');
     console.log(payload);
     //request.user = user;
     request.refreshTokenPayload = payload;

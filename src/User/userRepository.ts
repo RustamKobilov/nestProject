@@ -34,11 +34,11 @@ export class UserRepository {
     const userCount = await this.userModel.count({
       $or: [searchLogin, searchEmail],
     });
-
+    console.log(userCount);
     if (userCount > 0) {
-      throw new BadRequestException(`login and email dublicate`);
+      return false;
     }
-    return;
+    return true;
   }
 
   async createUser(newUser: User) {
@@ -48,12 +48,7 @@ export class UserRepository {
   }
 
   async getUser(userId: string): Promise<User | null> {
-    console.log('zahli v repy');
-    console.log(userId);
-    console.log('ttt');
     const user = await this.userModel.findOne({ id: userId });
-    console.log(user);
-    console.log('vyshli s repy');
     return user;
   }
 
@@ -138,21 +133,21 @@ export class UserRepository {
     return;
   }
 
-  async getUserByLoginOrEmail(loginOrEmail: string): Promise<User> {
+  async getUserByLoginOrEmail(loginOrEmail: string): Promise<User | false> {
     const user = await this.userModel.findOne({
       $or: [{ login: loginOrEmail }, { email: loginOrEmail }],
     });
     if (!user) {
-      throw new BadRequestException('login and email not found');
+      return false;
     }
     return user;
   }
-  async getCodeConfirmationByUserId(code: string): Promise<User> {
+  async getCodeConfirmationByUserId(code: string): Promise<User | false> {
     const user = await this.userModel.findOne({
       'userConfirmationInfo.code': code,
     });
     if (!user) {
-      throw new NotFoundException('usercode  not found');
+      return false;
     }
     return user;
   }
@@ -173,12 +168,12 @@ export class UserRepository {
     });
     return;
   }
-  async findUserByEmail(email: string): Promise<User> {
+  async findUserByEmail(email: string): Promise<User | false> {
     const user = await this.userModel.findOne({
       email: email,
     });
     if (!user) {
-      throw new NotFoundException('user  not found');
+      return false;
     }
     return user;
   }

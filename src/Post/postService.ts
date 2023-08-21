@@ -6,7 +6,7 @@ import { randomUUID } from 'crypto';
 import { likeStatus } from '../Enum';
 import { mapObject } from '../mapObject';
 import { PostViewModel } from '../viewModelDTO';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { helper } from '../helper';
 import { FilterQuery } from 'mongoose';
 
@@ -19,6 +19,9 @@ export class PostService {
 
   async createNewPost(createPostDto: CreatePostDTO): Promise<PostViewModel> {
     const blog = await this.blogRepository.getBlog(createPostDto.blogId);
+    if (!blog) {
+      throw new NotFoundException('blogId not found for blog /postService');
+    }
     const post: Post = {
       id: randomUUID(),
       title: createPostDto.title,
@@ -50,16 +53,34 @@ export class PostService {
     console.log(pagination);
     return await this.postRepository.getPostsForBlog(pagination, filter);
   }
-  async getPost(postId: string): Promise<Post> {
-    return await this.postRepository.getPost(postId);
+  async getPost(postId: string): Promise<Post | false> {
+    const post = await this.postRepository.getPost(postId);
+    if (!post) {
+      throw new NotFoundException('postId not found post /postService');
+    }
+    return post;
   }
 
   async updatePost(postId: string, updatePostDto: CreatePostDTO) {
-    return this.postRepository.updatePost(postId, updatePostDto);
+    const post = await this.getPost(postId);
+    if (!post) {
+      throw new NotFoundException('postId not found post /postService');
+    }
+    const updatePost = await this.postRepository.updatePost(
+      postId,
+      updatePostDto,
+    );
+    if (!updatePost) {
+      throw new NotFoundException('postId not update post /postService');
+    }
+    return;
   }
 
   async deletePost(postId: string) {
-    await this.postRepository.getPost(postId);
+    const post = await this.postRepository.getPost(postId);
+    if (!post) {
+      throw new NotFoundException('postId not found post /postService');
+    }
     return this.postRepository.deletePost(postId);
   }
   async getPostForBlogUser(

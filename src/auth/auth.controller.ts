@@ -78,7 +78,6 @@ export class AuthController {
       // httpOnly: true,
       // secure: true,
     });
-    //60000
     return res.status(200).send(tokens.accessToken);
     //TODO не забыть поставиь поле accees tokens in body
   }

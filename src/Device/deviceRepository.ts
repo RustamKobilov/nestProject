@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Device, DeviceDocument } from './Device';
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { mapObject } from '../mapObject';
 import { DeviceViewModel } from '../viewModelDTO';
 
@@ -110,22 +110,17 @@ export class DeviceRepository {
     );
     return devicesViewModel;
   }
+  //название класса implements OnModuleInit
+  // async onModuleInit() {
+  //   console.log(await this.deviceModel.find());
+  // }
+  //TODO запрос в базу
   async deleteDevicesExceptForHim(deviceId: string, userId: string) {
-    console.log(deviceId);
-    console.log(userId);
-    await this.deviceModel
-      .deleteMany({
-        userId: userId,
-        deviceId: { $ne: deviceId },
-      })
-      .then(function () {
-        console.log('Data deleted'); // Success
-      })
-      .catch(function (error) {
-        console.log(error); // Failure
-      });
+    await this.deviceModel.deleteMany({
+      userId: userId,
+      deviceId: { $ne: deviceId },
+    });
   }
-  //TODO не удаляются, все кроме данного, не сраюбатывает запрос
   //_____________________________________________
   async deleteDevicesAdmin() {
     console.log('delete all device');

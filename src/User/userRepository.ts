@@ -177,6 +177,15 @@ export class UserRepository {
     }
     return user;
   }
+  async findUserByLogin(login: string): Promise<User | false> {
+    const user = await this.userModel.findOne({
+      login: login,
+    });
+    if (!user) {
+      return false;
+    }
+    return user;
+  }
 
   async findUserByLoginAndEmail(
     login: string,

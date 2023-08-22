@@ -25,6 +25,7 @@ export class PostController {
     private readonly postService: PostService,
     private readonly commentService: CommentService,
   ) {}
+  @UseGuards(BearerGuard)
   @Post()
   async createPost(@Body() createPostDto: CreatePostDTO) {
     return this.postService.createNewPost(createPostDto);

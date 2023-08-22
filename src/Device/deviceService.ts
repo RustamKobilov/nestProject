@@ -155,8 +155,8 @@ export class DeviceService {
 
   async deleteDevicesUserExceptForHim(userId: string, deviceId: string) {
     return await this.deviceRepository.deleteDevicesExceptForHim(
-      userId,
       deviceId,
+      userId,
     );
   }
   async getDevice(deviceId: string) {

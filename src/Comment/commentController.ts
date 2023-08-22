@@ -62,7 +62,7 @@ export class CommentController {
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)
-  @UseGuards(AuthCommentForUserGuard)
+  //@UseGuards(AuthCommentForUserGuard)
   @Put('/:id')
   async updateLikeStatus(
     @Param('id') commentId: string,
@@ -78,4 +78,3 @@ export class CommentController {
     return res.sendStatus(204);
   }
 }
-//TODO сделать логику не автор.пользователя и авториз.комменты

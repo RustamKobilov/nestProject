@@ -27,7 +27,6 @@ export class UserService {
     createUserDto: CreateUserDto,
     adminCreate: boolean,
   ): Promise<User> {
-    //TODO realize user add ,confirm true
     const checkDublicateUser =
       await this.userRepository.checkDuplicateLoginAndEmail(createUserDto);
     if (!checkDublicateUser) {

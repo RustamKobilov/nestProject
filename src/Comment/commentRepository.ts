@@ -156,7 +156,7 @@ export class CommentRepository {
     //       .skip(paginationFromHelperForComments.skipPage)
     //       .limit(pagination.pageSize)
     //       .lean();
-    //TODO 2 errorrs typy method , agregate может быть
+
     const resultCommentsAddLikes = await Promise.all(
       sortCommentsForPosts.map(async (comment: Comment) => {
         const commentUpgrade = await mapObject.mapComment(comment);

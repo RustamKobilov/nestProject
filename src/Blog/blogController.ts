@@ -20,9 +20,10 @@ import {
 } from '../DTO';
 import { BlogService } from './blogService';
 import { Response } from 'express';
-import { BearerGuard } from '../auth/Guard/bearerGuard';
-import { CommentService } from '../Comment/commentService';
 import { SkipThrottle } from '@nestjs/throttler';
+import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
+import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
+
 @SkipThrottle()
 @Controller('blogs')
 export class BlogController {
@@ -35,10 +36,12 @@ export class BlogController {
   async getBlog(@Param('id') blogId: string) {
     return this.blogService.getBlog(blogId);
   }
+  @UseGuards(BasicAuthorizationGuard)
   @Post()
   async createBlog(@Body() createBlogDto: CreateBlogDTO) {
     return this.blogService.createNewBlog(createBlogDto);
   }
+  @UseGuards(BasicAuthorizationGuard)
   @Put('/:id')
   async updateBlog(
     @Param('id') blogId: string,
@@ -48,12 +51,13 @@ export class BlogController {
     await this.blogService.updateBlog(blogId, updateBlogDto);
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
+  @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
   async deleteBlog(@Param('id') blogId: string, @Res() res: Response) {
     await this.blogService.deleteBlog(blogId);
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
-  @UseGuards(BearerGuard)
+  @UseGuards(IdenteficationUserGuard)
   @Get('/:id/posts')
   async getPostsByBlog(
     @Query() getPagination: PaginationDTO,
@@ -78,7 +82,7 @@ export class BlogController {
     );
     return res.status(200).send(resultAllPostsByBlog);
   }
-  @UseGuards(BearerGuard)
+  @UseGuards(BasicAuthorizationGuard)
   @Post('/:id/posts')
   async createPostByBlog(
     @Body() createPostDto: CreatePostByBlogDTO,

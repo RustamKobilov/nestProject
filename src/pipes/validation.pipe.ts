@@ -12,7 +12,7 @@ const prepareErrorResult = (errors: ValidationError[]) => {
   });
   return result;
 };
-//TODO почему не работает без /as never 11 строка//как он ругается на все знаки?
+
 export const GlobalValidationPipe = new ValidationPipe({
   whitelist: true,
   transform: true,

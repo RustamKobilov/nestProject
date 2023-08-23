@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as dotenv from 'dotenv';
 import { appSetting } from './appSetting';
+import { useContainer } from 'class-validator';
 dotenv.config();
 
 async function bootstrap() {

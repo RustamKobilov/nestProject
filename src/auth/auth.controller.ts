@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -8,7 +7,6 @@ import {
   Post,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -20,11 +18,9 @@ import {
   newPasswordDTO,
   RegistrationConfirmation,
 } from '../DTO';
-import { UserService } from '../User/userService';
-import { JwtAuthGuard } from './Guard/jwtGuard';
 import { RefreshTokenGuard } from './Guard/refreshTokenGuard';
 import { JwtServices } from '../application/jwtService';
-import { SkipThrottle, Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {

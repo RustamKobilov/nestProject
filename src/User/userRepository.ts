@@ -1,21 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './User';
-import { FilterQuery, Model, UpdateQuery, UpdateWriteOpResult } from 'mongoose';
-import {
-  CreateUserDto,
-  newPasswordDTO,
-  outputModel,
-  UserPaginationDTO,
-} from '../DTO';
+import { FilterQuery, Model, UpdateWriteOpResult } from 'mongoose';
+import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
 import { helper } from '../helper';
-import { randomUUID } from 'crypto';
-import { Comment } from '../Comment/Comment';
 import { mapObject } from '../mapObject';
 import { UserViewModel } from '../viewModelDTO';
 

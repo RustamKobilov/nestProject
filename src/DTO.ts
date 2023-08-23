@@ -11,19 +11,23 @@ import { Transform, Type } from 'class-transformer';
 import { helper } from './helper';
 import { CommentatorInfo, LikesInfo } from './Comment/Comment';
 import { likeStatus } from './Enum';
+import { IsEmailNoUnique } from './pipes/customValidator';
 
 export class CreateUserDto {
   @IsString()
   @Length(3, 10)
   @Matches(/^[a-zA-Z0-9_-]*$/)
   login: string;
-
+  //TODO сообразил. теперь надо раскинуть . на логин
   @IsString()
   @Length(6, 20)
   password: string;
 
   @IsString()
   @Matches(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)
+  @IsEmailNoUnique({
+    message: 'User $value busy. Decorator /DTO.',
+  })
   email: string;
 }
 
@@ -132,7 +136,7 @@ export type OutputCommentType = {
   likesInfo: LikesInfo;
 };
 
-export class LoginDto {
+export class LoginDtoStrategy {
   @IsString()
   @Transform(({ value }) => helper.getValueTrim(value))
   login: string;

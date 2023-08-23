@@ -28,6 +28,7 @@ export class UserController {
   @UseGuards(BasicAuthorizationGuard)
   @Post()
   createUser(@Body() createUserDto: CreateUserDto) {
+    console.log('tyt');
     return this.userService.createUserOutputUserViewModel(createUserDto);
   }
   @UseGuards(BasicAuthorizationGuard)

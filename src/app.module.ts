@@ -165,10 +165,10 @@ dotenv.config();
     JwtServices,
     isEmailNoUniqueValidate,
     IsLoginNoUniqueValidate,
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ThrottlerGuard,
-    // },
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

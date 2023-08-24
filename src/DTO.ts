@@ -11,12 +11,15 @@ import { Transform, Type } from 'class-transformer';
 import { helper } from './helper';
 import { CommentatorInfo, LikesInfo } from './Comment/Comment';
 import { likeStatus } from './Enum';
-import { IsEmailNoUnique } from './pipes/customValidator';
+import { IsEmailNoUnique, IsLoginNoUnique } from './pipes/customValidator';
 
 export class CreateUserDto {
   @IsString()
   @Length(3, 10)
   @Matches(/^[a-zA-Z0-9_-]*$/)
+  @IsLoginNoUnique({
+    message: 'User $value busy. Decorator /DTO.',
+  })
   login: string;
   //TODO сообразил. теперь надо раскинуть . на логин
   @IsString()

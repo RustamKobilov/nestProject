@@ -21,7 +21,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
         resp.message.forEach((x) =>
           errorResponse.errorsMessages.push(x as never),
         );
-        //TODO never? conso0le.log(user.repository)
         return response.status(status).json(errorResponse);
       } catch (e) {
         const fieldRandom = exception.message.split(' ')[0];

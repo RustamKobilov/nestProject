@@ -133,7 +133,7 @@ export class AuthService {
     await this.usersService.confirmationUser(code);
   }
   async getUserInformation(id: string) {
-    await this.usersService.getUserInformation(id);
+    return await this.usersService.getUserInformation(id);
   }
   async deleteDeviceInLogout(deviceId: string) {
     return await this.deviceService.deleteDevice(deviceId);

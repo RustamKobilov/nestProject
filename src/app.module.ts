@@ -59,7 +59,10 @@ import { ReactionRepository } from './Like/reactionRepository';
 import { Reaction, ReactionSchema } from './Like/Reaction';
 import { SecurityController } from './Device/securityController';
 import { JwtServices } from './application/jwtService';
-import { isEmailNoUniqueValidate } from './pipes/customValidator';
+import {
+  isEmailNoUniqueValidate,
+  IsLoginNoUniqueValidate,
+} from './pipes/customValidator';
 dotenv.config();
 
 @Module({
@@ -161,10 +164,11 @@ dotenv.config();
     ReactionRepository,
     JwtServices,
     isEmailNoUniqueValidate,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    IsLoginNoUniqueValidate,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AppModule {}

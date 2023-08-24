@@ -74,7 +74,7 @@ export class AuthController {
       // httpOnly: true,
       // secure: true,
     });
-    return res.status(200).send(tokens.accessToken);
+    return res.status(200).send({ accessToken: tokens.accessToken });
     //TODO не забыть поставиь поле accees tokens in body
   }
 
@@ -106,7 +106,7 @@ export class AuthController {
       // secure: true,
     });
     //60000
-    return res.status(200).send(tokens.accessToken);
+    return res.status(200).send({ accessToken: tokens.accessToken });
 
     //const refreshToken = await req.user.payload.userId.sub;
   }
@@ -135,10 +135,10 @@ export class AuthController {
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {
     const refreshTokenPayload = req.refreshTokenPayload;
-    console.log(refreshTokenPayload.id);
+    console.log(refreshTokenPayload.userId);
     console.log('controller');
     const outputUser = await this.authService.getUserInformation(
-      refreshTokenPayload.id,
+      refreshTokenPayload.userId,
     );
     return res.status(200).send(outputUser);
   }

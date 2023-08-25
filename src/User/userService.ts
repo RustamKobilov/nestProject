@@ -105,8 +105,12 @@ export class UserService {
       throw new BadRequestException('code not found for user /userService');
     }
     if (user.userConfirmationInfo.userConformation === true) {
-      throw new UnauthorizedException('code  steal /userService');
-      //throw new BadRequestException('code  steal /userService');
+      //throw new UnauthorizedException(
+      // 'user.userConfirmationInfo.userConformation = true ,code steal /userService',
+      //);
+      throw new BadRequestException(
+        'code  steal, userConformation = true /userService',
+      );
     }
     const dateNow = new Date(new Date().getTime());
     const dateCode = new Date(

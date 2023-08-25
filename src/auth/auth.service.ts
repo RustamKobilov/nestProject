@@ -73,16 +73,16 @@ export class AuthService {
         createUserDto.email,
         userConfirmationCode,
       );
+      console.log(
+        'SEND EMAIL ' + createUserDto.email + ' code ' + userConfirmationCode,
+      );
     } catch (error) {
-      console.log(error);
       console.error('email send out');
       await this.usersService.deleteUserbyConfirmationCode(
         userConfirmationCode,
       );
-      console.log('oshibka tyt');
       return false;
     }
-    console.log('good job');
     return true;
   }
 
@@ -140,8 +140,8 @@ export class AuthService {
     const code =
       await this.usersService.updateUserConfirmationCodeRepeatForEmail(user.id);
     try {
-      console.log('SEND EMAIL ' + email + ' code ' + code);
       await this.emailAdapters.gmailSendEmailRegistration(email, code);
+      console.log('SEND EMAIL ' + email + ' code ' + code);
     } catch (error) {
       console.error('email send out /authService/updateConfirmationCodeRepeat');
       await this.usersService.deleteUserbyConfirmationCode(code);

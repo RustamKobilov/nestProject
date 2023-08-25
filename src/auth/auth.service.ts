@@ -137,6 +137,7 @@ export class AuthService {
     const code =
       await this.usersService.updateUserConfirmationCodeRepeatForEmail(user.id);
     try {
+      console.log('SEND EMAIL ' + email + ' code ' + code);
       await this.emailAdapters.gmailSendEmailRegistration(email, code);
     } catch (error) {
       console.error('email send out /authService/updateConfirmationCodeRepeat');

@@ -218,6 +218,22 @@ export class UserRepository {
 
     return userPasswordUpdate.matchedCount === 1;
   }
+
+  async updateUserConformationCode(
+    id: string,
+    newCode: string,
+  ): Promise<boolean> {
+    const user: UpdateWriteOpResult = await this.userModel.updateOne(
+      { id: id },
+      {
+        $set: {
+          'userConfirmationInfo.code': newCode,
+        },
+      },
+    );
+
+    return user.matchedCount === 1;
+  }
 }
 
 //export class UserRepository implements OnModuleInit

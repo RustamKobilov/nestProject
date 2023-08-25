@@ -14,8 +14,8 @@ import { LocalAuthGuard } from './Guard/localGuard';
 import { token } from '../Enum';
 import {
   CreateUserDto,
-  emailPasswordRecoveryDTO,
-  newPasswordDTO,
+  EmailPasswordRecoveryDTO,
+  UpdatePasswordDTO,
   RegistrationConfirmation,
 } from '../DTO';
 import { RefreshTokenGuard } from './Guard/refreshTokenGuard';
@@ -58,6 +58,16 @@ export class AuthController {
     return res.sendStatus(204);
   }
 
+  @Post('/registration-email-resending')
+  async registrationEmailResending(
+    @Body() emailPasswordRecoveryDTO: EmailPasswordRecoveryDTO,
+    @Res() res,
+  ) {
+    await this.authService.updateConfirmationCodeRepeat(
+      emailPasswordRecoveryDTO.email,
+    );
+    return res.sendStatus(204);
+  }
   @UseGuards(LocalAuthGuard)
   @Post('/login')
   async login(@Res() res, @Req() req) {
@@ -146,7 +156,7 @@ export class AuthController {
   async passwordRecoveryUser(
     @Res() res,
     @Req() req,
-    @Body() email: emailPasswordRecoveryDTO,
+    @Body() email: EmailPasswordRecoveryDTO,
   ) {
     const sendMailRecoveryPassword = await this.authService.recoveryPassword(
       email.email,
@@ -167,7 +177,7 @@ export class AuthController {
   async updatePasswordUser(
     @Res() res,
     @Req() req,
-    @Body() newPasswordBody: newPasswordDTO,
+    @Body() newPasswordBody: UpdatePasswordDTO,
   ) {
     const passwordUpdate = await this.authService.updatePasswordUserAuthService(
       newPasswordBody,

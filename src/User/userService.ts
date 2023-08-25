@@ -1,7 +1,7 @@
 import { UserRepository } from './userRepository';
 import {
   CreateUserDto,
-  newPasswordDTO,
+  UpdatePasswordDTO,
   outputModel,
   UserPaginationDTO,
 } from '../DTO';
@@ -87,7 +87,9 @@ export class UserService {
   async searchUserByLogin(login: string): Promise<User> {
     const user = await this.userRepository.getUserByLoginOrEmail(login);
     if (!user) {
-      throw new BadRequestException('loginOrEmail not found user /userService');
+      throw new UnauthorizedException(
+        'loginOrEmail not found user /userService',
+      );
     }
     if (user.userConfirmationInfo.userConformation === false) {
       throw new UnauthorizedException('code not confirmation /userService');
@@ -100,7 +102,7 @@ export class UserService {
       code,
     );
     if (!user) {
-      throw new NotFoundException('code not found for user /userService');
+      throw new BadRequestException('code not found for user /userService');
     }
     if (user.userConfirmationInfo.userConformation === true) {
       throw new UnauthorizedException('code  steal /userService');
@@ -143,7 +145,8 @@ export class UserService {
   async checkEmail(email: string) {
     const user = await this.userRepository.findUserByEmail(email);
     if (!user) {
-      throw new NotFoundException('email not found for user /userService');
+      throw new BadRequestException('email invalid,not found/userService');
+      //throw new NotFoundException('email not found for user /userService');
     }
     return user;
   }
@@ -169,7 +172,7 @@ export class UserService {
     );
   }
 
-  async updatePasswordUserUserService(newPasswordBody: newPasswordDTO) {
+  async updatePasswordUserUserService(newPasswordBody: UpdatePasswordDTO) {
     const salt = await bcriptService.getSalt(8);
     const hash = await bcriptService.getHashPassword(
       newPasswordBody.newPassword,
@@ -194,5 +197,15 @@ export class UserService {
       throw new NotFoundException(`userId not found /userService`);
     }
     return user;
+  }
+
+  async updateUserConfirmationCodeRepeatForEmail(id: string): Promise<string> {
+    const newCode = randomUUID();
+    const resultUpdateCode =
+      await this.userRepository.updateUserConformationCode(id, newCode);
+    if (!resultUpdateCode) {
+      throw new NotFoundException('code not update /userService');
+    }
+    return newCode;
   }
 }

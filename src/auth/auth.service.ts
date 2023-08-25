@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from '../User/userService';
 import { bcriptService } from '../bcryptService';
-import { CreateUserDto, newPasswordDTO } from '../DTO';
+import { CreateUserDto, UpdatePasswordDTO } from '../DTO';
 import { EmailAdapters } from '../adapters/email-adapters';
 import * as dotenv from 'dotenv';
 import { randomUUID } from 'crypto';
@@ -132,6 +132,21 @@ export class AuthService {
   async confirmationUserAfterRegistration(code: string) {
     await this.usersService.confirmationUser(code);
   }
+  async updateConfirmationCodeRepeat(email: string) {
+    const user = await this.usersService.checkEmail(email);
+    const code =
+      await this.usersService.updateUserConfirmationCodeRepeatForEmail(user.id);
+    try {
+      await this.emailAdapters.gmailSendEmailRegistration(email, code);
+    } catch (error) {
+      console.error('email send out /authService/updateConfirmationCodeRepeat');
+      await this.usersService.deleteUserbyConfirmationCode(code);
+      throw new BadRequestException(
+        'email send out /authService/updateConfirmationCodeRepeat',
+      );
+    }
+    return;
+  }
   async getUserInformation(id: string) {
     return await this.usersService.getUserInformation(id);
   }
@@ -159,7 +174,7 @@ export class AuthService {
     return await this.deviceService.getDeviceAdminById(deviceId);
   }
 
-  async updatePasswordUserAuthService(newPasswordBody: newPasswordDTO) {
+  async updatePasswordUserAuthService(newPasswordBody: UpdatePasswordDTO) {
     await this.usersService.updatePasswordUserUserService(newPasswordBody);
   }
 

@@ -134,6 +134,9 @@ export class AuthService {
   }
   async updateConfirmationCodeRepeat(email: string) {
     const user = await this.usersService.checkEmail(email);
+    if (user.userConfirmationInfo.userConformation == true) {
+      throw new BadRequestException('email confirmed /authService');
+    }
     const code =
       await this.usersService.updateUserConfirmationCodeRepeatForEmail(user.id);
     try {

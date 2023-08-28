@@ -6,21 +6,28 @@ import { randomUUID } from 'crypto';
 import { likeStatus } from '../Enum';
 import { mapObject } from '../mapObject';
 import { PostViewModel } from '../viewModelDTO';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { helper } from '../helper';
 import { FilterQuery } from 'mongoose';
+import { User } from '../User/User';
+import { ReactionRepository } from '../Like/reactionRepository';
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly blogRepository: BlogRepository,
+    private readonly reactionRepository: ReactionRepository,
   ) {}
 
   async createNewPost(createPostDto: CreatePostDTO): Promise<PostViewModel> {
     const blog = await this.blogRepository.getBlog(createPostDto.blogId);
     if (!blog) {
-      throw new NotFoundException('blogId not found for blog /postService');
+      throw new BadRequestException('blogId not found for blog /postService');
     }
     const post: Post = {
       id: randomUUID(),
@@ -95,5 +102,35 @@ export class PostService {
       pagination,
       userId,
     );
+  }
+  async updateLikeStatusPost(
+    postId: string,
+    likeStatus: likeStatus,
+    user: User,
+  ) {
+    const post = await this.getPost(postId);
+    if (!post) {
+      throw new NotFoundException('postId not found post /postService');
+    }
+    const updateReaction = await this.reactionRepository.getCountLikeStatusUser(
+      post.id,
+      user,
+      likeStatus,
+    );
+
+    if (!updateReaction) {
+      throw new NotFoundException(
+        'comment ne obnovilsya, CommentService ,update',
+      );
+    }
+    const updateCountLike = await this.postRepository.updateCountReactionPost(
+      post.id,
+      updateReaction.likesCount,
+      updateReaction.dislikesCount,
+    );
+    if (!updateCountLike) {
+      throw new NotFoundException('no update reaction /commentService');
+    }
+    return;
   }
 }

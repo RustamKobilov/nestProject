@@ -1,11 +1,12 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Post, PostDocument } from './Post';
-import { Model, UpdateWriteOpResult } from 'mongoose';
+import { Model, UpdateQuery, UpdateWriteOpResult } from 'mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
 import { ReactionRepository } from '../Like/reactionRepository';
+import { CommentDocument } from '../Comment/Comment';
 
 @Injectable()
 export class PostRepository {
@@ -157,5 +158,24 @@ export class PostRepository {
       totalCount: countPostsForBlog,
       items: resulPostsAddLikes,
     };
+  }
+  async updateCountReactionPost(
+    postId: string,
+    countLikes: number,
+    countDislike: number,
+  ): Promise<boolean> {
+    console.log(countLikes);
+    console.log(countDislike);
+    const updateCountLikeAndDislike: UpdateQuery<PostDocument> =
+      await this.postModel.updateOne(
+        { id: postId },
+        {
+          $set: {
+            'likesInfo.likesCount': countLikes,
+            'likesInfo.dislikesCount': countDislike,
+          },
+        },
+      );
+    return updateCountLikeAndDislike.matchedCount === 1;
   }
 }

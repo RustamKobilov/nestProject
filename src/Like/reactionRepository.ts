@@ -36,33 +36,33 @@ export class ReactionRepository {
     return reaction;
   }
   async getCountLikeStatusUser(
-    commentId: string,
+    parentId: string,
     user: User,
     likeStatusUpdate: likeStatus,
   ) {
     const newReaction: Reaction = this.createReaction(
-      commentId,
+      parentId,
       user.id,
       user.login,
       likeStatusUpdate,
     );
     const findReaction = await this.reactionModel.findOne({
-      parentId: commentId,
+      parentId: parentId,
     });
 
     const updateReaction = await this.reactionModel.updateOne(
-      { parentId: commentId, userId: newReaction.userId },
+      { parentId: parentId, userId: newReaction.userId },
       { $set: { ...newReaction } },
       { upsert: true },
     );
 
     const likesCount = await this.reactionModel.countDocuments({
-      parentId: commentId,
+      parentId: parentId,
       status: likeStatus.Like,
     });
 
     const dislikesCount = await this.reactionModel.countDocuments({
-      parentId: commentId,
+      parentId: parentId,
       status: likeStatus.Dislike,
     });
     return { likesCount: likesCount, dislikesCount: dislikesCount };

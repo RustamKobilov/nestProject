@@ -1,5 +1,9 @@
 import { CommentRepository } from './commentRepository';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { User } from '../User/User';
 import { likeStatus } from '../Enum';
 import { ReactionRepository } from '../Like/reactionRepository';
@@ -20,7 +24,7 @@ export class CommentService {
   async getComment(commentId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'commentId not found for comment /commentService',
       );
     }
@@ -30,7 +34,7 @@ export class CommentService {
   async getCommentOnIdForUser(id: string, user: User) {
     const comment = await this.commentRepository.getCommentForUser(id, user);
     if (!comment) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'commentId not found for comment /commentService',
       );
     }
@@ -76,7 +80,7 @@ export class CommentService {
   async deleteComment(commentId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'commentId not found for comment /commentService',
       );
     }
@@ -90,7 +94,7 @@ export class CommentService {
   ) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'commentId not found for comment /commentService',
       );
     }
@@ -120,7 +124,7 @@ export class CommentService {
   async getCommentViewModel(commentId: string): Promise<CommentViewModel> {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'commentId not found for comment /commentService',
       );
     }

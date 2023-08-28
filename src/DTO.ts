@@ -1,5 +1,7 @@
 import {
+  IsEmpty,
   IsEnum,
+  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -21,7 +23,6 @@ export class CreateUserDto {
     message: 'User $value busy. Decorator /DTO.',
   })
   login: string;
-  //TODO сообразил. теперь надо раскинуть . на логин
   @IsString()
   @Length(6, 20)
   password: string;
@@ -36,12 +37,15 @@ export class CreateUserDto {
 
 export class CreateBlogDTO {
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 15)
   name: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 500)
   description: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 100)
   @Matches(
     /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
@@ -51,36 +55,44 @@ export class CreateBlogDTO {
 
 export class CreatePostDTO {
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 30)
   title: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 100)
   shortDescription: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 1000)
   content: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1)
   blogId: string;
 }
 
 export class CreatePostByBlogDTO {
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 30)
   title: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 100)
   shortDescription: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 1000)
   content: string;
 }
 export class CreateCommentDto {
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(20, 300)
   content: string;
 }
-export class UpdateLikeStatusCommentDto {
+export class UpdateLikeStatusDto {
   @IsString()
   @IsEnum(likeStatus)
   likeStatus: likeStatus;
@@ -142,8 +154,10 @@ export type OutputCommentType = {
 export class LoginDtoStrategy {
   @IsString()
   @Transform(({ value }) => helper.getValueTrim(value))
+  @Transform(({ value }) => helper.getValueTrim(value))
   login: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Transform(({ value }) => helper.getValueTrim(value))
   password: string;
 }

@@ -66,6 +66,7 @@ export class BlogController {
     @Res() res: Response,
     @Req() req,
   ) {
+    console.log(req.user);
     const blog = await this.blogService.getBlog(blogId);
     let resultAllPostsByBlog;
     if (!req.user) {

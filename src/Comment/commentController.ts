@@ -12,7 +12,7 @@ import {
 import { CommentService } from './commentService';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
-import { CreateCommentDto, UpdateLikeStatusCommentDto } from '../DTO';
+import { CreateCommentDto, UpdateLikeStatusDto } from '../DTO';
 import { AuthCommentForUserGuard } from '../auth/Guard/authCommentForUserGuard';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 @SkipThrottle()
@@ -66,7 +66,7 @@ export class CommentController {
   @Put('/:id')
   async updateLikeStatus(
     @Param('id') commentId: string,
-    @Body() updateLikeStatusCommentDto: UpdateLikeStatusCommentDto,
+    @Body() updateLikeStatusCommentDto: UpdateLikeStatusDto,
     @Res() res,
     @Req() req,
   ) {

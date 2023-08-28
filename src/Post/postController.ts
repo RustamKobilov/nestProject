@@ -11,13 +11,21 @@ import {
   Query,
   Req,
   Res,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { CreateCommentDto, CreatePostDTO, PaginationDTO } from '../DTO';
+import {
+  CreateCommentDto,
+  CreatePostDTO,
+  PaginationDTO,
+  UpdateLikeStatusDto,
+} from '../DTO';
 import { Response } from 'express';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { CommentService } from '../Comment/commentService';
 import { SkipThrottle } from '@nestjs/throttler';
+import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
+import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
 @SkipThrottle()
 @Controller('posts')
 export class PostController {
@@ -25,7 +33,7 @@ export class PostController {
     private readonly postService: PostService,
     private readonly commentService: CommentService,
   ) {}
-  @UseGuards(BearerGuard)
+  @UseGuards(BasicAuthorizationGuard)
   @Post()
   async createPost(@Body() createPostDto: CreatePostDTO) {
     return this.postService.createNewPost(createPostDto);
@@ -38,7 +46,7 @@ export class PostController {
   async getPost(@Param('id') postId: string) {
     return this.postService.getPost(postId);
   }
-  @UseGuards(BearerGuard)
+  @UseGuards(BasicAuthorizationGuard)
   @Put('/:id')
   async updatePost(
     @Param('id') postId: string,
@@ -48,7 +56,7 @@ export class PostController {
     await this.postService.updatePost(postId, updatePostDto);
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
-  @UseGuards(BearerGuard)
+  @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
   async deletePost(@Param('id') postId: string, @Res() res: Response) {
     await this.postService.deletePost(postId);
@@ -73,7 +81,7 @@ export class PostController {
     );
     return res.status(201).send(newCommentByPost);
   }
-  @UseGuards(BearerGuard)
+  @UseGuards(IdenteficationUserGuard)
   @Get('/:postId/comments')
   async getCommentsForPost(
     @Query() getPagination: PaginationDTO,
@@ -96,5 +104,21 @@ export class PostController {
       req.user.id,
     );
     return res.status(200).send(resultAllCommentsByPosts);
+  }
+  @UseGuards(BearerGuard)
+  @Put('/:id/like-status')
+  async updateLikeStatus(
+    @Req() req,
+    @Res() res,
+    @Param('id') postId: string,
+    @Body() updateLikeStatus: UpdateLikeStatusDto,
+  ) {
+    await this.postService.updateLikeStatusPost(
+      postId,
+      updateLikeStatus.likeStatus,
+      req.user,
+    );
+
+    return res.sendStatus(204);
   }
 }

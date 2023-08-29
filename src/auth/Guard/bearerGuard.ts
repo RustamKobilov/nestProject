@@ -1,11 +1,12 @@
 import {
   CanActivate,
   ExecutionContext,
+  Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserRepository } from '../../User/userRepository';
 import { JwtServices } from '../../application/jwtService';
-
+@Injectable()
 export class BearerGuard implements CanActivate {
   constructor(
     private jwtService: JwtServices,
@@ -28,6 +29,7 @@ export class BearerGuard implements CanActivate {
     if (!payload) {
       throw new UnauthorizedException('verify failed /bearerGuard');
     }
+    console.log('payload good ' + payload);
     const user = await this.userRepository.getUser(payload.userId);
     if (!user) {
       throw new UnauthorizedException('user not found /bearerGuard');

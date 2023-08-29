@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { likeStatus } from '../Enum';
 import { User } from '../User/User';
 import { CommentRepository } from '../Comment/commentRepository';
+import { mapObject } from '../mapObject';
 
 Injectable();
 export class ReactionRepository {
@@ -46,9 +47,6 @@ export class ReactionRepository {
       user.login,
       likeStatusUpdate,
     );
-    const findReaction = await this.reactionModel.findOne({
-      parentId: parentId,
-    });
 
     const updateReaction = await this.reactionModel.updateOne(
       { parentId: parentId, userId: newReaction.userId },
@@ -65,6 +63,31 @@ export class ReactionRepository {
       parentId: parentId,
       status: likeStatus.Dislike,
     });
-    return { likesCount: likesCount, dislikesCount: dislikesCount };
+
+    const lastReactionUser = await this.reactionModel
+      .aggregate([
+        { $match: { parentId: parentId, status: likeStatus.Like } },
+        { $sort: { createdAt: -1 } },
+        { $limit: 3 },
+      ])
+      .exec()
+      .catch((err) => {
+        return err;
+      });
+
+    // find({parentId: parentId, status:likeStatus.Like})
+    //   .sort({createdAt:-1}).limit(3).lean()
+    const lastlikeUser = await Promise.all(
+      lastReactionUser.map(async (reaction: Reaction) => {
+        const newestLikes = await mapObject.mapNewestLikes(reaction);
+        return newestLikes;
+      }),
+    );
+
+    return {
+      likesCount: likesCount,
+      dislikesCount: dislikesCount,
+      lastLikeUser: lastlikeUser,
+    };
   }
 }

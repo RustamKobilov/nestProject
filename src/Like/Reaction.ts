@@ -5,7 +5,7 @@ import { HydratedDocument } from 'mongoose';
 export type ReactionDocument = HydratedDocument<Reaction>;
 @Schema({ versionKey: false })
 export class Reaction {
-  @Prop({ type: String, unique: true, required: true })
+  @Prop({ type: String, required: true })
   parentId: string;
   @Prop({ type: String, required: true })
   userId: string;

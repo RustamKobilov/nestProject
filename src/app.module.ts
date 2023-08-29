@@ -63,6 +63,7 @@ import {
   isEmailNoUniqueValidate,
   IsLoginNoUniqueValidate,
 } from './pipes/customValidator';
+import { BearerGuard } from './auth/Guard/bearerGuard';
 dotenv.config();
 
 @Module({

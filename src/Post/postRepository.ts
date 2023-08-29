@@ -1,5 +1,5 @@
 import { InjectModel } from '@nestjs/mongoose';
-import { Post, PostDocument } from './Post';
+import { NewestLikes, Post, PostDocument } from './Post';
 import { Model, UpdateQuery, UpdateWriteOpResult } from 'mongoose';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
@@ -163,19 +163,22 @@ export class PostRepository {
     postId: string,
     countLikes: number,
     countDislike: number,
+    lastLikeUser: NewestLikes[],
   ): Promise<boolean> {
     console.log(countLikes);
     console.log(countDislike);
-    const updateCountLikeAndDislike: UpdateQuery<PostDocument> =
+    const updateExtendedLikes: UpdateWriteOpResult =
       await this.postModel.updateOne(
         { id: postId },
         {
           $set: {
-            'likesInfo.likesCount': countLikes,
-            'likesInfo.dislikesCount': countDislike,
+            'extendedLikesInfo.likesCount': countLikes,
+            'extendedLikesInfo.dislikesCount': countDislike,
+            'extendedLikesInfo.newestLikes': lastLikeUser,
           },
         },
       );
-    return updateCountLikeAndDislike.matchedCount === 1;
+
+    return updateExtendedLikes.matchedCount === 1;
   }
 }

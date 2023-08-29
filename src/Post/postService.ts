@@ -127,9 +127,10 @@ export class PostService {
       post.id,
       updateReaction.likesCount,
       updateReaction.dislikesCount,
+      updateReaction.lastLikeUser,
     );
     if (!updateCountLike) {
-      throw new NotFoundException('no update reaction /commentService');
+      throw new NotFoundException('no update reaction /postService');
     }
     return;
   }

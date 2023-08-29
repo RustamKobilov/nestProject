@@ -174,8 +174,10 @@ export class EmailPasswordRecoveryDTO {
 }
 export class UpdatePasswordDTO {
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   @Length(6, 20)
   newPassword: string;
   @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
   recoveryCode: string;
 }

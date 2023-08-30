@@ -128,11 +128,6 @@ export class PostRepository {
       .catch((err) => {
         return err;
       });
-    // find(filter, { _id: 0, __v: 0 })
-    //   .sort({ [pagination.sortBy]: pagination.sortDirection })
-    //   .skip(paginationFromHelperForPosts.skipPage)
-    //   .limit(pagination.pageSize)
-    //   .lean();
 
     const resulPostsAddLikes = await Promise.all(
       postsForBlogs.map(async (post: Post) => {

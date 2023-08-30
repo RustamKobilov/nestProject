@@ -49,29 +49,30 @@ export class PostService {
     return outputPostModel;
   }
   async getPosts(postPagination: PaginationDTO) {
-    console.log(postPagination);
     const pagination = helper.getPostPaginationValues(postPagination);
-    console.log(pagination);
     return this.postRepository.getPosts(pagination);
   }
   async getPostsByBlog(postPagination: PaginationDTO, filter) {
-    console.log(postPagination);
     const pagination = helper.getPostPaginationValues(postPagination);
-    console.log(pagination);
     return await this.postRepository.getPostsForBlog(pagination, filter);
   }
-  async getPost(postId: string): Promise<Post | false> {
+  async getPost(postId: string): Promise<PostViewModel | false> {
+    const post = await this.postRepository.getPost(postId);
+    if (!post) {
+      throw new BadRequestException('postId not found post /postService');
+    }
+    const outputPost = mapObject.mapPost(post);
+    return outputPost;
+  }
+
+  async updatePost(postId: string, updatePostDto: CreatePostDTO) {
     const post = await this.postRepository.getPost(postId);
     if (!post) {
       throw new NotFoundException('postId not found post /postService');
     }
-    return post;
-  }
-
-  async updatePost(postId: string, updatePostDto: CreatePostDTO) {
-    const post = await this.getPost(postId);
-    if (!post) {
-      throw new NotFoundException('postId not found post /postService');
+    const blog = await this.blogRepository.getBlog(updatePostDto.blogId);
+    if (!blog) {
+      throw new BadRequestException('blogId not found blogs /postService');
     }
     const updatePost = await this.postRepository.updatePost(
       postId,
@@ -108,7 +109,7 @@ export class PostService {
     likeStatus: likeStatus,
     user: User,
   ) {
-    const post = await this.getPost(postId);
+    const post = await this.postRepository.getPost(postId);
     if (!post) {
       throw new NotFoundException('postId not found post /postService');
     }

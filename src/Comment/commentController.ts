@@ -40,7 +40,7 @@ export class CommentController {
     return res.status(200).send(resultSearch);
   }
   @UseGuards(BearerGuard)
-  @UseGuards(AuthCommentForUserGuard)
+  //@UseGuards(AuthCommentForUserGuard)
   @Put('/:id')
   async updateComment(
     @Param('id') commentId: string,
@@ -51,19 +51,21 @@ export class CommentController {
     await this.commentService.updateCommentOnId(
       commentId,
       createCommentDto.content,
+      req.user.id,
     );
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)
-  @UseGuards(AuthCommentForUserGuard)
+  //@UseGuards(AuthCommentForUserGuard)
+  //TODO из гуард в гуард инфу. если передать то undefined
   @Delete('/:id')
   async deleteComment(@Param('id') commentId: string, @Res() res, @Req() req) {
-    await this.commentService.deleteComment(commentId);
+    await this.commentService.deleteComment(commentId, req.user.id);
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)
   //@UseGuards(AuthCommentForUserGuard)
-  @Put('/:id')
+  @Put('/:id/like-status')
   async updateLikeStatus(
     @Param('id') commentId: string,
     @Body() updateLikeStatusCommentDto: UpdateLikeStatusDto,

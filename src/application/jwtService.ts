@@ -13,10 +13,9 @@ export class JwtServices {
   async verifyToken(token: string) {
     try {
       const payload = await this.jwtService.verify(token);
-      console.log(payload);
       return payload;
     } catch (e) {
-      console.log(e);
+      console.log(e + ' error verifyJwtToken');
       return false;
     }
   }

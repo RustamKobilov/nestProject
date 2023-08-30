@@ -1,6 +1,7 @@
 import { CommentRepository } from './commentRepository';
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -66,9 +67,18 @@ export class CommentService {
     return idNewComment;
   }
 
-  async updateCommentOnId(id: string, content: string) {
+  async updateCommentOnId(commentId: string, content: string, userId: string) {
+    const comment = await this.commentRepository.getComment(commentId);
+    if (!comment) {
+      throw new BadRequestException(
+        'commentId not found for comment /commentService',
+      );
+      if (comment?.commentatorInfo.userId !== userId) {
+        throw new ForbiddenException('ne svoi comment CommentForUserGuard');
+      }
+    }
     const updateResult = await this.commentRepository.updateComment(
-      id,
+      commentId,
       content,
     );
     if (!updateResult) {
@@ -77,12 +87,15 @@ export class CommentService {
     return;
   }
 
-  async deleteComment(commentId: string) {
+  async deleteComment(commentId: string, userId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
       throw new BadRequestException(
         'commentId not found for comment /commentService',
       );
+      if (comment?.commentatorInfo.userId !== userId) {
+        throw new ForbiddenException('ne svoi comment CommentForUserGuard');
+      }
     }
     return await this.commentRepository.deleteComment(commentId);
   }
@@ -132,7 +145,7 @@ export class CommentService {
     return commentViewModel;
   }
 
-  async getCommentsForPost(
+  async getComments(
     getPagination: PaginationDTO,
     postId: string,
   ) /*: Promise<outputModel<PostViewModel>>*/ {
@@ -141,12 +154,17 @@ export class CommentService {
     return await this.commentRepository.getCommentsForPost(pagination, filter);
   }
 
-  async getCommentsForPostUser(
+  async getCommentsForUser(
     getPagination: PaginationDTO,
     postId: string,
     userId: string,
   ) {
+    const filter = { postId: postId };
     const pagination = helper.getCommentPaginationValues(getPagination);
-    return await this.getCommentsForPostUser(pagination, postId, userId);
+    return await this.commentRepository.getCommentsForPostUser(
+      pagination,
+      filter,
+      userId,
+    );
   }
 }

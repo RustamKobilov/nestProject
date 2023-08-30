@@ -65,12 +65,12 @@ export class PostController {
   @UseGuards(BearerGuard)
   @Post('/:postId/comments')
   async createCommentForPost(
-    @Param('id') postId: string,
+    @Param('postId') postId: string,
     @Body() createCommentDto: CreateCommentDto,
     @Res() res: Response,
     @Req() req,
   ) {
-    const post = await this.postService.getPost(postId);
+    await this.postService.getPost(postId);
     const addCommentByPost = await this.commentService.createCommentForPost(
       postId,
       createCommentDto.content,
@@ -85,20 +85,21 @@ export class PostController {
   @Get('/:postId/comments')
   async getCommentsForPost(
     @Query() getPagination: PaginationDTO,
-    @Param('id') postId: string,
+    @Param('postId') postId: string,
     @Res() res: Response,
     @Req() req,
   ) {
-    const post = await this.postService.getPost(postId);
+    console.log(postId);
+    await this.postService.getPost(postId);
     let resultAllCommentsByPosts;
     if (!req.user) {
-      resultAllCommentsByPosts = await this.commentService.getCommentsForPost(
+      resultAllCommentsByPosts = await this.commentService.getComments(
         getPagination,
         postId,
       );
       return res.status(200).send(resultAllCommentsByPosts);
     }
-    resultAllCommentsByPosts = await this.commentService.getCommentsForPostUser(
+    resultAllCommentsByPosts = await this.commentService.getCommentsForUser(
       getPagination,
       postId,
       req.user.id,

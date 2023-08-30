@@ -7,6 +7,7 @@ import {
 } from 'class-validator';
 import { UserRepository } from '../User/userRepository';
 import { Inject, Injectable } from '@nestjs/common';
+import { BlogRepository } from '../Blog/blogRepository';
 
 @ValidatorConstraint({ name: 'IsEmailNoUnique', async: true })
 @Injectable()
@@ -59,6 +60,30 @@ export function IsLoginNoUnique(validationOptions?: ValidationOptions) {
       options: validationOptions,
       constraints: [],
       validator: IsLoginNoUniqueValidate,
+    });
+  };
+}
+
+@ValidatorConstraint({ name: 'IsBlogChecking', async: true })
+@Injectable()
+export class IsBlogCheckingValidate implements ValidatorConstraintInterface {
+  constructor(private readonly blogRepository: BlogRepository) {}
+  async validate(blogId: string, args: ValidationArguments) {
+    const blog = await this.blogRepository.getBlog(blogId);
+    if (blog) return true;
+    return false;
+  }
+}
+
+export function IsBlogChecking(validationOptions?: ValidationOptions) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'IsBlogChecking',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: IsBlogCheckingValidate,
     });
   };
 }

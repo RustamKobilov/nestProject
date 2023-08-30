@@ -60,6 +60,7 @@ import { Reaction, ReactionSchema } from './Like/Reaction';
 import { SecurityController } from './Device/securityController';
 import { JwtServices } from './application/jwtService';
 import {
+  IsBlogCheckingValidate,
   isEmailNoUniqueValidate,
   IsLoginNoUniqueValidate,
 } from './pipes/customValidator';
@@ -166,6 +167,7 @@ dotenv.config();
     JwtServices,
     isEmailNoUniqueValidate,
     IsLoginNoUniqueValidate,
+    IsBlogCheckingValidate,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

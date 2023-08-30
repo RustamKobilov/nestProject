@@ -13,7 +13,11 @@ import { Transform, Type } from 'class-transformer';
 import { helper } from './helper';
 import { CommentatorInfo, LikesInfo } from './Comment/Comment';
 import { likeStatus } from './Enum';
-import { IsEmailNoUnique, IsLoginNoUnique } from './pipes/customValidator';
+import {
+  IsBlogChecking,
+  IsEmailNoUnique,
+  IsLoginNoUnique,
+} from './pipes/customValidator';
 
 export class CreateUserDto {
   @IsString()
@@ -68,6 +72,9 @@ export class CreatePostDTO {
   content: string;
   @IsString()
   @Transform(({ value }) => helper.getValueTrim(value))
+  @IsBlogChecking({
+    message: 'Blog for $value not found. Decorator /DTO.',
+  })
   @Length(1)
   blogId: string;
 }

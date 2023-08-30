@@ -39,12 +39,33 @@ export class PostController {
     return this.postService.createNewPost(createPostDto);
   }
   @Get()
-  async getPosts(@Query() postPagination: PaginationDTO) {
-    return this.postService.getPosts(postPagination);
+  @UseGuards(IdenteficationUserGuard)
+  async getPosts(
+    @Query() postPagination: PaginationDTO,
+    @Res() res,
+    @Req() req,
+  ) {
+    let resultAllPosts;
+    if (!req.user) {
+      resultAllPosts = await this.postService.getPosts(postPagination);
+      return res.status(200).send(resultAllPosts);
+    }
+    resultAllPosts = await this.postService.getPostsForUser(
+      postPagination,
+      req.user.id,
+    );
+    return res.status(200).send(resultAllPosts);
   }
   @Get('/:id')
-  async getPost(@Param('id') postId: string) {
-    return this.postService.getPost(postId);
+  @UseGuards(IdenteficationUserGuard)
+  async getPost(@Param('id') postId: string, @Res() res, @Req() req) {
+    let post;
+    if (!req.user) {
+      post = await this.postService.getPost(postId);
+      return res.status(200).send(post);
+    }
+    post = await this.postService.getPostForUser(postId, req.user.id);
+    return res.status(200).send(post);
   }
   @UseGuards(BasicAuthorizationGuard)
   @Put('/:id')

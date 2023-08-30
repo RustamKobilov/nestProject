@@ -7,6 +7,8 @@ import { helper } from '../helper';
 import { mapObject } from '../mapObject';
 import { ReactionRepository } from '../Like/reactionRepository';
 import { CommentDocument } from '../Comment/Comment';
+import { User } from '../User/User';
+import { CommentViewModel, PostViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class PostRepository {
@@ -88,6 +90,33 @@ export class PostRepository {
     }
     return post;
   }
+
+  async getPostForUser(
+    postId: string,
+    userId: string,
+  ): Promise<PostViewModel | false> {
+    const postForUser = await this.postModel.findOne(
+      { id: postId },
+      { blogId: false, _id: false },
+    );
+
+    if (!postForUser) {
+      return false;
+    }
+    const postUpgrade = await mapObject.mapPost(postForUser);
+
+    const searchReaction =
+      await this.reactionRepository.getReactionUserForParent(postId, userId);
+
+    if (!searchReaction) {
+      return postUpgrade;
+    }
+
+    postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
+
+    return postUpgrade;
+  }
+
   async updatePost(postId: string, updatePostDto: CreatePostDTO) {
     const updatePost: UpdateWriteOpResult = await this.postModel.updateOne(
       { id: postId },
@@ -104,11 +133,7 @@ export class PostRepository {
     return await this.postModel.deleteOne({ id: postId });
   }
 
-  async getPostsForBlogUser(
-    filter: { blogId: string },
-    pagination: PaginationDTO,
-    userId: string,
-  ) {
+  async getPostsForUser(filter, pagination: PaginationDTO, userId: string) {
     const countPostsForBlog = await this.postModel.countDocuments(filter);
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(
@@ -138,7 +163,7 @@ export class PostRepository {
             userId,
           );
         if (!searchReaction) {
-          return post;
+          return postUpgrade;
         }
         postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
 

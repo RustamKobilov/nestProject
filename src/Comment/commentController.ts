@@ -31,7 +31,7 @@ export class CommentController {
     console.log(req.user);
     resultSearch = await this.commentService.getCommentOnIdForUser(
       commentId,
-      req.user,
+      req.user.id,
     );
 
     if (!resultSearch) {

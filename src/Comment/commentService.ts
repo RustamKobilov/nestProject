@@ -32,8 +32,8 @@ export class CommentService {
     return comment;
   }
 
-  async getCommentOnIdForUser(id: string, user: User) {
-    const comment = await this.commentRepository.getCommentForUser(id, user);
+  async getCommentOnIdForUser(id: string, userId: string) {
+    const comment = await this.commentRepository.getCommentForUser(id, userId);
     if (!comment) {
       throw new BadRequestException(
         'commentId not found for comment /commentService',
@@ -70,11 +70,13 @@ export class CommentService {
   async updateCommentOnId(commentId: string, content: string, userId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'commentId not found for comment /commentService',
       );
+      console.log(comment?.commentatorInfo.userId + 'commentId/userId');
+      console.log(userId + ' userId/userId');
       if (comment?.commentatorInfo.userId !== userId) {
-        throw new ForbiddenException('ne svoi comment CommentForUserGuard');
+        throw new ForbiddenException('ne svoi comment /commentService');
       }
     }
     const updateResult = await this.commentRepository.updateComment(
@@ -90,11 +92,11 @@ export class CommentService {
   async deleteComment(commentId: string, userId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'commentId not found for comment /commentService',
       );
       if (comment?.commentatorInfo.userId !== userId) {
-        throw new ForbiddenException('ne svoi comment CommentForUserGuard');
+        throw new ForbiddenException('ne svoi comment /commentService');
       }
     }
     return await this.commentRepository.deleteComment(commentId);

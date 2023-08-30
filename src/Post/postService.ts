@@ -1,7 +1,7 @@
 import { PostRepository } from './postRepository';
 import { CreatePostDTO, PaginationDTO } from '../DTO';
 import { BlogRepository } from '../Blog/blogRepository';
-import { Post, PostDocument } from './Post';
+import { Post } from './Post';
 import { randomUUID } from 'crypto';
 import { likeStatus } from '../Enum';
 import { mapObject } from '../mapObject';
@@ -12,7 +12,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { helper } from '../helper';
-import { FilterQuery } from 'mongoose';
 import { User } from '../User/User';
 import { ReactionRepository } from '../Like/reactionRepository';
 
@@ -52,6 +51,15 @@ export class PostService {
     const pagination = helper.getPostPaginationValues(postPagination);
     return this.postRepository.getPosts(pagination);
   }
+  async getPostsForUser(getPagination: PaginationDTO, userId: string) {
+    const filter = {};
+    const pagination = helper.getCommentPaginationValues(getPagination);
+    return await this.postRepository.getPostsForUser(
+      filter,
+      pagination,
+      userId,
+    );
+  }
   async getPostsByBlog(postPagination: PaginationDTO, filter) {
     const pagination = helper.getPostPaginationValues(postPagination);
     return await this.postRepository.getPostsForBlog(pagination, filter);
@@ -59,7 +67,7 @@ export class PostService {
   async getPost(postId: string): Promise<PostViewModel | false> {
     const post = await this.postRepository.getPost(postId);
     if (!post) {
-      throw new BadRequestException('postId not found post /postService');
+      throw new NotFoundException('postId not found post /postService');
     }
     const outputPost = mapObject.mapPost(post);
     return outputPost;
@@ -98,7 +106,7 @@ export class PostService {
   ) {
     const filter = { blogId: blogId };
     const pagination = helper.getCommentPaginationValues(getPagination);
-    return await this.postRepository.getPostsForBlogUser(
+    return await this.postRepository.getPostsForUser(
       filter,
       pagination,
       userId,
@@ -134,5 +142,13 @@ export class PostService {
       throw new NotFoundException('no update reaction /postService');
     }
     return;
+  }
+
+  async getPostForUser(postId: string, userId: string) {
+    const post = await this.postRepository.getPost(postId);
+    if (!post) {
+      throw new NotFoundException('postId not found post /postService');
+    }
+    return this.postRepository.getPostForUser(postId, userId);
   }
 }

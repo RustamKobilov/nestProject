@@ -7,6 +7,7 @@ import { User } from '../User/User';
 import { ReactionRepository } from '../Like/reactionRepository';
 import { mapObject } from '../mapObject';
 import { helper } from '../helper';
+import { CommentViewModel } from '../viewModelDTO';
 
 Injectable();
 export class CommentRepository {
@@ -21,8 +22,8 @@ export class CommentRepository {
 
   async getCommentForUser(
     commentId: string,
-    user: User,
-  ): Promise<CommentDocument | OutputCommentType | false> {
+    userId: string,
+  ): Promise<CommentViewModel | false> {
     const commentForUser = await this.commentModel.findOne(
       { id: commentId },
       { postId: false, _id: false },
@@ -31,17 +32,14 @@ export class CommentRepository {
     if (!commentForUser) {
       return false;
     }
+    const commentUpgrade = await mapObject.mapComment(commentForUser);
+
     const searchReaction =
-      await this.reactionRepository.getReactionUserForParent(
-        commentId,
-        user.id,
-      );
+      await this.reactionRepository.getReactionUserForParent(commentId, userId);
 
     if (!searchReaction) {
-      return commentForUser;
+      return commentUpgrade;
     }
-
-    const commentUpgrade = await mapObject.mapComment(commentForUser);
 
     commentUpgrade.likesInfo.myStatus = searchReaction.status;
 
@@ -156,7 +154,7 @@ export class CommentRepository {
             userId,
           );
         if (!searchReaction) {
-          return comment;
+          return commentUpgrade;
         }
 
         commentUpgrade.likesInfo.myStatus = searchReaction.status;

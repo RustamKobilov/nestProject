@@ -72,7 +72,6 @@ export class PostService {
     const outputPost = mapObject.mapPost(post);
     return outputPost;
   }
-
   async updatePost(postId: string, updatePostDto: CreatePostDTO) {
     const post = await this.postRepository.getPost(postId);
     if (!post) {

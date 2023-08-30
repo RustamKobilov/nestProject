@@ -109,7 +109,7 @@ export class CommentService {
   ) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'commentId not found for comment /commentService',
       );
     }

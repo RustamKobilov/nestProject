@@ -81,8 +81,8 @@ export class AuthController {
     console.log(tokens);
     res.cookie([token.refreshToken], tokens.refreshToken, {
       expires: new Date(Date.now() + 60000),
-      // httpOnly: true,
-      // secure: true,
+      httpOnly: true,
+      secure: true,
     });
     return res.status(200).send({ accessToken: tokens.accessToken });
     //TODO не забыть поставиь поле accees tokens in body
@@ -112,8 +112,8 @@ export class AuthController {
     // }
     res.cookie([token.refreshToken], tokens.refreshToken, {
       expires: new Date(Date.now() + 60000),
-      // httpOnly: true,
-      // secure: true,
+      httpOnly: true,
+      secure: true,
     });
     //60000
     return res.status(200).send({ accessToken: tokens.accessToken });

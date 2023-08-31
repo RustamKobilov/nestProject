@@ -1,14 +1,12 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { NewestLikes, Post, PostDocument } from './Post';
-import { Model, UpdateQuery, UpdateWriteOpResult } from 'mongoose';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Model, UpdateWriteOpResult } from 'mongoose';
+import { Injectable } from '@nestjs/common';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
 import { ReactionRepository } from '../Like/reactionRepository';
-import { CommentDocument } from '../Comment/Comment';
-import { User } from '../User/User';
-import { CommentViewModel, PostViewModel } from '../viewModelDTO';
+import { PostViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class PostRepository {
@@ -61,7 +59,7 @@ export class PostRepository {
         const postUpgrade = await mapObject.mapPost(post);
 
         postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-          x.addedAt.localeCompare(y.addedAt),
+          y.addedAt.localeCompare(x.addedAt),
         );
 
         return postUpgrade;
@@ -116,7 +114,7 @@ export class PostRepository {
         const postUpgrade = await mapObject.mapPost(post);
 
         postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-          x.addedAt.localeCompare(y.addedAt),
+          y.addedAt.localeCompare(x.addedAt),
         );
 
         return postUpgrade;
@@ -163,7 +161,7 @@ export class PostRepository {
     postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
 
     postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-      x.addedAt.localeCompare(y.addedAt),
+      y.addedAt.localeCompare(x.addedAt),
     );
 
     return postUpgrade;
@@ -220,7 +218,7 @@ export class PostRepository {
         postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
 
         postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-          x.addedAt.localeCompare(y.addedAt),
+          y.addedAt.localeCompare(x.addedAt),
         );
 
         return postUpgrade;

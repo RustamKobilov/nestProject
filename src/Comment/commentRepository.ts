@@ -16,8 +16,15 @@ export class CommentRepository {
     private reactionRepository: ReactionRepository,
   ) {}
 
-  async getComment(id: string): Promise<Comment | null> {
-    return this.commentModel.findOne({ id: id }, { postId: false, _id: false });
+  async getComment(id: string): Promise<Comment | false> {
+    const comment = await this.commentModel.findOne(
+      { id: id },
+      { postId: false, _id: false },
+    );
+    if (!comment) {
+      return false;
+    }
+    return comment;
   }
 
   async getCommentForUser(

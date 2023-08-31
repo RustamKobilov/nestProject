@@ -48,11 +48,13 @@ export class CommentController {
     @Res() res,
     @Req() req,
   ) {
+    console.log('ff');
     await this.commentService.updateCommentOnId(
       commentId,
       createCommentDto.content,
       req.user.id,
     );
+    console.log('dfdd');
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)

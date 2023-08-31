@@ -58,9 +58,9 @@ export class PostRepository {
       postsForBlogs.map(async (post: Post) => {
         const postUpgrade = await mapObject.mapPost(post);
 
-        postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-          y.addedAt.localeCompare(x.addedAt),
-        );
+        // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+        //   y.addedAt.localeCompare(x.addedAt),
+        // );
 
         return postUpgrade;
       }),
@@ -113,9 +113,9 @@ export class PostRepository {
       posts.map(async (post: Post) => {
         const postUpgrade = await mapObject.mapPost(post);
 
-        postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-          y.addedAt.localeCompare(x.addedAt),
-        );
+        // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+        //   y.addedAt.localeCompare(x.addedAt),
+        // );
 
         return postUpgrade;
       }),
@@ -134,9 +134,9 @@ export class PostRepository {
     if (!post) {
       return false;
     }
-    post.extendedLikesInfo.newestLikes.sort((x, y) =>
-      y.addedAt.localeCompare(x.addedAt),
-    );
+    // post.extendedLikesInfo.newestLikes.sort((x, y) =>
+    //   y.addedAt.localeCompare(x.addedAt),
+    // );
 
     return post;
   }
@@ -164,9 +164,9 @@ export class PostRepository {
 
     postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
 
-    postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-      y.addedAt.localeCompare(x.addedAt),
-    );
+    // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+    //   y.addedAt.localeCompare(x.addedAt),
+    // );
 
     return postUpgrade;
   }
@@ -221,9 +221,9 @@ export class PostRepository {
         }
         postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
 
-        postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-          y.addedAt.localeCompare(x.addedAt),
-        );
+        // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+        //   y.addedAt.localeCompare(x.addedAt),
+        // );
 
         return postUpgrade;
       }),

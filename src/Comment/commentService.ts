@@ -73,11 +73,9 @@ export class CommentService {
       throw new NotFoundException(
         'commentId not found for comment /commentService',
       );
-      console.log(comment?.commentatorInfo.userId + 'commentId/userId');
-      console.log(userId + ' userId/userId');
-      if (comment?.commentatorInfo.userId !== userId) {
-        throw new ForbiddenException('ne svoi comment /commentService');
-      }
+    }
+    if (comment.commentatorInfo.userId !== userId) {
+      throw new ForbiddenException('ne svoi comment /commentService');
     }
     const updateResult = await this.commentRepository.updateComment(
       commentId,
@@ -95,9 +93,9 @@ export class CommentService {
       throw new NotFoundException(
         'commentId not found for comment /commentService',
       );
-      if (comment?.commentatorInfo.userId !== userId) {
-        throw new ForbiddenException('ne svoi comment /commentService');
-      }
+    }
+    if (comment.commentatorInfo.userId !== userId) {
+      throw new ForbiddenException('ne svoi comment /commentService');
     }
     return await this.commentRepository.deleteComment(commentId);
   }

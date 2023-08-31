@@ -34,22 +34,46 @@ export class PostRepository {
         totalCountPost,
       );
 
-    const sortPost = await this.postModel
-      .find(filter, {
-        _id: 0,
-        __v: 0,
-      })
-      .sort({ [paginationPost.sortBy]: paginationPost.sortDirection })
-      .skip(paginationFromHelperForUsers.skipPage)
-      .limit(paginationPost.pageSize)
-      .lean();
+    // const sortPost = await this.postModel
+    //   .find(filter, {
+    //     _id: 0,
+    //     __v: 0,
+    //   })
+    //   .sort({ [paginationPost.sortBy]: paginationPost.sortDirection })
+    //   .skip(paginationFromHelperForUsers.skipPage)
+    //   .limit(paginationPost.pageSize)
+    //   .lean();
+
+    const postsForBlogs = await this.postModel
+      .aggregate([
+        { $match: filter },
+        { $sort: { [paginationPost.sortBy]: paginationPost.sortDirection } },
+        { $skip: paginationFromHelperForUsers.skipPage },
+        { $limit: paginationPost.pageSize },
+      ])
+      .exec()
+      .catch((err) => {
+        return err;
+      });
+
+    const resulPostsSortDate = await Promise.all(
+      postsForBlogs.map(async (post: Post) => {
+        const postUpgrade = await mapObject.mapPost(post);
+
+        postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+          x.addedAt.localeCompare(y.addedAt),
+        );
+
+        return postUpgrade;
+      }),
+    );
 
     return {
       pagesCount: paginationFromHelperForUsers.totalCount,
       page: paginationPost.pageNumber,
       pageSize: paginationPost.pageSize,
       totalCount: totalCountPost,
-      items: sortPost,
+      items: resulPostsSortDate,
     };
   }
 
@@ -62,25 +86,49 @@ export class PostRepository {
         totalCountPost,
       );
 
-    const sortPost = await this.postModel
-      .find(
-        {},
-        {
-          _id: 0,
-          __v: 0,
-        },
-      )
-      .sort({ [pagination.sortBy]: pagination.sortDirection })
-      .skip(paginationFromHelperForUsers.skipPage)
-      .limit(pagination.pageSize)
-      .lean();
+    // const sortPost = await this.postModel
+    //   .find(
+    //     {},
+    //     {
+    //       _id: 0,
+    //       __v: 0,
+    //     },
+    //   )
+    //   .sort({ [pagination.sortBy]: pagination.sortDirection })
+    //   .skip(paginationFromHelperForUsers.skipPage)
+    //   .limit(pagination.pageSize)
+    //   .lean();
+
+    const posts = await this.postModel
+      .aggregate([
+        { $match: {} },
+        { $sort: { [pagination.sortBy]: pagination.sortDirection } },
+        { $skip: paginationFromHelperForUsers.skipPage },
+        { $limit: pagination.pageSize },
+      ])
+      .exec()
+      .catch((err) => {
+        return err;
+      });
+
+    const resulPostsSortDate = await Promise.all(
+      posts.map(async (post: Post) => {
+        const postUpgrade = await mapObject.mapPost(post);
+
+        postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+          x.addedAt.localeCompare(y.addedAt),
+        );
+
+        return postUpgrade;
+      }),
+    );
 
     return {
       pagesCount: paginationFromHelperForUsers.totalCount,
       page: pagination.pageNumber,
       pageSize: pagination.pageSize,
       totalCount: totalCountPost,
-      items: sortPost,
+      items: resulPostsSortDate,
     };
   }
   async getPost(postId: string): Promise<Post | false> {
@@ -113,6 +161,10 @@ export class PostRepository {
     }
 
     postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
+
+    postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+      x.addedAt.localeCompare(y.addedAt),
+    );
 
     return postUpgrade;
   }
@@ -166,6 +218,10 @@ export class PostRepository {
           return postUpgrade;
         }
         postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
+
+        postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
+          x.addedAt.localeCompare(y.addedAt),
+        );
 
         return postUpgrade;
       }),

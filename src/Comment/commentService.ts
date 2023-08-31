@@ -25,7 +25,7 @@ export class CommentService {
   async getComment(commentId: string) {
     const comment = await this.commentRepository.getComment(commentId);
     if (!comment) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'commentId not found for comment /commentService',
       );
     }
@@ -35,7 +35,7 @@ export class CommentService {
   async getCommentOnIdForUser(id: string, userId: string) {
     const comment = await this.commentRepository.getCommentForUser(id, userId);
     if (!comment) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'commentId not found for comment /commentService',
       );
     }

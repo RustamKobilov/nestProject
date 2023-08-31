@@ -147,7 +147,7 @@ export class PostRepository {
   ): Promise<PostViewModel | false> {
     const postForUser = await this.postModel.findOne(
       { id: postId },
-      { blogId: false, _id: false },
+      { _id: false },
     );
 
     if (!postForUser) {

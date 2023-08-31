@@ -135,6 +135,7 @@ export class UserService {
   }
 
   async getUserInformation(userId: string): Promise<MeViewModel> {
+    console.log(userId);
     const user = await this.userRepository.getUser(userId);
     if (!user) {
       throw new NotFoundException('userId user not found /userService');

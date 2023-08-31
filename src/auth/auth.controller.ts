@@ -145,9 +145,7 @@ export class AuthController {
   @UseGuards(BearerGuard)
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {
-    const outputUser = await this.authService.getUserInformation(
-      req.user.userId,
-    );
+    const outputUser = await this.authService.getUserInformation(req.user.id);
     return res.status(200).send(outputUser);
   }
   @Post('/password-recovery')

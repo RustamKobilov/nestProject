@@ -21,6 +21,7 @@ import {
 import { RefreshTokenGuard } from './Guard/refreshTokenGuard';
 import { JwtServices } from '../application/jwtService';
 import { SkipThrottle } from '@nestjs/throttler';
+import { BearerGuard } from './Guard/bearerGuard';
 
 @Controller('auth')
 export class AuthController {
@@ -141,7 +142,7 @@ export class AuthController {
     return res.sendStatus(204);
   }
   @SkipThrottle()
-  @UseGuards(RefreshTokenGuard)
+  @UseGuards(BearerGuard)
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {
     const refreshTokenPayload = req.refreshTokenPayload;

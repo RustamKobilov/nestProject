@@ -1,7 +1,7 @@
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateWriteOpResult } from 'mongoose';
 import { Device, DeviceDocument } from './Device';
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { mapObject } from '../mapObject';
 import { DeviceViewModel } from '../viewModelDTO';
 

@@ -43,9 +43,6 @@ export class SecurityController {
   ) {
     const userId = req.refreshTokenPayload.userId;
     const device = await this.devicesService.getDevice(deviceId);
-    if (!device) {
-      return res.sendStatus(404);
-    }
     if (device.userId !== userId) {
       return res.sendStatus(403);
     }

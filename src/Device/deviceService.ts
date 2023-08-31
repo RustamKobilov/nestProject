@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { de } from 'date-fns/locale';
@@ -162,7 +163,7 @@ export class DeviceService {
   async getDevice(deviceId: string) {
     const device = await this.deviceRepository.getDevice(deviceId);
     if (!device) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'deviceId not found for device /deviceService',
       );
     }

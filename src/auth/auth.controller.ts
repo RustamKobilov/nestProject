@@ -145,11 +145,8 @@ export class AuthController {
   @UseGuards(BearerGuard)
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {
-    const refreshTokenPayload = req.refreshTokenPayload;
-    console.log(refreshTokenPayload.userId);
-    console.log('controller');
     const outputUser = await this.authService.getUserInformation(
-      refreshTokenPayload.userId,
+      req.user.userId,
     );
     return res.status(200).send(outputUser);
   }

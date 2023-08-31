@@ -130,10 +130,14 @@ export class PostRepository {
     };
   }
   async getPost(postId: string): Promise<Post | false> {
-    const post = await this.postModel.findOne({ id: postId });
+    const post = await this.postModel.findOne({ id: postId }).exec();
     if (!post) {
       return false;
     }
+    post.extendedLikesInfo.newestLikes.sort((x, y) =>
+      y.addedAt.localeCompare(x.addedAt),
+    );
+
     return post;
   }
 

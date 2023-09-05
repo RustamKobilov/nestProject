@@ -98,19 +98,7 @@ export class PostService {
     }
     return this.postRepository.deletePost(postId);
   }
-  async getPostForBlogUser(
-    blogId: string,
-    getPagination: PaginationDTO,
-    userId: string,
-  ) {
-    const filter = { blogId: blogId };
-    const pagination = helper.getCommentPaginationValues(getPagination);
-    return await this.postRepository.getPostsForUser(
-      filter,
-      pagination,
-      userId,
-    );
-  }
+
   async updateLikeStatusPost(
     postId: string,
     likeStatus: likeStatus,

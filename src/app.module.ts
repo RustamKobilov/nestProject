@@ -5,12 +5,12 @@ import { UserRepository } from './User/userRepository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
-  UserRecoveryPasswordInfo,
   User,
   UserConfirmationInfo,
   UserConfirmationInfoSchema,
-  UserSchema,
+  UserRecoveryPasswordInfo,
   UserRecoveryPasswordInfoSchema,
+  UserSchema,
 } from './User/User';
 import { DeleteBase } from './deleteBase';
 import { Blog, BlogSchema } from './Blog/Blog';
@@ -64,9 +64,25 @@ import {
   isEmailNoUniqueValidate,
   IsLoginNoUniqueValidate,
 } from './pipes/customValidator';
-import { BearerGuard } from './auth/Guard/bearerGuard';
-dotenv.config();
+import { CqrsModule } from '@nestjs/cqrs';
+import { GetBlogsUseCase } from './Blog/use-cases/get-blogs-use-case';
+import { CreateBlogUseCase } from './Blog/use-cases/create-blog-use-case';
+import { UpdateBlogUseCase } from './Blog/use-cases/update-blog-use-case';
+import { DeleteBlogUseCase } from './Blog/use-cases/delete-blog-use-case';
+import { GetPostByBlog } from './Blog/use-cases/get-post-by-blog';
+import { CreatePostByBlog } from './Blog/use-cases/create-post-by-blog';
+import { GetPostByBlogForUser } from './Blog/use-cases/get-post-by-blog-for-user';
 
+dotenv.config();
+const useCase = [
+  GetBlogsUseCase,
+  CreateBlogUseCase,
+  UpdateBlogUseCase,
+  DeleteBlogUseCase,
+  GetPostByBlog,
+  CreatePostByBlog,
+  GetPostByBlogForUser,
+];
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
@@ -138,6 +154,7 @@ dotenv.config();
         return { ttl: ttl, limit: limit };
       },
     }),
+    CqrsModule,
   ],
   controllers: [
     UserController,
@@ -168,6 +185,7 @@ dotenv.config();
     isEmailNoUniqueValidate,
     IsLoginNoUniqueValidate,
     IsBlogCheckingValidate,
+    ...useCase,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

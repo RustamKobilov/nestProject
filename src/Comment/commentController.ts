@@ -13,8 +13,8 @@ import { CommentService } from './commentService';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
 import { CreateCommentDto, UpdateLikeStatusDto } from '../DTO';
-import { AuthCommentForUserGuard } from '../auth/Guard/authCommentForUserGuard';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { SkipThrottle } from '@nestjs/throttler';
+
 @SkipThrottle()
 @Controller('comments')
 export class CommentController {

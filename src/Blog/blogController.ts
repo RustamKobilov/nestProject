@@ -23,14 +23,25 @@ import { Response } from 'express';
 import { SkipThrottle } from '@nestjs/throttler';
 import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetBlogsUseCaseCommand } from './use-cases/get-blogs-use-case';
+import { CreateBlogUseCaseCommand } from './use-cases/create-blog-use-case';
+import { UpdateUseCaseCommand } from './use-cases/update-blog-use-case';
+import { DeleteBlogUseCaseCommand } from './use-cases/delete-blog-use-case';
+import { GetPostByBlogCommand } from './use-cases/get-post-by-blog';
+import { CreatePostByBlogCommand } from './use-cases/create-post-by-blog';
+import { GetPostByBlogForUserCommand } from './use-cases/get-post-by-blog-for-user';
 
 @SkipThrottle()
 @Controller('blogs')
 export class BlogController {
-  constructor(private readonly blogService: BlogService) {}
+  constructor(
+    private commandBus: CommandBus,
+    private readonly blogService: BlogService,
+  ) {}
   @Get()
   async getBlogs(@Query() blogPagination: BlogPaginationDTO) {
-    return this.blogService.getBlogs(blogPagination);
+    return this.commandBus.execute(new GetBlogsUseCaseCommand(blogPagination));
   }
   @Get('/:id')
   async getBlog(@Param('id') blogId: string) {
@@ -39,7 +50,7 @@ export class BlogController {
   @UseGuards(BasicAuthorizationGuard)
   @Post()
   async createBlog(@Body() createBlogDto: CreateBlogDTO) {
-    return this.blogService.createNewBlog(createBlogDto);
+    return this.commandBus.execute(new CreateBlogUseCaseCommand(createBlogDto));
   }
   @UseGuards(BasicAuthorizationGuard)
   @Put('/:id')
@@ -48,13 +59,15 @@ export class BlogController {
     @Body() updateBlogDto: CreateBlogDTO,
     @Res() res: Response,
   ) {
-    await this.blogService.updateBlog(blogId, updateBlogDto);
+    await this.commandBus.execute(
+      new UpdateUseCaseCommand(blogId, updateBlogDto),
+    );
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
   async deleteBlog(@Param('id') blogId: string, @Res() res: Response) {
-    await this.blogService.deleteBlog(blogId);
+    await this.commandBus.execute(new DeleteBlogUseCaseCommand(blogId));
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(IdenteficationUserGuard)
@@ -70,16 +83,13 @@ export class BlogController {
     const blog = await this.blogService.getBlog(blogId);
     let resultAllPostsByBlog;
     if (!req.user) {
-      resultAllPostsByBlog = await this.blogService.getPostsbyBlog(
-        blogId,
-        getPagination,
+      resultAllPostsByBlog = await this.commandBus.execute(
+        new GetPostByBlogCommand(blogId, getPagination),
       );
       return res.status(200).send(resultAllPostsByBlog);
     }
-    resultAllPostsByBlog = await this.blogService.getPostForBlogUser(
-      blogId,
-      getPagination,
-      req.user.id,
+    resultAllPostsByBlog = await this.commandBus.execute(
+      new GetPostByBlogForUserCommand(blogId, getPagination, req.user.id),
     );
     return res.status(200).send(resultAllPostsByBlog);
   }
@@ -89,6 +99,8 @@ export class BlogController {
     @Body() createPostDto: CreatePostByBlogDTO,
     @Param('id') blogId: string,
   ) {
-    return this.blogService.createPostByBlog(createPostDto, blogId);
+    return await this.commandBus.execute(
+      new CreatePostByBlogCommand(createPostDto, blogId),
+    );
   }
 }

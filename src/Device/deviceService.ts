@@ -7,8 +7,8 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { de } from 'date-fns/locale';
 import { DeviceViewModel } from '../viewModelDTO';
+
 @Injectable()
 export class DeviceService {
   constructor(private deviceRepository: DeviceRepository) {}

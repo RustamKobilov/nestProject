@@ -86,6 +86,13 @@ import { DeleteCommentUseCase } from './Comment/use-cases/delete-comment-use-cas
 import { UpdateLikeStatusCommentUseCase } from './Comment/use-cases/update-like-status-comment-use-case';
 import { GetCommentsForPostUseCase } from './Post/use-cases/get-comments-for-post-use-case';
 import { GetCommentsForPostForUserUseCase } from './Post/use-cases/get-comments-for-post-for-user-use-case';
+import { CreateDeviceUseCase } from './Device/use-case/create-device-use-case';
+import { UpdateDeviceUseCase } from './Device/use-case/update-device-use-case';
+import { GetDevicesUseCase } from './Device/use-case/get-devices-use-case';
+import { DeleteDevicesUseCase } from './Device/use-case/delete-devices-use-case';
+import { GetTokenByNameAndTitle } from './Device/use-case/get-token-by-name-and-title';
+import { CheckActiveDeviceUseCase } from './Device/use-case/check-active-device-use-case';
+import { RefreshTokenUseCase } from './Device/use-case/refresh-token-use-case';
 
 dotenv.config();
 const useCaseBlog = [
@@ -114,6 +121,15 @@ const useCaseComment = [
   GetCommentForUserUseCase,
   UpdateCommentUseCase,
   UpdateLikeStatusCommentUseCase,
+];
+const useCaseDevice = [
+  CreateDeviceUseCase,
+  GetDevicesUseCase,
+  UpdateDeviceUseCase,
+  DeleteDevicesUseCase,
+  GetTokenByNameAndTitle,
+  CheckActiveDeviceUseCase,
+  RefreshTokenUseCase,
 ];
 @Module({
   imports: [
@@ -220,6 +236,7 @@ const useCaseComment = [
     ...useCaseBlog,
     ...useCasePost,
     ...useCaseComment,
+    ...useCaseDevice,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

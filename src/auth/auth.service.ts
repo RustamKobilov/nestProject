@@ -11,6 +11,15 @@ import * as dotenv from 'dotenv';
 import { randomUUID } from 'crypto';
 import { DeviceService } from '../Device/deviceService';
 import { JwtServices } from '../application/jwtService';
+import { CommandBus } from '@nestjs/cqrs';
+import { CreateDeviceUseCaseCommand } from '../Device/use-case/create-device-use-case';
+import {
+  UpdateDeviceUseCase,
+  UpdateDeviceUseCaseCommand,
+} from '../Device/use-case/update-device-use-case';
+import { GetTokenByNameAndTitleCommand } from '../Device/use-case/get-token-by-name-and-title';
+import { CheckActiveDeviceUseCaseCommand } from '../Device/use-case/check-active-device-use-case';
+import { RefreshTokenUseCaseCommand } from '../Device/use-case/refresh-token-use-case';
 
 dotenv.config();
 
@@ -22,6 +31,7 @@ export class AuthService {
     private emailAdapters: EmailAdapters,
     private jwtService: JwtServices,
     private deviceService: DeviceService,
+    private commandBus: CommandBus,
   ) {}
 
   async signIn(login, password, ip, title) {
@@ -47,10 +57,8 @@ export class AuthService {
   ) {
     const lastActiveDate =
       await this.deviceService.getLastActiveDateFromRefreshToken(refreshToken);
-    const resultCheckTokenInBase = await this.deviceService.checkTokenByDevice(
-      userId,
-      deviceId,
-      lastActiveDate,
+    const resultCheckTokenInBase = await this.commandBus.execute(
+      new CheckActiveDeviceUseCaseCommand(userId, deviceId, lastActiveDate),
     );
     if (!resultCheckTokenInBase) {
       throw new UnauthorizedException(
@@ -88,19 +96,20 @@ export class AuthService {
 
   async registrationAttempt(userId: string, ip: string, title: string) {
     let refreshToken;
-    const device = await this.deviceService.checkTokenByNameAndTitle(
-      userId,
-      title,
+    const device = await this.commandBus.execute(
+      new GetTokenByNameAndTitleCommand(userId, title),
     );
     if (!device) {
       const deviceId = randomUUID();
       refreshToken = await this.jwtService.getRefreshToken(userId, deviceId);
-      await this.deviceService.addDevice(
-        refreshToken,
-        userId,
-        title,
-        ip,
-        deviceId,
+      await this.commandBus.execute(
+        new CreateDeviceUseCaseCommand(
+          refreshToken,
+          userId,
+          title,
+          ip,
+          deviceId,
+        ),
       );
     } else {
       console.log('else');
@@ -109,24 +118,24 @@ export class AuthService {
         userId,
         device.deviceId,
       );
-      await this.deviceService.updateDevice(refreshToken, userId, title);
+      await this.commandBus.execute(
+        new UpdateDeviceUseCaseCommand(refreshToken, userId, title),
+      );
     }
 
     return refreshToken;
   }
-  async deleteAdminDevice() {
-    return await this.deviceService.deleteAdmin();
-  }
+  // async deleteAdminDevice() {
+  //   return await this.deviceService.deleteAdmin();
+  // }
 
   async refreshTokenDevice(
     refreshToken: string,
     userId: string,
     deviceId: string,
   ) {
-    return await this.deviceService.refreshTokenDevice(
-      refreshToken,
-      userId,
-      deviceId,
+    return await this.commandBus.execute(
+      new RefreshTokenUseCaseCommand(refreshToken, userId, deviceId),
     );
   }
   async confirmationUserAfterRegistration(code: string) {
@@ -174,9 +183,9 @@ export class AuthService {
     }
   }
   //__________ADMIN____________________
-  async getDeviceAdmin(deviceId: string) {
-    return await this.deviceService.getDeviceAdminById(deviceId);
-  }
+  // async getDeviceAdmin(deviceId: string) {
+  //   return await this.deviceService.getDeviceAdminById(deviceId);
+  // }
 
   async updatePasswordUserAuthService(newPasswordBody: UpdatePasswordDTO) {
     await this.usersService.updatePasswordUserUserService(newPasswordBody);

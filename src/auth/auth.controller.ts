@@ -93,7 +93,7 @@ export class AuthController {
   @Post('/refresh-token')
   async refreshToken(@Res() res, @Req() req) {
     const refreshToken = req.cookies.refreshToken;
-    const refreshTokenPayload = req.refreshTokenPayload; //опвесить гард ревреша
+    const refreshTokenPayload = req.refreshTokenPayload;
     const checkTokenForUser = await this.authService.checkRefreshTokenForUser(
       refreshToken,
       refreshTokenPayload.userId,
@@ -182,19 +182,19 @@ export class AuthController {
   }
 
   //___________________________________________________
-  @Get('/admin/user/:userId')
-  async userAdmin(@Param('userId') userId: string, @Req() req) {
-    console.log('admin zapros');
-    return this.authService.getUserAdmin(userId);
-  }
-  @Get('/admin/device/:deviceId')
-  async getDeviceAdmin(@Param('deviceId') deviceId: string, @Res() res) {
-    const device = await this.authService.getDeviceAdmin(deviceId);
-    return res.send(device);
-  }
-
-  @Delete('/user/device')
-  async userAdminDelete() {
-    return this.authService.deleteAdminDevice();
-  }
+  // @Get('/admin/user/:userId')
+  // async userAdmin(@Param('userId') userId: string, @Req() req) {
+  //   console.log('admin zapros');
+  //   return this.authService.getUserAdmin(userId);
+  // }
+  // @Get('/admin/device/:deviceId')
+  // async getDeviceAdmin(@Param('deviceId') deviceId: string, @Res() res) {
+  //   const device = await this.authService.getDeviceAdmin(deviceId);
+  //   return res.send(device);
+  // }
+  //
+  // @Delete('/user/device')
+  // async userAdminDelete() {
+  //   return this.authService.deleteAdminDevice();
+  // }
 }

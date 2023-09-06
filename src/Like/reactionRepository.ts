@@ -75,8 +75,6 @@ export class ReactionRepository {
         return err;
       });
 
-    // find({parentId: parentId, status:likeStatus.Like})
-    //   .sort({createdAt:-1}).limit(3).lean()
     const lastlikeUser = await Promise.all(
       lastReactionUser.map(async (reaction: Reaction) => {
         const newestLikes = await mapObject.mapNewestLikes(reaction);

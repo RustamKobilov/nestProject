@@ -11,7 +11,6 @@ import {
   Query,
   Req,
   Res,
-  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -26,10 +25,19 @@ import { CommentService } from '../Comment/commentService';
 import { SkipThrottle } from '@nestjs/throttler';
 import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetPostsUseCaseCommand } from './use-cases/get-posts-use-case';
+import { GetPostsForUserUseCaseCommand } from './use-cases/get-posts-for-user-use-case';
+import { UpdatePostUserCaseCommand } from './use-cases/update-post-use-case';
+import { GetPostForUserUseCaseCommand } from './use-cases/get-post-for-user-use-case';
+import { DeletePostUseCaseCommand } from './use-cases/delete-post-use-case';
+import { UpdateLikeStatusPostUseCaseCommand } from './use-cases/update-like-status-post-use-case';
+
 @SkipThrottle()
 @Controller('posts')
 export class PostController {
   constructor(
+    private commandBus: CommandBus,
     private readonly postService: PostService,
     private readonly commentService: CommentService,
   ) {}
@@ -47,12 +55,13 @@ export class PostController {
   ) {
     let resultAllPosts;
     if (!req.user) {
-      resultAllPosts = await this.postService.getPosts(postPagination);
+      resultAllPosts = await this.commandBus.execute(
+        new GetPostsUseCaseCommand(postPagination),
+      );
       return res.status(200).send(resultAllPosts);
     }
-    resultAllPosts = await this.postService.getPostsForUser(
-      postPagination,
-      req.user.id,
+    resultAllPosts = await this.commandBus.execute(
+      new GetPostsForUserUseCaseCommand(postPagination, req.user.id),
     );
     return res.status(200).send(resultAllPosts);
   }
@@ -64,7 +73,9 @@ export class PostController {
       post = await this.postService.getPost(postId);
       return res.status(200).send(post);
     }
-    post = await this.postService.getPostForUser(postId, req.user.id);
+    post = await this.commandBus.execute(
+      new GetPostForUserUseCaseCommand(postId, req.user.id),
+    );
     return res.status(200).send(post);
   }
   @UseGuards(BasicAuthorizationGuard)
@@ -74,13 +85,15 @@ export class PostController {
     @Body() updatePostDto: CreatePostDTO,
     @Res() res: Response,
   ) {
-    await this.postService.updatePost(postId, updatePostDto);
+    await this.commandBus.execute(
+      new UpdatePostUserCaseCommand(postId, updatePostDto),
+    );
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
   async deletePost(@Param('id') postId: string, @Res() res: Response) {
-    await this.postService.deletePost(postId);
+    await this.commandBus.execute(new DeletePostUseCaseCommand(postId));
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BearerGuard)
@@ -135,10 +148,12 @@ export class PostController {
     @Param('id') postId: string,
     @Body() updateLikeStatus: UpdateLikeStatusDto,
   ) {
-    await this.postService.updateLikeStatusPost(
-      postId,
-      updateLikeStatus.likeStatus,
-      req.user,
+    await this.commandBus.execute(
+      new UpdateLikeStatusPostUseCaseCommand(
+        postId,
+        updateLikeStatus.likeStatus,
+        req.user,
+      ),
     );
 
     return res.sendStatus(204);

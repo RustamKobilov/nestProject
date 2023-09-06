@@ -72,9 +72,15 @@ import { DeleteBlogUseCase } from './Blog/use-cases/delete-blog-use-case';
 import { GetPostByBlog } from './Blog/use-cases/get-post-by-blog';
 import { CreatePostByBlog } from './Blog/use-cases/create-post-by-blog';
 import { GetPostByBlogForUser } from './Blog/use-cases/get-post-by-blog-for-user';
+import { GetPostsUseCase } from './Post/use-cases/get-posts-use-case';
+import { GetPostsForUserUseCase } from './Post/use-cases/get-posts-for-user-use-case';
+import { GetPostForUserUseCase } from './Post/use-cases/get-post-for-user-use-case';
+import { UpdateLikeStatusPostUseCase } from './Post/use-cases/update-like-status-post-use-case';
+import { UpdatePostUseCase } from './Post/use-cases/update-post-use-case';
+import { DeletePostUseCase } from './Post/use-cases/delete-post-use-case';
 
 dotenv.config();
-const useCase = [
+const useCaseBlog = [
   GetBlogsUseCase,
   CreateBlogUseCase,
   UpdateBlogUseCase,
@@ -82,6 +88,14 @@ const useCase = [
   GetPostByBlog,
   CreatePostByBlog,
   GetPostByBlogForUser,
+];
+const useCasePost = [
+  GetPostsUseCase,
+  GetPostsForUserUseCase,
+  GetPostForUserUseCase,
+  UpdatePostUseCase,
+  DeletePostUseCase,
+  UpdateLikeStatusPostUseCase,
 ];
 @Module({
   imports: [
@@ -185,7 +199,8 @@ const useCase = [
     isEmailNoUniqueValidate,
     IsLoginNoUniqueValidate,
     IsBlogCheckingValidate,
-    ...useCase,
+    ...useCaseBlog,
+    ...useCasePost,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

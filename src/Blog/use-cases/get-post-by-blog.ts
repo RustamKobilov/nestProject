@@ -4,6 +4,7 @@ import { BlogRepository } from '../blogRepository';
 import { PaginationDTO } from '../../DTO';
 import { CommandHandler } from '@nestjs/cqrs';
 import { PostService } from '../../Post/postService';
+import { PostRepository } from '../../Post/postRepository';
 
 export class GetPostByBlogCommand {
   constructor(public blogId: string, public postPagination: PaginationDTO) {}
@@ -12,7 +13,7 @@ export class GetPostByBlogCommand {
 export class GetPostByBlog {
   constructor(
     private blogRepository: BlogRepository,
-    private postService: PostService,
+    private postRepository: PostRepository,
   ) {}
   async execute(command: GetPostByBlogCommand) {
     const blog = await this.blogRepository.getBlog(command.blogId);
@@ -21,6 +22,6 @@ export class GetPostByBlog {
     }
     const pagination = helper.getPostPaginationValues(command.postPagination);
     const filter = { blogId: command.blogId };
-    return this.postService.getPostsByBlog(pagination, filter);
+    return await this.postRepository.getPostsForBlog(pagination, filter);
   }
 }

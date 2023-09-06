@@ -78,6 +78,14 @@ import { GetPostForUserUseCase } from './Post/use-cases/get-post-for-user-use-ca
 import { UpdateLikeStatusPostUseCase } from './Post/use-cases/update-like-status-post-use-case';
 import { UpdatePostUseCase } from './Post/use-cases/update-post-use-case';
 import { DeletePostUseCase } from './Post/use-cases/delete-post-use-case';
+import { GetCommentForUserUseCase } from './Comment/use-cases/get-comment-for-user-use-case';
+import { UpdateCommentUseCase } from './Comment/use-cases/update-comment-use-case';
+import { CreateCommentForPostUseCase } from './Post/use-cases/create-comment-for-post-use-case';
+import { GetCommentViewModelUseCase } from './Comment/use-cases/get-comment-view-model-use-case';
+import { DeleteCommentUseCase } from './Comment/use-cases/delete-comment-use-case';
+import { UpdateLikeStatusCommentUseCase } from './Comment/use-cases/update-like-status-comment-use-case';
+import { GetCommentsForPostUseCase } from './Post/use-cases/get-comments-for-post-use-case';
+import { GetCommentsForPostForUserUseCase } from './Post/use-cases/get-comments-for-post-for-user-use-case';
 
 dotenv.config();
 const useCaseBlog = [
@@ -88,6 +96,7 @@ const useCaseBlog = [
   GetPostByBlog,
   CreatePostByBlog,
   GetPostByBlogForUser,
+  DeleteCommentUseCase,
 ];
 const useCasePost = [
   GetPostsUseCase,
@@ -96,6 +105,15 @@ const useCasePost = [
   UpdatePostUseCase,
   DeletePostUseCase,
   UpdateLikeStatusPostUseCase,
+  CreateCommentForPostUseCase,
+  GetCommentViewModelUseCase,
+  GetCommentsForPostUseCase,
+  GetCommentsForPostForUserUseCase,
+];
+const useCaseComment = [
+  GetCommentForUserUseCase,
+  UpdateCommentUseCase,
+  UpdateLikeStatusCommentUseCase,
 ];
 @Module({
   imports: [
@@ -201,6 +219,7 @@ const useCasePost = [
     IsBlogCheckingValidate,
     ...useCaseBlog,
     ...useCasePost,
+    ...useCaseComment,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

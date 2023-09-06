@@ -14,11 +14,19 @@ import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
 import { CreateCommentDto, UpdateLikeStatusDto } from '../DTO';
 import { SkipThrottle } from '@nestjs/throttler';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetCommentForUserUseCaseCommand } from './use-cases/get-comment-for-user-use-case';
+import { UpdateCommentUseCaseCommand } from './use-cases/update-comment-use-case';
+import { DeleteCommentUseCaseCommand } from './use-cases/delete-comment-use-case';
+import { UpdateLikeStatusCommentUseCaseCommand } from './use-cases/update-like-status-comment-use-case';
 
 @SkipThrottle()
 @Controller('comments')
 export class CommentController {
-  constructor(private readonly commentService: CommentService) {}
+  constructor(
+    private readonly commentService: CommentService,
+    private commandBus: CommandBus,
+  ) {}
 
   @UseGuards(IdenteficationUserGuard)
   @Get('/:id')
@@ -29,9 +37,8 @@ export class CommentController {
       return res.status(200).send(resultSearch);
     }
     console.log(req.user);
-    resultSearch = await this.commentService.getCommentOnIdForUser(
-      commentId,
-      req.user.id,
+    resultSearch = await this.commandBus.execute(
+      new GetCommentForUserUseCaseCommand(commentId, req.user.id),
     );
 
     if (!resultSearch) {
@@ -40,7 +47,6 @@ export class CommentController {
     return res.status(200).send(resultSearch);
   }
   @UseGuards(BearerGuard)
-  //@UseGuards(AuthCommentForUserGuard)
   @Put('/:id')
   async updateComment(
     @Param('id') commentId: string,
@@ -48,13 +54,13 @@ export class CommentController {
     @Res() res,
     @Req() req,
   ) {
-    console.log('ff');
-    await this.commentService.updateCommentOnId(
-      commentId,
-      createCommentDto.content,
-      req.user.id,
+    await this.commandBus.execute(
+      new UpdateCommentUseCaseCommand(
+        commentId,
+        createCommentDto.content,
+        req.user.id,
+      ),
     );
-    console.log('dfdd');
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)
@@ -62,7 +68,9 @@ export class CommentController {
   //TODO из гуард в гуард инфу. если передать то undefined
   @Delete('/:id')
   async deleteComment(@Param('id') commentId: string, @Res() res, @Req() req) {
-    await this.commentService.deleteComment(commentId, req.user.id);
+    await this.commandBus.execute(
+      new DeleteCommentUseCaseCommand(commentId, req.user.id),
+    );
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)
@@ -74,10 +82,12 @@ export class CommentController {
     @Res() res,
     @Req() req,
   ) {
-    await this.commentService.updateLikeStatusComment(
-      commentId,
-      updateLikeStatusCommentDto.likeStatus,
-      req.user,
+    await this.commandBus.execute(
+      new UpdateLikeStatusCommentUseCaseCommand(
+        commentId,
+        updateLikeStatusCommentDto.likeStatus,
+        req.user,
+      ),
     );
     return res.sendStatus(204);
   }

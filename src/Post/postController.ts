@@ -32,6 +32,13 @@ import { UpdatePostUserCaseCommand } from './use-cases/update-post-use-case';
 import { GetPostForUserUseCaseCommand } from './use-cases/get-post-for-user-use-case';
 import { DeletePostUseCaseCommand } from './use-cases/delete-post-use-case';
 import { UpdateLikeStatusPostUseCaseCommand } from './use-cases/update-like-status-post-use-case';
+import { CreateCommentForPostUseCaseCommand } from './use-cases/create-comment-for-post-use-case';
+import {
+  GetCommentViewModelUseCase,
+  GetCommentViewModelUseCaseCommand,
+} from '../Comment/use-cases/get-comment-view-model-use-case';
+import { GetCommentsForPostUseCaseCommand } from './use-cases/get-comments-for-post-use-case';
+import { GetCommentsForPostForUserUseCaseCommand } from './use-cases/get-comments-for-post-for-user-use-case';
 
 @SkipThrottle()
 @Controller('posts')
@@ -105,13 +112,15 @@ export class PostController {
     @Req() req,
   ) {
     await this.postService.getPost(postId);
-    const addCommentByPost = await this.commentService.createCommentForPost(
-      postId,
-      createCommentDto.content,
-      req.user,
+    const addCommentByPostReturnIdComment = await this.commandBus.execute(
+      new CreateCommentForPostUseCaseCommand(
+        postId,
+        createCommentDto.content,
+        req.user,
+      ),
     ); //return id new comment
-    const newCommentByPost = await this.commentService.getCommentViewModel(
-      addCommentByPost,
+    const newCommentByPost = await this.commandBus.execute(
+      new GetCommentViewModelUseCaseCommand(addCommentByPostReturnIdComment),
     );
     return res.status(201).send(newCommentByPost);
   }
@@ -123,20 +132,20 @@ export class PostController {
     @Res() res: Response,
     @Req() req,
   ) {
-    console.log(postId);
     await this.postService.getPost(postId);
     let resultAllCommentsByPosts;
     if (!req.user) {
-      resultAllCommentsByPosts = await this.commentService.getComments(
-        getPagination,
-        postId,
+      resultAllCommentsByPosts = await this.commandBus.execute(
+        new GetCommentsForPostUseCaseCommand(getPagination, postId),
       );
       return res.status(200).send(resultAllCommentsByPosts);
     }
-    resultAllCommentsByPosts = await this.commentService.getCommentsForUser(
-      getPagination,
-      postId,
-      req.user.id,
+    resultAllCommentsByPosts = await this.commandBus.execute(
+      new GetCommentsForPostForUserUseCaseCommand(
+        getPagination,
+        postId,
+        req.user.id,
+      ),
     );
     return res.status(200).send(resultAllCommentsByPosts);
   }

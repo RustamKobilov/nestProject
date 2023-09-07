@@ -182,11 +182,11 @@ export class AuthController {
   }
 
   //___________________________________________________
-  // @Get('/admin/user/:userId')
-  // async userAdmin(@Param('userId') userId: string, @Req() req) {
-  //   console.log('admin zapros');
-  //   return this.authService.getUserAdmin(userId);
-  // }
+  @Get('/admin/user/:userId')
+  async userAdmin(@Param('userId') userId: string, @Req() req) {
+    console.log('admin zapros');
+    return this.authService.getUserAdmin(userId);
+  }
   // @Get('/admin/device/:deviceId')
   // async getDeviceAdmin(@Param('deviceId') deviceId: string, @Res() res) {
   //   const device = await this.authService.getDeviceAdmin(deviceId);

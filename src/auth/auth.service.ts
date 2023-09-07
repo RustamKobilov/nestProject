@@ -6,20 +6,18 @@ import {
 import { UserService } from '../User/userService';
 import { bcriptService } from '../bcryptService';
 import { CreateUserDto, UpdatePasswordDTO } from '../DTO';
-import { EmailAdapters } from '../adapters/email-adapters';
 import * as dotenv from 'dotenv';
 import { randomUUID } from 'crypto';
 import { DeviceService } from '../Device/deviceService';
 import { JwtServices } from '../application/jwtService';
 import { CommandBus } from '@nestjs/cqrs';
 import { CreateDeviceUseCaseCommand } from '../Device/use-case/create-device-use-case';
-import {
-  UpdateDeviceUseCase,
-  UpdateDeviceUseCaseCommand,
-} from '../Device/use-case/update-device-use-case';
+import { UpdateDeviceUseCaseCommand } from '../Device/use-case/update-device-use-case';
 import { GetTokenByNameAndTitleCommand } from '../Device/use-case/get-token-by-name-and-title';
 import { CheckActiveDeviceUseCaseCommand } from '../Device/use-case/check-active-device-use-case';
 import { RefreshTokenUseCaseCommand } from '../Device/use-case/refresh-token-use-case';
+import { SendEmailForRegistrationUserUseCaseCommand } from '../adapters/email-adapters/use-case/send-email-for-registration-user-use-case';
+import { SendEmailForPasswordRecoveryUseCaseCommand } from '../adapters/email-adapters/use-case/send-email-for-password-recovery-use-case';
 
 dotenv.config();
 
@@ -27,8 +25,7 @@ dotenv.config();
 export class AuthService {
   constructor(
     private usersService: UserService,
-    /*private usersRepository: UserRepository,*/
-    private emailAdapters: EmailAdapters,
+    // private emailAdapters: GMailEmailAdapters,
     private jwtService: JwtServices,
     private deviceService: DeviceService,
     private commandBus: CommandBus,
@@ -77,9 +74,11 @@ export class AuthService {
       await this.usersService.createNewUserRegistration(createUserDto);
     console.log(userConfirmationCode);
     try {
-      await this.emailAdapters.gmailSendEmailRegistration(
-        createUserDto.email,
-        userConfirmationCode,
+      await this.commandBus.execute(
+        new SendEmailForRegistrationUserUseCaseCommand(
+          createUserDto.email,
+          userConfirmationCode,
+        ),
       );
       console.log(
         'SEND EMAIL ' + createUserDto.email + ' code ' + userConfirmationCode,
@@ -112,7 +111,7 @@ export class AuthService {
         ),
       );
     } else {
-      console.log('else');
+      console.log('device est v base');
       console.log(device);
       refreshToken = await this.jwtService.getRefreshToken(
         userId,
@@ -149,7 +148,9 @@ export class AuthService {
     const code =
       await this.usersService.updateUserConfirmationCodeRepeatForEmail(user.id);
     try {
-      await this.emailAdapters.gmailSendEmailRegistration(email, code);
+      await this.commandBus.execute(
+        new SendEmailForRegistrationUserUseCaseCommand(email, code),
+      );
       console.log('SEND EMAIL ' + email + ' code ' + code);
     } catch (error) {
       console.error('email send out /authService/updateConfirmationCodeRepeat');
@@ -171,12 +172,13 @@ export class AuthService {
     const expiredRecoveryCode = 30000;
     const diesAtDate = new Date(Date.now() + expiredRecoveryCode).toISOString();
     const user = await this.usersService.checkEmail(email);
+    console.log('nkkk1');
     await this.usersService.passwordRecovery(user.id, recoveryCode, diesAtDate);
     try {
-      await this.emailAdapters.gmailSendEmailPasswordRecovery(
-        email,
-        recoveryCode,
+      await this.commandBus.execute(
+        new SendEmailForPasswordRecoveryUseCaseCommand(email, recoveryCode),
       );
+      return true;
     } catch (error) {
       console.error('email send out');
       return false;

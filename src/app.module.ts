@@ -36,7 +36,6 @@ import { PassportModule } from '@nestjs/passport';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { EmailAdapters } from './adapters/email-adapters';
 import * as dotenv from 'dotenv';
 import { JwtStrategy } from './auth/Strategy/jwtStrategy';
 import { DeviceRepository } from './Device/deviceRepository';
@@ -93,6 +92,8 @@ import { DeleteDevicesUseCase } from './Device/use-case/delete-devices-use-case'
 import { GetTokenByNameAndTitle } from './Device/use-case/get-token-by-name-and-title';
 import { CheckActiveDeviceUseCase } from './Device/use-case/check-active-device-use-case';
 import { RefreshTokenUseCase } from './Device/use-case/refresh-token-use-case';
+import { SendEmailForRegistrationUserUseCase } from './adapters/email-adapters/use-case/send-email-for-registration-user-use-case';
+import { SendEmailForPasswordRecoveryUseCase } from './adapters/email-adapters/use-case/send-email-for-password-recovery-use-case';
 
 dotenv.config();
 const useCaseBlog = [
@@ -130,6 +131,10 @@ const useCaseDevice = [
   GetTokenByNameAndTitle,
   CheckActiveDeviceUseCase,
   RefreshTokenUseCase,
+];
+const useCaseAdapters = [
+  SendEmailForRegistrationUserUseCase,
+  SendEmailForPasswordRecoveryUseCase,
 ];
 @Module({
   imports: [
@@ -223,7 +228,6 @@ const useCaseDevice = [
     LocalStrategy,
     AuthService,
     JwtStrategy,
-    EmailAdapters,
     DeviceService,
     DeviceRepository,
     CommentService,
@@ -237,6 +241,7 @@ const useCaseDevice = [
     ...useCasePost,
     ...useCaseComment,
     ...useCaseDevice,
+    ...useCaseAdapters,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

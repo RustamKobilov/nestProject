@@ -201,6 +201,7 @@ export class UserRepository {
           'recoveryPasswordInfo.diesAtDate': diesAtDate,
         },
       );
+    console.log(updateConfirmation.matchedCount === 1);
     return updateConfirmation.matchedCount === 1;
   }
 

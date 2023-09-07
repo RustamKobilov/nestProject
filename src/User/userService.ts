@@ -31,7 +31,6 @@ export class UserService {
       await this.userRepository.checkDuplicateLoginAndEmail(createUserDto);
     if (!checkDublicateUser) {
       throw new UnauthorizedException(`login and email dublicate /userService`);
-      //throw new BadRequestException(`login and email dublicate /userService`);
     }
     const salt = await bcriptService.getSalt(8);
     const hash = await bcriptService.getHashPassword(

@@ -222,12 +222,14 @@ export class UserRepository {
   async updateUserConformationCode(
     id: string,
     newCode: string,
+    expirationCode: string,
   ): Promise<boolean> {
     const user: UpdateWriteOpResult = await this.userModel.updateOne(
       { id: id },
       {
         $set: {
           'userConfirmationInfo.code': newCode,
+          'userConfirmationInfo.expirationCode': expirationCode,
         },
       },
     );

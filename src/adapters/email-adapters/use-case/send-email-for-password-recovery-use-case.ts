@@ -24,18 +24,3 @@ export class SendEmailForPasswordRecoveryUseCase {
     });
   }
 }
-
-// async gmailSendEmailPasswordRecovery(email: string, recoveryCode: string) {
-//   await this.mailerService.sendMail({
-//     from: 'admin <rustamincubator@gmail.com>',
-//     to: email,
-//     subject: 'Password recovery in platform',
-//     html:
-//       ' <h1>Password recovery\n' +
-//       '       <p>To finish password recovery please follow the link below:\n' +
-//       "          <a href='https://somesite.com/password-recovery?recoveryCode=" +
-//       recoveryCode +
-//       "'>recovery password</a>\n" +
-//       '      </p>',
-//   });
-// }

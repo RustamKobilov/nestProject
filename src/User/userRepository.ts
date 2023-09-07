@@ -130,6 +130,27 @@ export class UserRepository {
     }
     return user;
   }
+  async findUserByLoginAndEmail(
+    login: string,
+    email: string,
+  ): Promise<User | false> {
+    const user = await this.userModel.findOne({
+      $or: [{ login: login }, { email: email }],
+    });
+    if (!user) {
+      return false;
+    }
+    return user;
+  }
+  async findUserByEmail(email: string): Promise<User | false> {
+    const user = await this.userModel.findOne({
+      email: email,
+    });
+    if (!user) {
+      return false;
+    }
+    return user;
+  }
   async getCodeConfirmationByUserId(code: string): Promise<User | false> {
     const user = await this.userModel.findOne({
       'userConfirmationInfo.code': code,
@@ -139,7 +160,7 @@ export class UserRepository {
     }
     return user;
   }
-  async updateCodeConfirmationByUserId(userId: string) {
+  async updateConfirmationUserId(userId: string) {
     const updateConfirmation: UpdateWriteOpResult =
       await this.userModel.updateOne(
         { id: userId },
@@ -156,31 +177,9 @@ export class UserRepository {
     });
     return;
   }
-  async findUserByEmail(email: string): Promise<User | false> {
-    const user = await this.userModel.findOne({
-      email: email,
-    });
-    if (!user) {
-      return false;
-    }
-    return user;
-  }
   async findUserByLogin(login: string): Promise<User | false> {
     const user = await this.userModel.findOne({
       login: login,
-    });
-    if (!user) {
-      return false;
-    }
-    return user;
-  }
-
-  async findUserByLoginAndEmail(
-    login: string,
-    email: string,
-  ): Promise<User | false> {
-    const user = await this.userModel.findOne({
-      $or: [{ login: login }, { email: email }],
     });
     if (!user) {
       return false;

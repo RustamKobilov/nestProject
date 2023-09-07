@@ -22,12 +22,17 @@ import { RefreshTokenGuard } from './Guard/refreshTokenGuard';
 import { JwtServices } from '../application/jwtService';
 import { SkipThrottle } from '@nestjs/throttler';
 import { BearerGuard } from './Guard/bearerGuard';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetConfirmationCodeForUserCommand } from '../User/use-cases/get-confirmation-code-for-user';
+import { GetUserInformationUseCaseCommand } from '../User/use-cases/get-user-information-use-case';
+import { UpdatePasswordUserUseCaseCommand } from '../User/use-cases/update-password-user-use-case';
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
     private jwtService: JwtServices,
+    private commandBus: CommandBus,
   ) {}
 
   @Post('/registration')
@@ -52,10 +57,9 @@ export class AuthController {
     @Body() registrationConfirmation: RegistrationConfirmation,
     @Res() res,
   ) {
-    const checkConfirmation =
-      await this.authService.confirmationUserAfterRegistration(
-        registrationConfirmation.code,
-      );
+    const checkConfirmation = await this.commandBus.execute(
+      new GetConfirmationCodeForUserCommand(registrationConfirmation.code),
+    );
     return res.sendStatus(204);
   }
 
@@ -145,7 +149,9 @@ export class AuthController {
   @UseGuards(BearerGuard)
   @Get('/me')
   async getProfile(@Req() req, @Res() res) {
-    const outputUser = await this.authService.getUserInformation(req.user.id);
+    const outputUser = await this.commandBus.execute(
+      new GetUserInformationUseCaseCommand(req.user.id),
+    );
     return res.status(200).send(outputUser);
   }
   @Post('/password-recovery')
@@ -175,26 +181,16 @@ export class AuthController {
     @Req() req,
     @Body() newPasswordBody: UpdatePasswordDTO,
   ) {
-    const passwordUpdate = await this.authService.updatePasswordUserAuthService(
-      newPasswordBody,
+    const passwordUpdate = await this.commandBus.execute(
+      new UpdatePasswordUserUseCaseCommand(newPasswordBody),
     );
     return res.sendStatus(204);
   }
 
-  //___________________________________________________
+  //______________________________________ADMIN______________
   @Get('/admin/user/:userId')
   async userAdmin(@Param('userId') userId: string, @Req() req) {
     console.log('admin zapros');
     return this.authService.getUserAdmin(userId);
   }
-  // @Get('/admin/device/:deviceId')
-  // async getDeviceAdmin(@Param('deviceId') deviceId: string, @Res() res) {
-  //   const device = await this.authService.getDeviceAdmin(deviceId);
-  //   return res.send(device);
-  // }
-  //
-  // @Delete('/user/device')
-  // async userAdminDelete() {
-  //   return this.authService.deleteAdminDevice();
-  // }
 }

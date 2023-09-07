@@ -94,8 +94,30 @@ import { CheckActiveDeviceUseCase } from './Device/use-case/check-active-device-
 import { RefreshTokenUseCase } from './Device/use-case/refresh-token-use-case';
 import { SendEmailForRegistrationUserUseCase } from './adapters/email-adapters/use-case/send-email-for-registration-user-use-case';
 import { SendEmailForPasswordRecoveryUseCase } from './adapters/email-adapters/use-case/send-email-for-password-recovery-use-case';
+import { CreateUserAdminUseCase } from './User/use-cases/create-user-admin-use-case';
+import { GetUsersUseCase } from './User/use-cases/get-users-use-case';
+import { DeleteUserUseCase } from './User/use-cases/delete-user-use-case';
+import { GetUserByLoginOrEmailUseCase } from './User/use-cases/get-user-by-login-or-email-use-case';
+import { GetConfirmationCodeForUser } from './User/use-cases/get-confirmation-code-for-user';
+import { CreateNewUserForRegistrationUseCase } from './User/use-cases/create-new-user-for-registration-use-case';
+import { GetUserInformationUseCase } from './User/use-cases/get-user-information-use-case';
+import { UpdatePasswordUserUseCase } from './User/use-cases/update-password-user-use-case';
+import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmation-code-for-user';
+import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
 
 dotenv.config();
+const useCaseUser = [
+  CreateUserAdminUseCase,
+  CreateNewUserForRegistrationUseCase,
+  GetUsersUseCase,
+  DeleteUserUseCase,
+  GetUserByLoginOrEmailUseCase,
+  GetConfirmationCodeForUser,
+  GetUserInformationUseCase,
+  UpdatePasswordUserUseCase,
+  UpdateConfirmationCodeForUser,
+  CheckDuplicateLoginAndEmailUseCase,
+];
 const useCaseBlog = [
   GetBlogsUseCase,
   CreateBlogUseCase,
@@ -242,6 +264,7 @@ const useCaseAdapters = [
     ...useCaseComment,
     ...useCaseDevice,
     ...useCaseAdapters,
+    ...useCaseUser,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

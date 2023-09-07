@@ -16,10 +16,8 @@ export class isEmailNoUniqueValidate implements ValidatorConstraintInterface {
   async validate(email: string, args: ValidationArguments) {
     console.log(email);
     const user = await this.userRepository.findUserByEmail(email);
-    console.log('ya v validate');
     console.log(user);
     if (user) return false;
-    console.log('y menya zaebis');
     return true;
   }
 }
@@ -43,10 +41,8 @@ export class IsLoginNoUniqueValidate implements ValidatorConstraintInterface {
   async validate(login: string, args: ValidationArguments) {
     console.log(login);
     const user = await this.userRepository.findUserByLogin(login);
-    console.log('ya v validate');
     console.log(user);
     if (user) return false;
-    console.log('y menya zaebis');
     return true;
   }
 }
@@ -87,16 +83,3 @@ export function IsBlogChecking(validationOptions?: ValidationOptions) {
     });
   };
 }
-
-// @ValidatorConstraint({ async: true })
-// export class loginCheckUnique implements ValidatorConstraintInterface {
-//   constructor(private readonly userRepository: UserRepository) {}
-//   validate(login: string, args: ValidationArguments) {
-//     return this.userRepository.findUserByLogin(login).then((user) => {
-//       if (user) return false;
-//       return true;
-//     });
-//   }
-// }
-
-//TODO подключить validate

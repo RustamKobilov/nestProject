@@ -18,6 +18,10 @@ import { CheckActiveDeviceUseCaseCommand } from '../Device/use-case/check-active
 import { RefreshTokenUseCaseCommand } from '../Device/use-case/refresh-token-use-case';
 import { SendEmailForRegistrationUserUseCaseCommand } from '../adapters/email-adapters/use-case/send-email-for-registration-user-use-case';
 import { SendEmailForPasswordRecoveryUseCaseCommand } from '../adapters/email-adapters/use-case/send-email-for-password-recovery-use-case';
+import { GetUserByLoginOrEmailUseCaseCommand } from '../User/use-cases/get-user-by-login-or-email-use-case';
+import { CreateNewUserForRegistrationUseCaseCommand } from '../User/use-cases/create-new-user-for-registration-use-case';
+import { CheckDublicateLoginAndEmailUseCaseCommand } from '../User/use-cases/check-duplicate-login-and-email-use-case';
+import { UpdateConfirmationCodeForUserCommand } from '../User/use-cases/update-confirmation-code-for-user';
 
 dotenv.config();
 
@@ -25,14 +29,15 @@ dotenv.config();
 export class AuthService {
   constructor(
     private usersService: UserService,
-    // private emailAdapters: GMailEmailAdapters,
     private jwtService: JwtServices,
     private deviceService: DeviceService,
     private commandBus: CommandBus,
   ) {}
 
   async signIn(login, password, ip, title) {
-    const user = await this.usersService.searchUserByLogin(login);
+    const user = await this.commandBus.execute(
+      new GetUserByLoginOrEmailUseCaseCommand(login),
+    );
     const resultCompare = await bcriptService.comparePassword(
       password,
       user.password,
@@ -66,12 +71,15 @@ export class AuthService {
   }
 
   async registration(createUserDto: CreateUserDto) {
-    const checkLoginAndEmail = await this.usersService.checkLoginAndEmail(
-      createUserDto.login,
-      createUserDto.email,
+    const checkLoginAndEmail = await this.commandBus.execute(
+      new CheckDublicateLoginAndEmailUseCaseCommand(
+        createUserDto.login,
+        createUserDto.email,
+      ),
+    ); // проверка есть в декораторе
+    const userConfirmationCode = await this.commandBus.execute(
+      new CreateNewUserForRegistrationUseCaseCommand(createUserDto),
     );
-    const userConfirmationCode =
-      await this.usersService.createNewUserRegistration(createUserDto);
     console.log(userConfirmationCode);
     try {
       await this.commandBus.execute(
@@ -124,10 +132,6 @@ export class AuthService {
 
     return refreshToken;
   }
-  // async deleteAdminDevice() {
-  //   return await this.deviceService.deleteAdmin();
-  // }
-
   async refreshTokenDevice(
     refreshToken: string,
     userId: string,
@@ -137,16 +141,14 @@ export class AuthService {
       new RefreshTokenUseCaseCommand(refreshToken, userId, deviceId),
     );
   }
-  async confirmationUserAfterRegistration(code: string) {
-    await this.usersService.confirmationUser(code);
-  }
   async updateConfirmationCodeRepeat(email: string) {
     const user = await this.usersService.checkEmail(email);
     if (user.userConfirmationInfo.userConformation == true) {
       throw new BadRequestException('email confirmed /authService');
     }
-    const code =
-      await this.usersService.updateUserConfirmationCodeRepeatForEmail(user.id);
+    const code = await this.commandBus.execute(
+      new UpdateConfirmationCodeForUserCommand(user.id),
+    );
     try {
       await this.commandBus.execute(
         new SendEmailForRegistrationUserUseCaseCommand(email, code),
@@ -161,9 +163,6 @@ export class AuthService {
     }
     return;
   }
-  async getUserInformation(id: string) {
-    return await this.usersService.getUserInformation(id);
-  }
   async deleteDeviceInLogout(deviceId: string) {
     return await this.deviceService.deleteDevice(deviceId);
   }
@@ -172,8 +171,8 @@ export class AuthService {
     const expiredRecoveryCode = 30000;
     const diesAtDate = new Date(Date.now() + expiredRecoveryCode).toISOString();
     const user = await this.usersService.checkEmail(email);
-    console.log('nkkk1');
     await this.usersService.passwordRecovery(user.id, recoveryCode, diesAtDate);
+    console.log('SEND EMAIL ' + email + ' code ' + recoveryCode);
     try {
       await this.commandBus.execute(
         new SendEmailForPasswordRecoveryUseCaseCommand(email, recoveryCode),
@@ -184,17 +183,8 @@ export class AuthService {
       return false;
     }
   }
-  //__________ADMIN____________________
-  // async getDeviceAdmin(deviceId: string) {
-  //   return await this.deviceService.getDeviceAdminById(deviceId);
-  // }
-
-  async updatePasswordUserAuthService(newPasswordBody: UpdatePasswordDTO) {
-    await this.usersService.updatePasswordUserUserService(newPasswordBody);
-  }
-
+  //______________________________________ADMIN______________
   async getUserAdmin(userId: string) {
     return await this.usersService.getUsersAdmin(userId);
   }
 }
-//verify work , service adapter

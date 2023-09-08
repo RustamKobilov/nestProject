@@ -104,6 +104,7 @@ import { GetUserInformationUseCase } from './User/use-cases/get-user-information
 import { UpdatePasswordUserUseCase } from './User/use-cases/update-password-user-use-case';
 import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmation-code-for-user';
 import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
+import { GetDeviceUseCase } from './Device/use-case/get-device-use-case';
 
 dotenv.config();
 const useCaseUser = [
@@ -147,6 +148,7 @@ const useCaseComment = [
 ];
 const useCaseDevice = [
   CreateDeviceUseCase,
+  GetDeviceUseCase,
   GetDevicesUseCase,
   UpdateDeviceUseCase,
   DeleteDevicesUseCase,

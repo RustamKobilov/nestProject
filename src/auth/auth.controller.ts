@@ -90,7 +90,6 @@ export class AuthController {
       secure: true,
     });
     return res.status(200).send({ accessToken: tokens.accessToken });
-    //TODO не забыть поставиь поле accees tokens in body
   }
 
   @UseGuards(RefreshTokenGuard)
@@ -112,18 +111,12 @@ export class AuthController {
       refreshTokenPayload.userId,
       refreshTokenPayload.deviceId,
     );
-    // if (!refreshTokenDevice) {
-    //   throw new UnauthorizedException('no update Token');
-    // }
     res.cookie([token.refreshToken], tokens.refreshToken, {
       expires: new Date(Date.now() + 60000),
       httpOnly: true,
       secure: true,
     });
-    //60000
     return res.status(200).send({ accessToken: tokens.accessToken });
-
-    //const refreshToken = await req.user.payload.userId.sub;
   }
   @SkipThrottle()
   @UseGuards(RefreshTokenGuard)

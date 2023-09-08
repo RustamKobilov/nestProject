@@ -217,18 +217,18 @@ const useCaseAdapters = [
         },
       }),
     }),
-    ThrottlerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (config: ConfigService) => {
-        const ttl: number = parseInt(config.get('THROTTLE_TTL') as string, 10);
-        const limit: number = parseInt(
-          config.get('THROTTLE_LIMIT') as string,
-          10,
-        );
-        return { ttl: ttl, limit: limit };
-      },
-    }),
+    // ThrottlerModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (config: ConfigService) => {
+    //     const ttl: number = parseInt(config.get('THROTTLE_TTL') as string, 10);
+    //     const limit: number = parseInt(
+    //       config.get('THROTTLE_LIMIT') as string,
+    //       10,
+    //     );
+    //     return { ttl: ttl, limit: limit };
+    //   },
+    // }),
     CqrsModule,
   ],
   controllers: [

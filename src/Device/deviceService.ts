@@ -37,11 +37,4 @@ export class DeviceService {
     }
     return await this.deviceRepository.deleteDevice(deviceId);
   }
-  // async deleteAdmin() {
-  //   return await this.deviceRepository.deleteDevicesAdmin();
-  // }
-  //
-  // async getDeviceAdminById(deviceId: string) {
-  //   return await this.deviceRepository.getDeviceByIdAdmin(deviceId);
-  // }
 }

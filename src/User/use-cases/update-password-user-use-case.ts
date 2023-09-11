@@ -12,10 +12,8 @@ export class UpdatePasswordUserUseCase {
   constructor(private userRepository: UserRepository) {}
 
   async execute(command: UpdatePasswordUserUseCaseCommand) {
-    const salt = await bcriptService.getSalt(8);
     const hash = await bcriptService.getHashPassword(
       command.newPasswordBody.newPassword,
-      salt,
     );
     const resultUpdate =
       await this.userRepository.updatePasswordUserByRecoveryCode(

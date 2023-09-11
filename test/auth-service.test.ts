@@ -3,13 +3,19 @@ import { INestApplication } from '@nestjs/common';
 import { AppModule } from '../src/app.module';
 import { appSetting } from '../src/appSetting';
 import request from 'supertest';
-let app: INestApplication;
-let server;
+import { MongoMemoryServer } from 'mongodb-memory-server';
+
 describe('integration test for AuthService', () => {
-  beforeEach(async () => {
+  jest.setTimeout(60 * 1000);
+
+  let app: INestApplication;
+  let server;
+
+  beforeAll(async () => {
     const mongoMemoryServer = await MongoMemoryServer.create();
     const mongoUri = mongoMemoryServer.getUri();
-    process.env['MONGO_URI'] = mongoUri;
+    console.log(mongoUri);
+    process.env['MONGO_URI_CLUSTER'] = mongoUri;
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();

@@ -1,23 +1,15 @@
 import { UserRepository } from './userRepository';
-import {
-  CreateUserDto,
-  UpdatePasswordDTO,
-  outputModel,
-  UserPaginationDTO,
-} from '../DTO';
+import { CreateUserDto } from '../DTO';
 import { User } from './User';
-import { mapObject } from '../mapObject';
 import { bcriptService } from '../bcryptService';
 import { addHours } from 'date-fns';
 import { randomUUID } from 'crypto';
-import { MeViewModel, UserViewModel } from '../viewModelDTO';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { helper } from '../helper';
 
 @Injectable()
 export class UserService {
@@ -32,16 +24,12 @@ export class UserService {
     if (!checkDublicateUser) {
       throw new UnauthorizedException(`login and email dublicate /userService`);
     }
-    const salt = await bcriptService.getSalt(8);
-    const hash = await bcriptService.getHashPassword(
-      createUserDto.password,
-      salt,
-    );
+    const hash = await bcriptService.getHashPassword(createUserDto.password);
     const user: User = {
       id: randomUUID(),
       login: createUserDto.login,
       password: hash,
-      salt: salt,
+      salt: 'no salt',
       email: createUserDto.email,
       createdAt: new Date().toISOString(),
       userConfirmationInfo: {

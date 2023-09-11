@@ -1,15 +1,14 @@
-import * as bcrypt from 'bcrypt';
+import * as argon from 'argon2';
+import { randomUUID } from 'crypto';
 export const bcriptService = {
-  async getHashPassword(password: string, salt: string): Promise<string> {
-    return await bcrypt.hash(password, salt);
+  async getHashPassword(password: string): Promise<string> {
+    return argon.hash(password);
   },
-  async getSalt(round: number): Promise<string> {
-    return await bcrypt.genSalt(round);
-  },
+
   async comparePassword(
     inputPassword: string,
     password: string,
   ): Promise<boolean> {
-    return await bcrypt.compare(inputPassword, password);
+    return argon.verify(password, inputPassword);
   },
 };

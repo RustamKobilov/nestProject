@@ -1,9 +1,6 @@
 import {
-  BadRequestException,
   CanActivate,
   ExecutionContext,
-  HttpException,
-  HttpStatus,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';

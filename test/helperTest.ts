@@ -1,33 +1,47 @@
-import { RepositoryTesting } from '../src/Testing/repositoryTesting';
-import { INestApplication } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
-import { AppModule } from '../src/app.module';
-import { appSetting } from '../src/appSetting';
-import { ConfigService } from '@nestjs/config';
+import { CreateUserDto } from '../src/DTO';
+import { faker } from '@faker-js/faker';
+import request from 'supertest';
+import { endpoints } from './routing';
+
+export type CreateUserTest = {
+  id: string;
+  login: string;
+  email: string;
+  password: string;
+};
 
 export class HelperTest {
-  constructor(
-    private repositoryTesting: RepositoryTesting,
-    private configService: ConfigService,
-  ) {}
-  async startMongoMemoryServer() {
-    const mongoMemoryServer = await MongoMemoryServer.create();
-    const mongoUri = mongoMemoryServer.getUri();
-    this.configService.get<string>('MONGO_URI_CLUSTER') = mongoUri;
-    return true;
+  constructor(private readonly server: any) {}
+  async getBasicAuthorization() {
+    return {
+      username: 'admin',
+      password: 'qwerty',
+    };
   }
-  async startNestAppTest() {
-    let app: INestApplication;
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-    app = await moduleFixture.createNestApplication();
-    app = appSetting(app);
-    await app.init();
-    const server = app.getHttpServer();
-    return server;
+  async createUsers(countOfUsers: number): Promise<CreateUserTest[]> {
+    const authorization = await this.getBasicAuthorization();
+    const users: any = [];
+    for (let i = 0; i < countOfUsers; i++) {
+      const inputUserData: CreateUserDto = {
+        login: `user${i}`,
+        email: `user${i}@email.com`,
+        password: `password${i}`,
+      };
+      const response = await request(this.server)
+        .post(endpoints.usersController)
+        .auth(authorization.username, authorization.password, {
+          type: 'basic',
+        })
+        .send(inputUserData);
+      users.push({ id: response.body.id, ...inputUserData });
+    }
+    return users;
   }
-  async deleteModelInBase() {
-    return await this.repositoryTesting.deleteAll();
+  async createTestingUserForAdmin(): Promise<CreateUserDto> {
+    return {
+      login: faker.lorem.word({ length: { min: 3, max: 10 } }),
+      password: faker.lorem.word({ length: { min: 6, max: 20 } }),
+      email: faker.internet.exampleEmail(),
+    };
   }
 }

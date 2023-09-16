@@ -1,4 +1,4 @@
-import { CreateUserDto } from '../src/DTO';
+import { CreateBlogDTO, CreateUserDto } from '../src/DTO';
 import { faker } from '@faker-js/faker';
 import request from 'supertest';
 import { endpoints } from './routing';
@@ -42,6 +42,13 @@ export class HelperTest {
       login: faker.lorem.word({ length: { min: 3, max: 10 } }),
       password: faker.lorem.word({ length: { min: 6, max: 20 } }),
       email: faker.internet.exampleEmail(),
+    };
+  }
+  async createTestingBlog(): Promise<CreateBlogDTO> {
+    return {
+      name: faker.lorem.word({ length: { min: 1, max: 15 } }),
+      description: faker.lorem.word({ length: { min: 3, max: 500 } }),
+      websiteUrl: faker.internet.url(),
     };
   }
 }

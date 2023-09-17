@@ -37,6 +37,22 @@ export class HelperTest {
     }
     return users;
   }
+  getRefreshTokenInCookie(cookieArray: []) {
+    const refreshTokenCookies = cookieArray.filter(function (val: string) {
+      return val.split('=')[0] == 'refreshToken';
+    });
+    if (refreshTokenCookies.length === 0) {
+      return false;
+    }
+    const refreshToken = refreshTokenCookies
+      .map(function (val: string) {
+        return val.split('=')[1];
+      })
+      .map(function (val: string) {
+        return val.split(';')[0];
+      })[0];
+    return refreshToken;
+  }
   async createTestingUserForAdmin(): Promise<CreateUserDto> {
     return {
       login: faker.lorem.word({ length: { min: 3, max: 10 } }),

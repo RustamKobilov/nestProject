@@ -7,7 +7,7 @@ import { HelperTest } from './helperTest';
 import { endpoints } from './routing';
 import { BlogViewModel, UserViewModel } from '../src/viewModelDTO';
 
-describe('integration test for AuthService', () => {
+describe('test App', () => {
   jest.setTimeout(100 * 1000);
 
   let app: INestApplication;
@@ -17,6 +17,8 @@ describe('integration test for AuthService', () => {
   let basicAuthorization;
   let userTest;
   let blogTest;
+  let accessToken;
+  let refreshToken;
 
   beforeAll(async () => {
     // mongoMemoryServer = await MongoMemoryServer.create();
@@ -44,13 +46,15 @@ describe('integration test for AuthService', () => {
   describe('CRUD User for Admin', () => {
     it('create User for Admin', async () => {
       const inputUserTest = await helperTest.createTestingUserForAdmin();
-      console.log(inputUserTest);
+
       const response = await request(server)
         .post(endpoints.usersController)
         .auth(basicAuthorization.username, basicAuthorization.password, {
           type: 'basic',
         })
         .send(inputUserTest);
+      console.log(inputUserTest);
+      console.log(' user for create for admin');
       console.log(response.body);
 
       expect(response.status).toBe(201);
@@ -63,6 +67,8 @@ describe('integration test for AuthService', () => {
       });
       userTest = inputUserTest;
       userTest.id = response.body.id;
+      console.log(userTest);
+      console.log(' add id');
     });
     it('get users', async () => {
       const response = await request(server)
@@ -204,6 +210,41 @@ describe('integration test for AuthService', () => {
       expect(responseGet.body).toBeDefined();
       expect(responseGet.body.items).toHaveLength(1);
       expect(responseGet.body.items[0].id).not.toBe(blogTest.id);
+    });
+  });
+  describe('auth controller', () => {
+    it('/create user for admin', async () => {
+      const inputUserTest = await helperTest.createTestingUserForAdmin();
+      const response = await request(server)
+        .post(endpoints.usersController)
+        .auth(basicAuthorization.username, basicAuthorization.password, {
+          type: 'basic',
+        })
+        .send(inputUserTest);
+      userTest = inputUserTest;
+      userTest.id = response.body.id;
+    });
+    it('/login', async () => {
+      const inputUserLoginAndPassword = {
+        loginOrEmail: userTest.login,
+        password: userTest.password,
+      };
+      console.log(inputUserLoginAndPassword);
+      const response = await request(server)
+        .post(endpoints.authController.login)
+        .send(inputUserLoginAndPassword);
+
+      expect(response.status).toBe(200);
+      expect(response.body.accessToken).toBeDefined();
+      accessToken = response.headers['set-cookie'];
+      expect(response.body.accessToken).toBeDefined();
+      refreshToken = helperTest.getRefreshTokenInCookie(
+        response.headers['set-cookie'],
+      );
+      expect(refreshToken).not.toBe(false);
+    });
+    it('/refreshToken', async () => {
+      console.log('refresh test go');
     });
   });
 });

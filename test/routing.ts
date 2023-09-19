@@ -16,6 +16,8 @@ export const endpoints = {
     registrationConfirmation: `${authController}/registration-confirmation`,
     login: `${authController}/login`,
     refreshToken: `${authController}/refresh-token`,
+    me: `${authController}/me`,
+    logout: `${authController}/logout`,
   },
   usersController,
   securityController,

@@ -37,7 +37,7 @@ export class HelperTest {
     }
     return users;
   }
-  getRefreshTokenInCookie(cookieArray: []) {
+  async getRefreshTokenInCookie(cookieArray: []) {
     const refreshTokenCookies = cookieArray.filter(function (val: string) {
       return val.split('=')[0] == 'refreshToken';
     });

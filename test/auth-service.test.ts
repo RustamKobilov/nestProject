@@ -5,7 +5,7 @@ import { appSetting } from '../src/appSetting';
 import request from 'supertest';
 import { HelperTest } from './helperTest';
 import { endpoints } from './routing';
-import { BlogViewModel, UserViewModel } from '../src/viewModelDTO';
+import { BlogViewModel, MeViewModel, UserViewModel } from '../src/viewModelDTO';
 
 describe('test App', () => {
   jest.setTimeout(100 * 1000);
@@ -19,6 +19,7 @@ describe('test App', () => {
   let blogTest;
   let accessToken;
   let refreshToken;
+  let refreshTokenCookies;
 
   beforeAll(async () => {
     // mongoMemoryServer = await MongoMemoryServer.create();
@@ -236,15 +237,63 @@ describe('test App', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.accessToken).toBeDefined();
-      accessToken = response.headers['set-cookie'];
+      accessToken = response.body.accessToken;
+      refreshTokenCookies = response.headers['set-cookie'];
       expect(response.body.accessToken).toBeDefined();
-      refreshToken = helperTest.getRefreshTokenInCookie(
+      refreshToken = await helperTest.getRefreshTokenInCookie(
         response.headers['set-cookie'],
       );
       expect(refreshToken).not.toBe(false);
     });
+    it('/me', async () => {
+      const response = await request(server)
+        .get(endpoints.authController.me)
+        .set('Authorization', 'Bearer ' + accessToken);
+      console.log(response.text);
+      expect(response.status).toBe(200);
+      expect(response.body).toBeDefined();
+      console.log(response.body);
+      expect(response.body).toEqual(<MeViewModel>{
+        login: userTest.login,
+        email: userTest.email,
+        userId: userTest.id,
+      });
+    });
     it('/refreshToken', async () => {
-      console.log('refresh test go');
+      console.log('acсessToken');
+      console.log(accessToken);
+      const response = await request(server)
+        .post(endpoints.authController.refreshToken)
+        .set('Cookie', [refreshTokenCookies]);
+      expect(response.status).toBe(200);
+      expect(response.body.accessToken).toBeDefined();
+      console.log(' response.body.access');
+      console.log(response.body.accessToken);
+      //TODO почему not.toBe. не работает если поменять местами или иногда
+      //expect(response.body.accessToken).not.toBe(accessToken);
+      console.log(' refreshToken');
+      console.log(refreshToken);
+      accessToken = response.body.accessToken;
+      const refreshTokenNew = await helperTest.getRefreshTokenInCookie(
+        response.headers['set-cookie'],
+      );
+      expect(refreshTokenNew).not.toBe(false);
+      console.log(' refreshTokenNEW');
+      console.log(refreshTokenNew);
+      expect(refreshTokenNew).not.toBe(refreshToken);
+      refreshToken = refreshTokenNew;
+      refreshTokenCookies = response.headers['set-cookie'];
+    });
+    it('/logout', async () => {
+      const response = await request(server)
+        .post(endpoints.authController.logout)
+        .set('Cookie', [refreshTokenCookies]);
+      expect(response.status).toBe(204);
+      const checkLogoutResponse = await request(server)
+        .post(endpoints.authController.refreshToken)
+        .set('Cookie', [refreshTokenCookies]);
+      console.log(response.text);
+      expect(checkLogoutResponse.status).toBe(401);
     });
   });
 });

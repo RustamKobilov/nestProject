@@ -10,8 +10,6 @@ import {
 export class DeviceService {
   constructor(private deviceRepository: DeviceRepository) {}
   async getLastActiveDateFromRefreshToken(refreshToken: string) {
-    console.log(refreshToken);
-    console.log('refreshToken');
     const payload: any = jwt.decode(refreshToken);
     if (!payload) {
       throw new UnauthorizedException('payload getLastActive');
@@ -20,7 +18,6 @@ export class DeviceService {
     return new Date(payload.iat * 1000).toISOString();
   }
   async getDiesAtDate(refreshToken: string) {
-    console.log(refreshToken);
     const payload: any = jwt.decode(refreshToken);
     if (!payload) {
       throw new UnauthorizedException('payload getDiesAtDate');

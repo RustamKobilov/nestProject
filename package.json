@@ -20,7 +20,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "argon2": "^0.31.1",
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/class-transformer": "^0.4.0",
     "@nestjs/common": "^10.0.0",
@@ -32,7 +31,9 @@
     "@nestjs/passport": "^10.0.0",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/throttler": "^4.2.1",
+    "@nestjs/typeorm": "^10.0.0",
     "@nestjsi/class-validator": "^0.2.2",
+    "argon2": "^0.31.1",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.0",
     "cookie-parser": "^1.4.6",
@@ -40,16 +41,20 @@
     "handlebars": "^4.7.7",
     "jsonwebtoken": "^9.0.1",
     "mongoose": "^7.3.0",
+    "mysql2": "^3.6.1",
     "nodemailer": "^6.9.3",
     "passport": "^0.6.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "pg": "^8.11.3",
     "reflect-metadata": "^0.1.13",
-    "rxjs": "^7.8.1"
+    "rimraf": "^5.0.1",
+    "rxjs": "^7.8.1",
+    "typeorm": "^0.3.17"
   },
   "devDependencies": {
-    "@faker-js/faker": "^8.0.2",
     "@eslint/eslintrc": "^2.0.3",
+    "@faker-js/faker": "^8.0.2",
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.5",

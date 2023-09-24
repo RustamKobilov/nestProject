@@ -105,6 +105,7 @@ import { UpdatePasswordUserUseCase } from './User/use-cases/update-password-user
 import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmation-code-for-user';
 import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
 import { GetDeviceUseCase } from './Device/use-case/get-device-use-case';
+import { TypeOrmModule } from '@nestjs/typeorm';
 
 dotenv.config();
 const useCaseUser = [
@@ -232,6 +233,16 @@ const useCaseAdapters = [
       },
     }),
     CqrsModule,
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: 'admin',
+      password: 'admin',
+      database: 'postgres',
+      autoLoadEntities: false,
+      synchronize: true,
+    }),
   ],
   controllers: [
     UserController,

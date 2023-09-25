@@ -106,6 +106,13 @@ import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmat
 import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
 import { GetDeviceUseCase } from './Device/use-case/get-device-use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersRepositorySql } from './User/users-repository-sql';
+import {
+  UserConfirmationInfoEntity,
+  UserEntity,
+  UserRecoveryPasswordInfoEntity,
+} from './User/User.Entity';
+import { NewestLikesEntity, PostEntity } from './Post/Post.Entity';
 
 dotenv.config();
 const useCaseUser = [
@@ -160,6 +167,13 @@ const useCaseDevice = [
 const useCaseAdapters = [
   SendEmailForRegistrationUserUseCase,
   SendEmailForPasswordRecoveryUseCase,
+];
+const sqlEntity = [
+  UserEntity,
+  UserConfirmationInfoEntity,
+  UserRecoveryPasswordInfoEntity,
+  PostEntity,
+  NewestLikesEntity,
 ];
 @Module({
   imports: [
@@ -237,10 +251,10 @@ const useCaseAdapters = [
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'admin',
+      username: 'postgres',
       password: 'admin',
-      database: 'postgres',
-      autoLoadEntities: false,
+      database: 'baseSql',
+      autoLoadEntities: true,
       synchronize: true,
     }),
   ],
@@ -254,8 +268,13 @@ const useCaseAdapters = [
     SecurityController,
   ],
   providers: [
+    {
+      provide: UserRepository,
+      useClass:
+        process.env.DATA_BASE === 'SQL' ? UsersRepositorySql : UserRepository,
+    },
     UserService,
-    UserRepository,
+    //UserRepository,
     BlogService,
     BlogRepository,
     PostService,
@@ -278,6 +297,7 @@ const useCaseAdapters = [
     ...useCaseDevice,
     ...useCaseAdapters,
     ...useCaseUser,
+    ...sqlEntity,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,

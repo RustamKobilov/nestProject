@@ -1,8 +1,8 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class UserEntity {
-  @PrimaryColumn({ type: 'uuid', length: 36 })
+  @PrimaryColumn({ type: 'uuid' })
   id: string;
   @Column({ type: 'varchar', length: 20 })
   login: string;
@@ -17,11 +17,13 @@ export class UserEntity {
 }
 @Entity()
 export class UserConfirmationInfoEntity {
-  @Column({ type: 'uuid', length: 36 })
+  @PrimaryGeneratedColumn()
+  idSql: number;
+  @Column({ type: 'uuid' })
   ownerId: string;
   @Column({ type: 'boolean' })
   userConformation: boolean;
-  @Column({ type: 'uuid', length: 36 })
+  @Column({ type: 'uuid' })
   code: string;
   @Column({ type: 'varchar', length: 30 })
   expirationCode: string;
@@ -29,9 +31,11 @@ export class UserConfirmationInfoEntity {
 
 @Entity()
 export class UserRecoveryPasswordInfoEntity {
-  @Column({ type: 'uuid', length: 36 })
+  @PrimaryGeneratedColumn()
+  idSql: number;
+  @Column({ type: 'uuid' })
   ownerId: string;
-  @Column({ type: 'uuid', length: 36 })
+  @Column({ type: 'uuid' })
   recoveryCode: string;
   @Column({ type: 'varchar', length: 30 })
   diesAtDate: string;

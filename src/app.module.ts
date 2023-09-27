@@ -112,7 +112,11 @@ import {
   UserEntity,
   UserRecoveryPasswordInfoEntity,
 } from './User/User.Entity';
-import { NewestLikesEntity, PostEntity } from './Post/Post.Entity';
+import { BlogEntity } from './Blog/Blog.Entity';
+import { CommentatorInfoEntity, CommentEntity } from './Comment/Comment.Entity';
+import { ReactionEntity } from './Like/Reaction.Entity';
+import { DeviceEntity } from './Device/Device.Entity';
+import { PostEntity } from './Post/Post.Entity';
 
 dotenv.config();
 const useCaseUser = [
@@ -172,8 +176,12 @@ const sqlEntity = [
   UserEntity,
   UserConfirmationInfoEntity,
   UserRecoveryPasswordInfoEntity,
+  BlogEntity,
   PostEntity,
-  NewestLikesEntity,
+  DeviceEntity,
+  CommentEntity,
+  CommentatorInfoEntity,
+  ReactionEntity,
 ];
 @Module({
   imports: [
@@ -251,9 +259,10 @@ const sqlEntity = [
       type: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: 'postgres',
+      username: 'user',
       password: 'admin',
       database: 'baseSql',
+      entities: sqlEntity,
       autoLoadEntities: true,
       synchronize: true,
     }),

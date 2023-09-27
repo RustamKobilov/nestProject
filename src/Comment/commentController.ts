@@ -64,8 +64,6 @@ export class CommentController {
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)
-  //@UseGuards(AuthCommentForUserGuard)
-  //TODO из гуард в гуард инфу. если передать то undefined
   @Delete('/:id')
   async deleteComment(@Param('id') commentId: string, @Res() res, @Req() req) {
     await this.commandBus.execute(

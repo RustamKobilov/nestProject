@@ -6,7 +6,7 @@ export class UserEntity {
   id: string;
   @Column({ type: 'varchar', length: 20 })
   login: string;
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 100 })
   password: string;
   @Column({ type: 'varchar', length: 40 })
   email: string;
@@ -35,7 +35,7 @@ export class UserRecoveryPasswordInfoEntity {
   idSql: number;
   @Column({ type: 'uuid' })
   ownerId: string;
-  @Column({ type: 'uuid' })
+  @Column({ type: 'varchar', length: 36 })
   recoveryCode: string;
   @Column({ type: 'varchar', length: 30 })
   diesAtDate: string;

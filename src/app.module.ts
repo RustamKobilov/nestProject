@@ -106,7 +106,6 @@ import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmat
 import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
 import { GetDeviceUseCase } from './Device/use-case/get-device-use-case';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersRepositorySql } from './User/users-repository-sql';
 import {
   UserConfirmationInfoEntity,
   UserEntity,
@@ -117,6 +116,7 @@ import { CommentatorInfoEntity, CommentEntity } from './Comment/Comment.Entity';
 import { ReactionEntity } from './Like/Reaction.Entity';
 import { DeviceEntity } from './Device/Device.Entity';
 import { PostEntity } from './Post/Post.Entity';
+import { UsersRepositorySql } from './User/users-repository-sql';
 
 dotenv.config();
 const useCaseUser = [

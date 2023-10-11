@@ -15,6 +15,31 @@ import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
 
 export const mapObject = {
+  //TODO как проставить тепизацию на выход и вход чтобы не ругалось на never. какой тип у массиа приходящего
+  mapUsersFromSql(sqlArray: [any]) {
+    const users: any[] = [];
+    for (const sqlUser of sqlArray) {
+      const user = {
+        id: sqlUser.id,
+        login: sqlUser.login,
+        email: sqlUser.email,
+        createdAt: sqlUser.createdAt,
+        salt: sqlUser.salt,
+        password: sqlUser.password,
+        recoveryPasswordInfo: {
+          recoveryCode: sqlUser.recoveryCode,
+          diesAtDate: sqlUser.diesAtDate,
+        },
+        userConfirmationInfo: {
+          userConformation: sqlUser.userConformation,
+          code: sqlUser.code,
+          expirationCode: sqlUser.expirationCode,
+        },
+      };
+      users.push(user);
+    }
+    return users;
+  },
   mapUserForViewModel(user: User): UserViewModel {
     return {
       id: user.id,
@@ -77,3 +102,22 @@ export const mapObject = {
     };
   },
 };
+// const user = table.map((value) => {
+//   return {
+//     id: value.id,
+//     login: value.login,
+//     email: value.email,
+//     createdAt: value.createdAt,
+//     salt: value.salt,
+//     password: value.password,
+//     recoveryPasswordInfo: {
+//       recoveryCode: value.recoveryCode,
+//       diesAtDate: value.diesAtDate,
+//     },
+//     userConfirmationInfo: {
+//       userConformation: value.userConformation,
+//       code: value.code,
+//       expirationCode: value.expirationCode,
+//     },
+//   };
+// });

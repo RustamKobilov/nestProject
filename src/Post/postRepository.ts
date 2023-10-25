@@ -22,8 +22,9 @@ export class PostRepository {
   }
   async getPostsForBlog(
     paginationPost: PaginationDTO,
-    filter,
+    blogId: string,
   ): Promise<outputModel<Post>> {
+    const filter = { blogId: blogId };
     const totalCountPost = await this.postModel.count(filter);
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(

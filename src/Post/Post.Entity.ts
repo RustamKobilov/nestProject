@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { likeStatus } from '../Enum';
 
 @Entity()
 export class PostEntity {
@@ -16,6 +17,15 @@ export class PostEntity {
   blogName: string;
   @Column({ type: 'varchar', length: 30 })
   createdAt: string;
+  @Column({ type: 'numeric' })
+  likesCount: number;
+  @Column({ type: 'numeric' })
+  dislikesCount: number;
+  @Column({
+    type: 'enum',
+    enum: [likeStatus.None, likeStatus.Like, likeStatus.Dislike],
+  })
+  myStatus: likeStatus;
 }
 
 //TODO когда появляются таблицы созданные из entity
@@ -29,3 +39,7 @@ export class PostEntity {
 //   @Column({ type: 'enum', enum: [likeStatus] })
 //   myStatus: likeStatus;
 // }
+// @Column({ type: 'json' })
+//   newestLikes: []
+//  @Column({ type: 'enum', enum: [likeStatus] })
+//   myStatus: likeStatus;

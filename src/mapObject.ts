@@ -9,10 +9,12 @@ import {
   UserViewModel,
 } from './viewModelDTO';
 import { Blog } from './Blog/Blog';
-import { Post } from './Post/Post';
+import { NewestLikes, Post } from './Post/Post';
 import { Reaction } from './Like/Reaction';
 import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
+import { PostEntity } from './Post/Post.Entity';
+import { ReactionEntity } from './Like/Reaction.Entity';
 
 export const mapObject = {
   //TODO как проставить тепизацию на выход и вход чтобы не ругалось на never. какой тип у массиа приходящего
@@ -70,6 +72,26 @@ export const mapObject = {
       extendedLikesInfo: post.extendedLikesInfo,
     };
   },
+  mapPostFromSql(
+    post: PostEntity,
+    newestLikes: NewestLikes[] = [],
+  ): PostViewModel {
+    return {
+      id: post.id,
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: post.blogName,
+      createdAt: post.createdAt,
+      extendedLikesInfo: {
+        likesCount: post.likesCount,
+        dislikesCount: post.dislikesCount,
+        myStatus: post.myStatus,
+        newestLikes: newestLikes,
+      },
+    };
+  },
   mapComment(comment: Comment): CommentViewModel {
     return {
       id: comment.id,
@@ -85,6 +107,18 @@ export const mapObject = {
       userId: reaction.userId,
       login: reaction.userLogin,
     };
+  },
+  mapNewestLikesFromSql(sqlArray: [ReactionEntity]) {
+    const newestLikes: NewestLikes[] = [];
+    for (const sqlReaction of sqlArray) {
+      const newestLike = {
+        addedAt: sqlReaction.createdAt,
+        userId: sqlReaction.userId,
+        login: sqlReaction.userLogin,
+      };
+      newestLikes.push(newestLike);
+    }
+    return newestLikes;
   },
   mapMeUserInformation(user: User): MeViewModel {
     return {

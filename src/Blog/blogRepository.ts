@@ -18,17 +18,6 @@ import { helper } from '../helper';
 export class BlogRepository {
   constructor(@InjectModel(Blog.name) private blogModel: Model<BlogDocument>) {}
 
-  async checkDuplicateName(blogName: string) {
-    const searchName = { name: { $regex: blogName, $options: 'i' } };
-
-    const blogCount = await this.blogModel.count(searchName);
-
-    if (blogCount > 0) {
-      throw new BadRequestException(`name dublicate`);
-    }
-    return;
-  }
-
   async createBlog(newBlog: Blog) {
     const createBlog = new this.blogModel(newBlog);
     await createBlog.save();

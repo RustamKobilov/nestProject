@@ -1,10 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DataSource } from 'typeorm';
 import { InjectDataSource } from '@nestjs/typeorm';
-import { User, UserDocument } from './User';
+import { User } from './User';
 import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
 import { mapObject } from '../mapObject';
-import { FilterQuery } from 'mongoose';
 import { UserViewModel } from '../viewModelDTO';
 import { helper } from '../helper';
 
@@ -253,8 +252,7 @@ export class UsersRepositorySql {
       paginationUser.searchEmailTerm != null
     ) {
       return (
-        'SELECT COUNT (*)  FROM user_entity ' +
-        'WHERE "login"' +
+        ' WHERE "login"' +
         ' LIKE ' +
         "'%" +
         paginationUser.searchLoginTerm +
@@ -268,18 +266,12 @@ export class UsersRepositorySql {
     }
     if (paginationUser.searchLoginTerm != null) {
       return (
-        'SELECT COUNT (*)  FROM user_entity WHERE "login" LIKE ' +
-        "'%" +
-        paginationUser.searchLoginTerm +
-        "%'"
+        ' WHERE "login" LIKE ' + "'%" + paginationUser.searchLoginTerm + "%'"
       );
     }
     if (paginationUser.searchEmailTerm != null) {
       return (
-        'SELECT COUNT (*)  FROM user_entity WHERE "email" LIKE ' +
-        "'%" +
-        paginationUser.searchEmailTerm +
-        "%'"
+        ' WHERE "email" LIKE ' + "'%" + paginationUser.searchEmailTerm + "%'"
       );
     }
     return null;
@@ -289,10 +281,15 @@ export class UsersRepositorySql {
     paginationUser: UserPaginationDTO,
     filter: string | null,
   ): Promise<outputModel<UserViewModel>> {
+    console.log('filter');
+    console.log(filter);
     const filterCount =
-      filter === null ? 'SELECT COUNT (*) FROM user_entity' : filter;
-    //console.log(filter);
+      filter === null
+        ? 'SELECT COUNT (*) FROM user_entity'
+        : 'SELECT COUNT (*)  FROM user_entity ' + filter;
+    const sortDirection = paginationUser.sortDirection === 1 ? 'ASC' : 'DESC';
     const queryCountUser = await this.dataSource.query(filterCount);
+    console.log('filterCount');
     console.log(filterCount);
     const totalCountUser = queryCountUser[0].count;
     console.log(totalCountUser);
@@ -303,55 +300,41 @@ export class UsersRepositorySql {
         totalCountUser,
       );
     console.log(paginationUser);
-    const table = await this.dataSource.query(
+    const whereFilter = filter === null ? '' : filter;
+    const zapros =
       'SELECT  "id", "login", "password", "email", "createdAt", "salt","recoveryCode", "diesAtDate","userConformation","code","expirationCode"' +
-        ' FROM user_entity' +
-        ' join user_recovery_password_info_entity' +
-        ' on user_entity."id" = user_recovery_password_info_entity."ownerId"' +
-        ' join user_confirmation_info_entity' +
-        ' on user_recovery_password_info_entity."ownerId" = user_confirmation_info_entity."ownerId"' +
-        ' ORDER BY ' +
-        paginationUser.sortBy +
-        ' ' +
-        paginationUser.sortDirection +
-        ' LIMIT ' +
-        paginationFromHelperForUsers.skipPage +
-        ' OFFSET ' +
-        paginationUser.pageSize,
+      ' FROM user_entity' +
+      ' join user_recovery_password_info_entity' +
+      ' on user_entity."id" = user_recovery_password_info_entity."ownerId"' +
+      ' join user_confirmation_info_entity' +
+      ' on user_recovery_password_info_entity."ownerId" = user_confirmation_info_entity."ownerId"' +
+      whereFilter +
+      ' ORDER BY' +
+      ' "' +
+      paginationUser.sortBy +
+      '" ' +
+      sortDirection +
+      ' LIMIT ' +
+      paginationUser.pageSize +
+      ' OFFSET ' +
+      paginationFromHelperForUsers.skipPage;
+    console.log(zapros);
+    const table = await this.dataSource.query(zapros);
+
+    //console.log(table);
+    const resultUsers = await Promise.all(
+      table.map(async (user: User) => {
+        const userView = await mapObject.mapUserForViewModel(user);
+        return userView;
+      }),
     );
-
-    // [
-    //   paginationUser.sortBy,
-    //   paginationUser.sortDirection,
-    //   paginationFromHelperForUsers.skipPage,
-    //   paginationUser.pageSize,
-    // ],
-    console.log(table);
-    // const resultUsers = await Promise.all(
-    //   sortUser.map(async (user: User) => {
-    //     const userView = await mapObject.mapUserForViewModel(user);
-    //     return userView;
-    //   }),
-    // );
-
-    // pagesCount: paginationFromHelperForUsers.totalCount,
-    //       page: paginationUser.pageNumber,
-    //       pageSize: paginationUser.pageSize,
-    //       totalCount: totalCountUser,
-    //       items: resultUsers,
+    //console.log(resultUsers);
     return {
-      pagesCount: 1,
-      page: 1,
-      pageSize: 2,
-      totalCount: 5,
-      items: [
-        {
-          id: 'string',
-          login: 'string',
-          email: 'string',
-          createdAt: 'string',
-        },
-      ],
+      pagesCount: paginationFromHelperForUsers.totalCount,
+      page: paginationUser.pageNumber,
+      pageSize: paginationUser.pageSize,
+      totalCount: totalCountUser,
+      items: resultUsers,
     };
   }
 }

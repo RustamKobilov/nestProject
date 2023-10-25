@@ -117,6 +117,8 @@ import { ReactionEntity } from './Like/Reaction.Entity';
 import { DeviceEntity } from './Device/Device.Entity';
 import { PostEntity } from './Post/Post.Entity';
 import { UsersRepositorySql } from './User/users-repository-sql';
+import { BlogsRepositorySql } from './Blog/blogs-repository-sql';
+import { PostRepositorySql } from './Post/posts-repository-sql';
 
 dotenv.config();
 const useCaseUser = [
@@ -282,12 +284,22 @@ const sqlEntity = [
       useClass:
         process.env.DATA_BASE === 'SQL' ? UsersRepositorySql : UserRepository,
     },
+    {
+      provide: BlogRepository,
+      useClass:
+        process.env.DATA_BASE === 'SQL' ? BlogsRepositorySql : BlogRepository,
+    },
+    {
+      provide: PostRepository,
+      useClass:
+        process.env.DATA_BASE === 'SQL' ? PostRepositorySql : PostRepository,
+    },
     UserService,
     //UserRepository,
     BlogService,
-    BlogRepository,
+    //BlogRepository,
     PostService,
-    PostRepository,
+    //PostRepository,
     LocalStrategy,
     AuthService,
     JwtStrategy,

@@ -1,0 +1,108 @@
+SELECT  "id", "login", "password", "email", "createdAt", "salt","recoveryCode", "diesAtDate","userConformation","code","expirationCode"
+        FROM user_entity
+          join user_recovery_password_info_entity
+          on user_entity."id" = user_recovery_password_info_entity."ownerId"
+          join user_confirmation_info_entity
+          on user_recovery_password_info_entity."ownerId" = user_confirmation_info_entity."ownerId"
+          WHERE "login" LIKE '%sql%' OR "diesAtDate" Like '%4%'
+          ORDER BY "salt" ASC
+          LIMIT 5 OFFSET 0
+          AND user_confirmation_info_entity."code" = '956f5669-8e6f-47a8-a0fa-729368ea8baf'
+          AND user_entity."login" = 'ttteew'
+          WHERE user_entity."login" = 'ttteew'
+          OR "email" =  'emailsq1'
+          AND user_entity."id"
+"21cbdfcb-69dc-4119-8d52-f14f7d5790db"
+          SELECT * FROM user_entity WHERE "login" = 'sql' OR "email" =  'ttteew'
+          SELECT * FROM user_entity WHERE "id" = '22ea664b-8ee2-4e78-84b3-9529a5808853'
+
+SELECT COUNT (*) FROM user_entity WHERE  "login" = 'ttteew' OR "email" =  'ttteew'
+SELECT * FROM user_recovery_password_info_entity
+SELECT * FROM user_confirmation_info_entity WHERE "code" = 'df7e5df0-81af-4e00-a59f-57b731bc37bb'
+
+UPDATE user_entity
+SET "salt"='saltUpdate5'
+WHERE "id" = (SELECT "ownerId" FROM user_recovery_password_info_entity
+WHERE user_recovery_password_info_entity."recoveryCode" = '25764ad5-1c43-48d4-9fa4-d74d7ddfefe8'
+AND user_recovery_password_info_entity."diesAtDate" >='2023-10-07T11:47:38.403Z')
+
+SELECT * FROM user_recovery_password_info_entity
+WHERE user_recovery_password_info_entity."recoveryCode" = '25764ad5-1c43-48d4-9fa4-d74d7ddfefe8'
+AND user_recovery_password_info_entity."diesAtDate" <='2023-10-07T11:49:38.403Z'
+
+
+SELECT * FROM user_entity WHERE "login" LIKE '%sql%' OR "diesAtDate" Like '%48%'
+
+SELECT * FROM user_recovery_password_info_entity
+WHERE user_recovery_password_info_entity."diesAtDate" >='2023-10-07T11:41:38.403Z'
+
+UPDATE user_recovery_password_info_entity
+SET "diesAtDate"='2023-10-07T13:38:13.427Z',"recoveryCode"='56764ad5-1c43-48d4-9fa4-d74d7ddfefe8'
+WHERE "ownerId" = '6c8fa47f-29c0-495c-bc90-ade3f8d50f72'
+
+
+UPDATE user_confirmation_info_entity
+SET "code" = '77ea664b-8ee2-4e78-84b3-9529a5808111',"expirationCode" = '2023-10-07T13:27:13.427Z'
+WHERE "ownerId" = '77ea664b-8ee2-4e78-84b3-9529a5808853'
+
+DELETE FROM user_confirmation_info_entity WHERE "code" = '21cbdfcb-69dc-2222-8d52-f14f7d5790db'
+
+INSERT INTO user_entity(
+            id, login, password, email, "createdAt", salt)
+    VALUES (?, ?, ?, ?, ?, ?);
+INSERT INTO user_recovery_password_info_entity(
+             "ownerId", "recoveryCode", "diesAtDate")
+    VALUES ( '77ea664b-8ee2-4e78-84b3-9529a5808853', '77ea664b-8ee2-4e78-84b3-9529a5805555', '77ea664bday08853');
+
+    INSERT INTO user_confirmation_info_entity(
+            "ownerId", "userConformation", code, "expirationCode")
+    VALUES ('77ea664b-8ee2-4e78-84b3-9529a5808853', false,'77ea664b-8ee2-4e78-84b3-1111a5808853', '77ea664b-89day08853');
+
+
+//////
+
+INSERT INTO reaction_entity(
+             "parentId", "userId", "userLogin", status, "createdAt")
+    VALUES ( '125f65e2-63f0-4281-8de8-02f6187e1f3b',
+     '111f2af2-a22a-4e79-80a5-b160a88978b8', 'neh22', 'None', '2023-10-22T17:11:37.063Z');
+
+    SELECT "idSql", "parentId", "userId", "userLogin", status, "createdAt"
+  FROM reaction_entity
+  WHERE "parentId" = '087f65e2-63f0-4281-8de8-02f6187e1f3b'
+  ORDER BY "createdAt" DESC
+  LIMIT 3 OFFSET 0 ;
+
+ UPDATE reaction_entity
+SET "parentId"='06a732f3-a57b-42be-b0e1-6c9c92dab641'
+WHERE "idSql" = 7
+
+
+
+/////
+
+
+SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
+  FROM blog_entity;
+
+SELECT id, name, description, "websiteUrl", "createdAt", "isMembership"
+  FROM blog_entity WHERE "id" = 'a7ac612f-4c0b-4458-ba93-643738076c6e';
+
+UPDATE blog_entity
+SET "name" = '02',"description" = '02Name',"websiteUrl" = 'rustam02incubator@gmail.com'
+WHERE "id" = 'a7ac612f-4c0b-4458-ba93-643738076c6e';
+
+SELECT id, title, "shortDescription", content, "blogId", "blogName",
+       "createdAt"
+  FROM post_entity WHERE "blogId" = 'd3fdfd2e-8af0-41ca-974c-d0c400d00a56';
+
+
+  INSERT INTO blog_entity(
+             id,name, description, "websiteUrl", "createdAt", "isMembership")
+    VALUES ('9db57fd1-3de7-4b50-9eac-45ac29f13a9a','name19', 'description19', 'rustam9incubator@gmail.com', 'createdAt19', false);
+    INSERT INTO post_entity(
+            id, title, "shortDescription", content, "blogId", "blogName",
+            "createdAt")
+    VALUES ('1db57fd1-3de7-4b50-9eac-45ac29f13a9a','title19', 'shortDescription19', 'content1', 'd3fdfd2e-8af0-41ca-974c-d0c400d00a56', 'name11','2023-10-07T11:47:38.403Z');
+
+/////
+

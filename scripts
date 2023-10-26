@@ -106,3 +106,38 @@ SELECT id, title, "shortDescription", content, "blogId", "blogName",
 
 /////
 
+INSERT INTO post_entity(
+            id, title, "shortDescription", content, "blogId", "blogName",
+            "createdAt", "likesCount", "dislikesCount", "myStatus")
+    VALUES ('8438d5f9-9fe7-4e70-998b-9409aa084233', 'title', 'shortDescription', 'content', '1f3d2f30-cb83-48d9-9ea0-6dd9515350dd', 'hzhzhz',''
+            '2000-10-31T01:30:00.000-05:00', 0, 0, 'None');
+
+
+INSERT INTO blog_entity(
+            id, name, description, "websiteUrl", "createdAt", "isMembership")
+    VALUES ('1f3d2f30-cb83-48d9-9ea0-6dd9515350dd', 'name3', 'description3', 'websiteUrl', '2000-10-31T01:30:00.000-05:00', false);
+
+    INSERT INTO reaction_entity(
+            "idSql", "parentId", "userId", "userLogin", status, "createdAt")
+    VALUES (7, '8438d5f9-9fe7-4e70-998b-9409aa084233','ca0c2938-9cc0-44e2-8236-9142aa833271', 'loginuser2', 'Dislike', '2000-10-31T01:30:00.000-05:00');
+
+    INSERT INTO user_entity(
+            id, login, password, email, "createdAt", salt)
+    VALUES ('ca0c2938-9cc0-44e2-8236-9142aa833271', 'login1', 'password1', 'posksrd@mail.ru',  '2000-10-31T01:30:00.000-05:00', 'salt111');
+
+
+//////
+
+SELECT id, title, "shortDescription", content, "blogId", "blogName",
+       "createdAt", "likesCount", "dislikesCount", "myStatus"
+  FROM post_entity;
+
+  SELECT "id", "title", "shortDescription", content, "blogId", "blogName",
+       post_entity."createdAt", "likesCount", "dislikesCount", "myStatus","userId", "userLogin",
+       status,reaction_entity."createdAt" AS "createdAt_Reaction"
+  FROM post_entity
+          join reaction_entity
+          on post_entity."id" = reaction_entity."parentId" AND post_entity."id" = '8438d5f9-9fe7-4e70-998b-9409aa084233'
+
+SELECT "idSql", "parentId", "userId", "userLogin", status, "createdAt"
+  FROM reaction_entity;

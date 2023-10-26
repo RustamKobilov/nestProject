@@ -1,6 +1,6 @@
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { likeStatus } from '../Enum';
-
+@Entity()
 export class ReactionEntity {
   @PrimaryGeneratedColumn()
   idSql: number;

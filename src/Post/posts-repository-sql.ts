@@ -1,10 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { Post } from './Post';
-import { outputModel, PaginationDTO } from '../DTO';
 import { mapObject } from '../mapObject';
-import { helper } from '../helper';
 import { ReactionRepository } from '../Like/reactionRepository';
 
 @Injectable()
@@ -33,24 +31,37 @@ export class PostRepositorySql {
     return;
   }
   async getPost(postId: string): Promise<Post | false> {
+    // const table = await this.dataSource.query(
+    //   'SELECT "id", "title", "shortDescription", "content", "blogId", "blogName", "createdAt", "likesCount", "dislikesCount", "myStatus"' +
+    //     ' FROM post_entity WHERE "id" = $1',
+    //   [postId],
+    // );
+    // if (table.length < 1) {
+    //   return false;
+    // }
+    // const tableNewestLike = await this.dataSource.query(
+    //   'SELECT "idSql", "parentId", "userId", "userLogin", "status", "createdAt"' +
+    //     ' FROM reaction_entity WHERE "parentId" = $1' +
+    //     ' ORDER BY "createdAt" DESC LIMIT 3 OFFSET 0',
+    //   [postId],
+    // );
+    console.log('tyt');
     const table = await this.dataSource.query(
-      'SELECT "id", "title", "shortDescription", "content", "blogId", "blogName", "createdAt", "likesCount", "dislikesCount", "myStatus"' +
-        ' FROM post_entity WHERE "id" = $1',
+      'SELECT "id", "title", "shortDescription", content, "blogId", "blogName",' +
+        ' post_entity."createdAt", "likesCount", "dislikesCount", "myStatus","userId", "userLogin", ' +
+        ' status,reaction_entity."createdAt" AS "createdAt_Reaction"' +
+        ' FROM post_entity' +
+        ' join reaction_entity' +
+        ' on post_entity."id" = reaction_entity."parentId" AND post_entity."id" = $1',
       [postId],
     );
-    if (table.length < 1) {
-      return false;
-    }
-    const tableNewestLike = await this.dataSource.query(
-      'SELECT "idSql", "parentId", "userId", "userLogin", "status", "createdAt"' +
-        ' FROM reaction_entity WHERE "parentId" = $1' +
-        ' ORDER BY "createdAt" DESC LIMIT 3 OFFSET 0',
-      [postId],
-    );
-    console.log(tableNewestLike);
+    console.log(table);
+    //throw new NotFoundException(
+    //'getPost not found for comment /commentService',
+    //);
     const post = mapObject.mapPostFromSql(
       table[0],
-      mapObject.mapNewestLikesFromSql(tableNewestLike),
+      mapObject.mapNewestLikesFromSql(table),
     );
     return post;
   }

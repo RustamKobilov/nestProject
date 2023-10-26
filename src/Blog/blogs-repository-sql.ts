@@ -5,8 +5,6 @@ import { BlogPaginationDTO, CreateBlogDTO, outputModel } from '../DTO';
 import { Blog } from './Blog';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
-import { ne } from '@faker-js/faker';
-import { UpdateWriteOpResult } from 'mongoose';
 
 @Injectable()
 export class BlogsRepositorySql {

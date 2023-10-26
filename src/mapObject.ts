@@ -108,11 +108,11 @@ export const mapObject = {
       login: reaction.userLogin,
     };
   },
-  mapNewestLikesFromSql(sqlArray: [ReactionEntity]) {
+  mapNewestLikesFromSql(sqlArray: [any]) {
     const newestLikes: NewestLikes[] = [];
     for (const sqlReaction of sqlArray) {
       const newestLike = {
-        addedAt: sqlReaction.createdAt,
+        addedAt: sqlReaction.createdAt_Reaction,
         userId: sqlReaction.userId,
         login: sqlReaction.userLogin,
       };

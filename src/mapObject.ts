@@ -120,6 +120,64 @@ export const mapObject = {
     }
     return newestLikes;
   },
+  mapNewestLikesAndPostsFromSql(sqlArray: [any]): Post[] {
+    //const newestLikes: NewestLikes[] = [];
+    const posts: Post[] = [];
+    console.log('my tyt');
+    posts.push(this.mapPostFromSql(sqlArray[0]));
+    console.log(posts + ' posts after step 1');
+    for (const sqlReactionAndPost of sqlArray) {
+      console.log('my tyt1');
+      for (const postElement of posts) {
+        console.log('my tyt2');
+        console.log(postElement);
+        console.log(' vPoste ');
+        console.log(sqlReactionAndPost);
+        console.log(' IzBase ');
+
+        if (sqlReactionAndPost.id === postElement.id) {
+          console.log('sqlReactionAndPost.id === post.id end');
+          break;
+        }
+        console.log('CREATE POST!');
+        const post: Post = {
+          id: sqlReactionAndPost.id,
+          title: sqlReactionAndPost.title,
+          shortDescription: sqlReactionAndPost.shortDescription,
+          content: sqlReactionAndPost.content,
+          blogId: sqlReactionAndPost.blogId,
+          blogName: sqlReactionAndPost.blogName,
+          createdAt: sqlReactionAndPost.createdAt,
+          extendedLikesInfo: {
+            likesCount: sqlReactionAndPost.likesCount,
+            dislikesCount: sqlReactionAndPost.dislikesCount,
+            myStatus: sqlReactionAndPost.myStatus,
+            newestLikes: [],
+          },
+        };
+        posts.push(post);
+      }
+      console.log('const newestLike = { end ');
+      const newestLike = {
+        addedAt: sqlReactionAndPost.createdAt_Reaction,
+        userId: sqlReactionAndPost.userId,
+        login: sqlReactionAndPost.userLogin,
+      };
+      posts.map(function (post) {
+        console.log('  posts.map(function(post)  ');
+        if (post.id === sqlReactionAndPost.id) {
+          post.extendedLikesInfo.newestLikes.push(newestLike);
+          console.log('  end map in IF  ');
+          return;
+        }
+        console.log('  end map out  ');
+        return;
+      });
+      console.log('  sqlReactionAndPost end FOR  ');
+    }
+    console.log(posts);
+    return posts;
+  },
   mapMeUserInformation(user: User): MeViewModel {
     return {
       userId: user.id,

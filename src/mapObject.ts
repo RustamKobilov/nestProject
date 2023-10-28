@@ -14,7 +14,6 @@ import { Reaction } from './Like/Reaction';
 import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
-import { ReactionEntity } from './Like/Reaction.Entity';
 
 export const mapObject = {
   //TODO как проставить тепизацию на выход и вход чтобы не ругалось на never. какой тип у массиа приходящего
@@ -109,10 +108,10 @@ export const mapObject = {
     };
   },
   mapNewestLikesFromSql(sqlArray: [any]) {
-    const newestLikes: NewestLikes[] = [];
+    const newestLikes: newestLikeViewModel[] = [];
     for (const sqlReaction of sqlArray) {
       const newestLike = {
-        addedAt: sqlReaction.createdAt_Reaction,
+        addedAt: sqlReaction.createdAt,
         userId: sqlReaction.userId,
         login: sqlReaction.userLogin,
       };
@@ -120,63 +119,19 @@ export const mapObject = {
     }
     return newestLikes;
   },
-  mapNewestLikesAndPostsFromSql(sqlArray: [any]): Post[] {
-    //const newestLikes: NewestLikes[] = [];
-    const posts: Post[] = [];
-    console.log('my tyt');
-    posts.push(this.mapPostFromSql(sqlArray[0]));
-    console.log(posts + ' posts after step 1');
-    for (const sqlReactionAndPost of sqlArray) {
-      console.log('my tyt1');
-      for (const postElement of posts) {
-        console.log('my tyt2');
-        console.log(postElement);
-        console.log(' vPoste ');
-        console.log(sqlReactionAndPost);
-        console.log(' IzBase ');
-
-        if (sqlReactionAndPost.id === postElement.id) {
-          console.log('sqlReactionAndPost.id === post.id end');
-          break;
-        }
-        console.log('CREATE POST!');
-        const post: Post = {
-          id: sqlReactionAndPost.id,
-          title: sqlReactionAndPost.title,
-          shortDescription: sqlReactionAndPost.shortDescription,
-          content: sqlReactionAndPost.content,
-          blogId: sqlReactionAndPost.blogId,
-          blogName: sqlReactionAndPost.blogName,
-          createdAt: sqlReactionAndPost.createdAt,
-          extendedLikesInfo: {
-            likesCount: sqlReactionAndPost.likesCount,
-            dislikesCount: sqlReactionAndPost.dislikesCount,
-            myStatus: sqlReactionAndPost.myStatus,
-            newestLikes: [],
-          },
-        };
-        posts.push(post);
-      }
-      console.log('const newestLike = { end ');
-      const newestLike = {
-        addedAt: sqlReactionAndPost.createdAt_Reaction,
-        userId: sqlReactionAndPost.userId,
-        login: sqlReactionAndPost.userLogin,
+  mapReactionFromSql(sqlArray: [any]) {
+    const reactions: Reaction[] = [];
+    for (const reactionSql of sqlArray) {
+      const reaction: Reaction = {
+        userId: reactionSql.userId,
+        userLogin: reactionSql.userLogin,
+        status: reactionSql.status,
+        parentId: reactionSql.parentId,
+        createdAt: reactionSql.createdAt,
       };
-      posts.map(function (post) {
-        console.log('  posts.map(function(post)  ');
-        if (post.id === sqlReactionAndPost.id) {
-          post.extendedLikesInfo.newestLikes.push(newestLike);
-          console.log('  end map in IF  ');
-          return;
-        }
-        console.log('  end map out  ');
-        return;
-      });
-      console.log('  sqlReactionAndPost end FOR  ');
+      reactions.push(reaction);
     }
-    console.log(posts);
-    return posts;
+    return reactions;
   },
   mapMeUserInformation(user: User): MeViewModel {
     return {

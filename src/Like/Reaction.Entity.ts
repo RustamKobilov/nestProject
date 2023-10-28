@@ -1,12 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { likeStatus } from '../Enum';
 @Entity()
 export class ReactionEntity {
-  @PrimaryGeneratedColumn()
-  idSql: number;
-  @Column({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid' })
   parentId: string;
-  @Column({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid' })
   userId: string;
   @Column({ type: 'varchar', length: 20 })
   userLogin;

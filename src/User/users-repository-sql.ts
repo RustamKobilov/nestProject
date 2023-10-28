@@ -92,6 +92,26 @@ export class UsersRepositorySql {
     return user[0];
   }
 
+  async getUserByLoginOrEmail(loginOrEmail: string): Promise<User | false> {
+    const table = await this.dataSource.query(
+      'SELECT  "id", "login", "password", "email", "createdAt", "salt","recoveryCode", "diesAtDate","userConformation","code","expirationCode"' +
+        ' FROM user_entity' +
+        ' join user_recovery_password_info_entity' +
+        ' on user_entity."id" = user_recovery_password_info_entity."ownerId"' +
+        ' join user_confirmation_info_entity' +
+        ' on user_recovery_password_info_entity."ownerId" = user_confirmation_info_entity."ownerId"' +
+        ' WHERE user_entity."login" = $1 OR user_entity."email" =  $2',
+      [loginOrEmail, loginOrEmail],
+    );
+    console.log(table);
+    console.log('sql.loginAndEmail');
+    if (table.length < 1) {
+      return false;
+    }
+    const user = mapObject.mapUsersFromSql(table);
+    return user[0];
+  }
+
   async findUserByLogin(login: string): Promise<User | false> {
     const table = await this.dataSource.query(
       'SELECT  "id", "login", "password", "email", "createdAt", "salt","recoveryCode", "diesAtDate","userConformation","code","expirationCode"' +

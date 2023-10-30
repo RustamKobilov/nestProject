@@ -133,6 +133,21 @@ export const mapObject = {
     }
     return reactions;
   },
+  mapDeviceFromSql(sqlArray: [any]) {
+    const devices: Device[] = [];
+    for (const deviceSql of sqlArray) {
+      const device: Device = {
+        deviceId: deviceSql.deviceId,
+        userId: deviceSql.userId,
+        lastActiveDate: deviceSql.lastActiveDate,
+        diesAtDate: deviceSql.diesAtDate,
+        title: deviceSql.title,
+        ip: deviceSql.ip,
+      };
+      devices.push(device);
+    }
+    return devices;
+  },
   mapMeUserInformation(user: User): MeViewModel {
     return {
       userId: user.id,

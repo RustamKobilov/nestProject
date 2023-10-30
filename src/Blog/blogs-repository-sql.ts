@@ -114,12 +114,12 @@ export class BlogsRepositorySql {
     return update[1] === 1;
   }
   async deleteBlog(blogId: string) {
-    const deleteUser = await this.dataSource.query(
+    const deleteBlog = await this.dataSource.query(
       'DELETE FROM blog_entity' + ' WHERE "id" = $1',
       [blogId],
     );
-    console.log(deleteUser[1]);
-    if (deleteUser[1] != 1) {
+    console.log(deleteBlog[1]);
+    if (deleteBlog[1] != 1) {
       throw new NotFoundException('0 item delete /userRepositorySql');
     }
     return;

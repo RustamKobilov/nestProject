@@ -349,12 +349,12 @@ export class PostRepositorySql {
     return update[1] === 1;
   }
   async deletePost(postId: string) {
-    const deleteUser = await this.dataSource.query(
+    const deletePost = await this.dataSource.query(
       'DELETE FROM post_entity' + ' WHERE "id" = $1',
       [postId],
     );
-    console.log(deleteUser[1]);
-    if (deleteUser[1] != 1) {
+    console.log(deletePost[1]);
+    if (deletePost[1] != 1) {
       throw new NotFoundException('0 item delete /userRepositorySql');
     }
     return;

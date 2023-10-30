@@ -1,5 +1,5 @@
-import { Column, PrimaryColumn } from 'typeorm';
-
+import { Column, Entity, PrimaryColumn } from 'typeorm';
+@Entity()
 export class DeviceEntity {
   @PrimaryColumn({ type: 'uuid' })
   deviceId: string;

@@ -130,6 +130,8 @@ export class AuthController {
       refreshTokenPayload.userId,
       refreshTokenPayload.deviceId,
     );
+    console.log('prishlo');
+    console.log(refreshTokenPayload.deviceId);
     const deleteDeviceUser = await this.authService.deleteDeviceInLogout(
       refreshTokenPayload.deviceId,
     );

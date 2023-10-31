@@ -81,7 +81,6 @@ export class ReactionRepository {
         return newestLikes;
       }),
     );
-
     return {
       likesCount: likesCount,
       dislikesCount: dislikesCount,

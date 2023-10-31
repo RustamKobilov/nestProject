@@ -10,7 +10,7 @@ import { DeviceViewModel } from '../viewModelDTO';
 export class DevicesRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
   async createTokenByUserIdInBase(device: Device) {
-    const queryInsertPostEntity = await this.dataSource.query(
+    const queryInsertDeviceEntity = await this.dataSource.query(
       'INSERT INTO device_entity ("deviceId", "userId", "lastActiveDate", "diesAtDate", "title")' +
         ' VALUES ($1,$2, $3, $4, $5)',
       [

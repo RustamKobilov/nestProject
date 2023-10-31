@@ -11,9 +11,10 @@ import {
 import { Blog } from './Blog/Blog';
 import { NewestLikes, Post } from './Post/Post';
 import { Reaction } from './Like/Reaction';
-import { Comment } from './Comment/Comment';
+import { Comment, CommentatorInfo } from './Comment/Comment';
 import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
+import { CommentEntity } from './Comment/Comment.Entity';
 
 export const mapObject = {
   //TODO как проставить тепизацию на выход и вход чтобы не ругалось на never. какой тип у массиа приходящего
@@ -99,6 +100,27 @@ export const mapObject = {
       createdAt: comment.createdAt,
       likesInfo: comment.likesInfo,
     };
+  },
+  mapCommentFromSql(sqlArray: [any]) {
+    const comments: CommentViewModel[] = [];
+    for (const sqlComment of sqlArray) {
+      const comment: CommentViewModel = {
+        id: sqlComment.id,
+        content: sqlComment.content,
+        createdAt: sqlComment.createdAt,
+        commentatorInfo: {
+          userId: sqlComment.userId,
+          userLogin: sqlComment.userLogin,
+        },
+        likesInfo: {
+          likesCount: sqlComment.likesCount,
+          dislikesCount: sqlComment.dislikesCount,
+          myStatus: sqlComment.myStatus,
+        },
+      };
+      comments.push(comment);
+    }
+    return comments;
   },
   mapNewestLikes(reaction: Reaction): newestLikeViewModel {
     return {

@@ -96,6 +96,11 @@ export class ReactionRepositorySql {
         ' WHERE reaction_entity."status" = ' +
         " '" +
         likeStatus.Like +
+        "' " +
+        ' AND ' +
+        'reaction_entity."parentId" = ' +
+        " '" +
+        parentId +
         "' ",
     );
     const dislikesCount = await this.dataSource.query(
@@ -103,6 +108,11 @@ export class ReactionRepositorySql {
         ' WHERE reaction_entity."status" = ' +
         " '" +
         likeStatus.Dislike +
+        "' " +
+        ' AND ' +
+        'reaction_entity."parentId" = ' +
+        " '" +
+        parentId +
         "' ",
     );
 
@@ -116,7 +126,9 @@ export class ReactionRepositorySql {
       ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
     const tableNewestLike = await this.dataSource.query(zaprosForNewestLike);
     const lastlikeUser = mapObject.mapNewestLikesFromSql(tableNewestLike);
-
+    console.log('imenno tyt');
+    console.log(likesCount);
+    console.log(dislikesCount);
     return {
       likesCount: likesCount[0].count,
       dislikesCount: dislikesCount[0].count,

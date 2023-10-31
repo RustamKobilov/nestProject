@@ -112,7 +112,7 @@ import {
   UserRecoveryPasswordInfoEntity,
 } from './User/User.Entity';
 import { BlogEntity } from './Blog/Blog.Entity';
-import { CommentatorInfoEntity, CommentEntity } from './Comment/Comment.Entity';
+import { CommentEntity } from './Comment/Comment.Entity';
 import { ReactionEntity } from './Like/Reaction.Entity';
 import { DeviceEntity } from './Device/Device.Entity';
 import { PostEntity } from './Post/Post.Entity';
@@ -121,6 +121,7 @@ import { BlogsRepositorySql } from './Blog/blogs-repository-sql';
 import { PostRepositorySql } from './Post/posts-repository-sql';
 import { ReactionRepositorySql } from './Like/reaction-repository-sql';
 import { DevicesRepositorySql } from './Device/devices-repository-sql';
+import { CommentsRepositorySql } from './Comment/comments-repository-sql';
 
 dotenv.config();
 const useCaseUser = [
@@ -184,7 +185,6 @@ const sqlEntity = [
   PostEntity,
   DeviceEntity,
   CommentEntity,
-  CommentatorInfoEntity,
   ReactionEntity,
 ];
 @Module({
@@ -310,6 +310,13 @@ const sqlEntity = [
           ? DevicesRepositorySql
           : DeviceRepository,
     },
+    {
+      provide: CommentRepository,
+      useClass:
+        process.env.DATA_BASE === 'SQL'
+          ? CommentsRepositorySql
+          : DeviceRepository,
+    },
     UserService,
     //UserRepository,
     BlogService,
@@ -322,7 +329,7 @@ const sqlEntity = [
     DeviceService,
     //DeviceRepository,
     CommentService,
-    CommentRepository,
+    //CommentRepository,
     //ReactionRepository,
     JwtServices,
     isEmailNoUniqueValidate,

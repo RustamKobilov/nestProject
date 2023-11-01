@@ -304,6 +304,7 @@ export class UsersRepositorySql {
   ): Promise<outputModel<UserViewModel>> {
     console.log('filter');
     console.log(filter);
+    console.log('SQL getUsers');
     const filterCount =
       filter === null
         ? 'SELECT COUNT (*) FROM user_entity'

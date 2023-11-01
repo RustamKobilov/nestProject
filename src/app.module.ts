@@ -124,6 +124,7 @@ import { DevicesRepositorySql } from './Device/devices-repository-sql';
 import { CommentsRepositorySql } from './Comment/comments-repository-sql';
 import { DataRepository } from './dataRepository';
 import { DataRepositorySql } from './dataRepositorySql';
+import { AdminController } from './Admin/adminController';
 
 dotenv.config();
 const useCaseUser = [
@@ -281,6 +282,7 @@ const sqlEntity = [
     AuthController,
     CommentController,
     SecurityController,
+    AdminController,
   ],
   providers: [
     {

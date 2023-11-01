@@ -130,8 +130,8 @@ export class ReactionRepositorySql {
     console.log(likesCount);
     console.log(dislikesCount);
     return {
-      likesCount: likesCount[0].count,
-      dislikesCount: dislikesCount[0].count,
+      likesCount: parseInt(likesCount[0].count, 10),
+      dislikesCount: parseInt(dislikesCount[0].count, 10),
       lastLikeUser: lastlikeUser,
     };
   }

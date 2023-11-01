@@ -138,8 +138,8 @@ export class CommentsRepositorySql {
       filter.postId +
       "'";
     const sortDirection = pagination.sortDirection === 1 ? 'ASC' : 'DESC';
-    const queryCountPost = await this.dataSource.query(filterCount);
-    const countCommentsForPost = queryCountPost[0].count;
+    const queryCountComment = await this.dataSource.query(filterCount);
+    const countCommentsForPost = parseInt(queryCountComment[0].count, 10);
 
     const paginationFromHelperForComments =
       helper.getPaginationFunctionSkipSortTotal(
@@ -190,8 +190,8 @@ export class CommentsRepositorySql {
       filter.postId +
       "'";
     const sortDirection = pagination.sortDirection === 1 ? 'ASC' : 'DESC';
-    const queryCountPost = await this.dataSource.query(filterCount);
-    const countCommentsForPost = queryCountPost[0].count;
+    const queryCountComment = await this.dataSource.query(filterCount);
+    const countCommentsForPost = parseInt(queryCountComment[0].count, 10);
     console.log('chekpoint1');
     const paginationFromHelperForComments =
       helper.getPaginationFunctionSkipSortTotal(

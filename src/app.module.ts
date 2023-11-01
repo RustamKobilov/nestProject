@@ -122,6 +122,8 @@ import { PostRepositorySql } from './Post/posts-repository-sql';
 import { ReactionRepositorySql } from './Like/reaction-repository-sql';
 import { DevicesRepositorySql } from './Device/devices-repository-sql';
 import { CommentsRepositorySql } from './Comment/comments-repository-sql';
+import { DataRepository } from './dataRepository';
+import { DataRepositorySql } from './dataRepositorySql';
 
 dotenv.config();
 const useCaseUser = [
@@ -316,6 +318,11 @@ const sqlEntity = [
         process.env.DATA_BASE === 'SQL'
           ? CommentsRepositorySql
           : DeviceRepository,
+    },
+    {
+      provide: DataRepository,
+      useClass:
+        process.env.DATA_BASE === 'SQL' ? DataRepositorySql : DataRepository,
     },
     UserService,
     //UserRepository,

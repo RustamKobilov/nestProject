@@ -65,7 +65,7 @@ export class PostRepositorySql {
     const queryCountPost = await this.dataSource.query(filterCount);
     //console.log('filterCount');
     //console.log(filterCount);
-    const totalCountPost = queryCountPost[0].count;
+    const totalCountPost = parseInt(queryCountPost[0].count, 10);
     // console.log(totalCountPost);
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(
@@ -161,7 +161,7 @@ export class PostRepositorySql {
     const queryCountPost = await this.dataSource.query(filterCount);
     //console.log('filterCount');
     //console.log(filterCount);
-    const totalCountPost = queryCountPost[0].count;
+    const totalCountPost = parseInt(queryCountPost[0].count, 10);
     // console.log(totalCountPost);
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(
@@ -249,7 +249,7 @@ export class PostRepositorySql {
     const queryCountPost = await this.dataSource.query(filterCount);
     //console.log('filterCount');
     //console.log(filterCount);
-    const totalCountPost = queryCountPost[0].count;
+    const totalCountPost = parseInt(queryCountPost[0].count, 10);
     // console.log(totalCountPost);
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(

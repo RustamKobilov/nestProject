@@ -65,14 +65,15 @@ export class UsersRepositorySql {
   }
   async deleteUser(userId: string) {
     //TODO как защитить от попадание подзапроса
+    console.log(userId);
     const deleteUser = await this.dataSource.query(
-      'DELETE FROM user_entity WHERE "id" = $1',
+      'DELETE FROM user_entity' + ' WHERE "id" = $1',
       [userId],
     );
-    if (deleteUser[1]) {
+    if (deleteUser[1] != 1) {
       throw new NotFoundException('0 item delete /userRepositorySql');
-      return;
     }
+    return;
   }
   async getUser(userId: string): Promise<User | false> {
     const table = await this.dataSource.query(
@@ -311,7 +312,7 @@ export class UsersRepositorySql {
     const queryCountUser = await this.dataSource.query(filterCount);
     console.log('filterCount');
     console.log(filterCount);
-    const totalCountUser = queryCountUser[0].count;
+    const totalCountUser = parseInt(queryCountUser[0].count, 10);
     console.log(totalCountUser);
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(

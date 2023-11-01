@@ -44,7 +44,7 @@ export class BlogsRepositorySql {
     const queryCountBlog = await this.dataSource.query(filterCount);
     console.log('filterCount');
     console.log(filterCount);
-    const totalCountBlog = queryCountBlog[0].count;
+    const totalCountBlog = parseInt(queryCountBlog[0].count, 10);
     console.log(totalCountBlog);
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(

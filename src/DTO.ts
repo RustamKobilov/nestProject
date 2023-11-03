@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  IsUUID,
   Length,
   Matches,
   Min,
@@ -171,6 +172,7 @@ export class LoginDtoStrategy {
 
 export class RegistrationConfirmation {
   @IsString()
+  @IsUUID()
   @Transform(({ value }) => helper.getValueTrim(value))
   code: string;
 }

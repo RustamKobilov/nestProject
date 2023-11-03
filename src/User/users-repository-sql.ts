@@ -174,6 +174,10 @@ export class UsersRepositorySql {
     return user[0];
   }
   async getCodeConfirmationByUserId(code: string): Promise<User | false> {
+    console.log(code);
+    const name = 'persKerT';
+    const upName = name.toLowerCase();
+    console.log(upName);
     const table = await this.dataSource.query(
       'SELECT  "id", "login", "password", "email", "createdAt", "salt","recoveryCode", "diesAtDate","userConformation","code","expirationCode"' +
         ' FROM user_entity' +
@@ -272,6 +276,8 @@ export class UsersRepositorySql {
       paginationUser.searchLoginTerm != null &&
       paginationUser.searchEmailTerm != null
     ) {
+      //paginationUser.searchLoginTerm
+
       return (
         ' WHERE "login"' +
         ' LIKE ' +
@@ -286,13 +292,16 @@ export class UsersRepositorySql {
       );
     }
     if (paginationUser.searchLoginTerm != null) {
-      return (
-        ' WHERE "login" LIKE ' + "'%" + paginationUser.searchLoginTerm + "%'"
-      );
+      const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
+      return ' WHERE LOWER("login") LIKE ' + "'%" + loginTerm + "%'";
     }
     if (paginationUser.searchEmailTerm != null) {
+      const emailTerm = paginationUser.searchEmailTerm.toLowerCase();
       return (
-        ' WHERE "email" LIKE ' + "'%" + paginationUser.searchEmailTerm + "%'"
+        ' WHERE LOWER("email") LIKE ' +
+        "'%" +
+        paginationUser.searchEmailTerm +
+        "%'"
       );
     }
     return null;

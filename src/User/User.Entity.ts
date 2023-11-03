@@ -14,6 +14,10 @@ export class UserEntity {
   createdAt: string;
   @Column({ type: 'varchar', length: 30 })
   salt: string;
+
+  // @OneToOne(() => UserConfirmationInfoEntity)
+  // @JoinTable({ joinColumn: { name: 'ownerId' } })
+  // confirmationInfo: UserConfirmationInfoEntity;
 }
 @Entity()
 export class UserConfirmationInfoEntity {

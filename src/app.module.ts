@@ -105,7 +105,7 @@ import { UpdatePasswordUserUseCase } from './User/use-cases/update-password-user
 import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmation-code-for-user';
 import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
 import { GetDeviceUseCase } from './Device/use-case/get-device-use-case';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import {
   UserConfirmationInfoEntity,
   UserEntity,
@@ -262,17 +262,32 @@ const sqlEntity = [
       },
     }),
     CqrsModule,
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'user',
-      password: 'admin',
-      database: 'baseSql',
-      entities: sqlEntity,
-      autoLoadEntities: true,
-      synchronize: true,
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: 'localhost',
+    //   port: 5432,
+    //   username: 'user',
+    //   password: 'admin',
+    //   database: 'baseSql',
+    //   entities: sqlEntity,
+    //   autoLoadEntities: true,
+    //   synchronize: true,
+    // }),
+
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (config: ConfigService): TypeOrmModuleOptions => {
+        return {
+          type: 'postgres',
+          url: config.get('SQL_URL') as string,
+          synchronize: true,
+          autoLoadEntities: true,
+          ssl: true,
+        } as TypeOrmModuleOptions;
+      },
     }),
+    TypeOrmModule.forFeature(sqlEntity),
   ],
   controllers: [
     UserController,

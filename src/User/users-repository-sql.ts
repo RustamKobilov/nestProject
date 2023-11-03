@@ -342,7 +342,7 @@ export class UsersRepositorySql {
       paginationFromHelperForUsers.skipPage;
     console.log(zapros);
     const table = await this.dataSource.query(zapros);
-
+    // const table = await this.dataSource.query<UserViewModel[]>(zapros);
     //console.log(table);
     const resultUsers = await Promise.all(
       table.map(async (user: User) => {

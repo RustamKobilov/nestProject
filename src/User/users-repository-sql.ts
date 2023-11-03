@@ -277,14 +277,15 @@ export class UsersRepositorySql {
       paginationUser.searchEmailTerm != null
     ) {
       //paginationUser.searchLoginTerm
-
+      const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
+      const emailTerm = paginationUser.searchEmailTerm.toLowerCase();
       return (
-        ' WHERE "login"' +
+        '  WHERE LOWER("login")' +
         ' LIKE ' +
         "'%" +
         paginationUser.searchLoginTerm +
         "%'" +
-        ' OR "email"' +
+        ' OR LOWER("login")' +
         ' Like ' +
         "'%" +
         paginationUser.searchEmailTerm +

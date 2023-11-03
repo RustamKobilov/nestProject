@@ -283,12 +283,12 @@ export class UsersRepositorySql {
         '  WHERE LOWER("login")' +
         ' LIKE ' +
         "'%" +
-        paginationUser.searchLoginTerm +
+        loginTerm +
         "%'" +
         ' OR LOWER("login")' +
         ' Like ' +
         "'%" +
-        paginationUser.searchEmailTerm +
+        emailTerm +
         "%'"
       );
     }

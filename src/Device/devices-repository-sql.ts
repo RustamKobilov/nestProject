@@ -125,14 +125,16 @@ export class DevicesRepositorySql {
     return devices;
   }
   async deleteDevicesExceptForHim(deviceId: string, userId: string) {
+    console.log(deviceId);
+    console.log(userId);
     const deleteDevice = await this.dataSource.query(
       'DELETE FROM device_entity' +
         ' WHERE device_entity."userId" = $1' +
-        ' NOT IN (device_entity."deviceId" = $2)',
+        ' AND NOT device_entity."deviceId" = $2',
       [userId, deviceId],
     );
     console.log(deleteDevice[1]);
-    if (deleteDevice[1] > 1) {
+    if (deleteDevice[1] < 1) {
       throw new NotFoundException('0 item delete /userRepositorySql');
     }
     return true;

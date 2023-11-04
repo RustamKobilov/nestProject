@@ -9,6 +9,6 @@ export class DeviceEntity {
   lastActiveDate: string;
   @Column({ type: 'varchar', length: 30 })
   diesAtDate: string;
-  @Column({ type: 'varchar', length: 30 })
+  @Column({ type: 'varchar', length: 300 })
   title: string;
 }

@@ -11,4 +11,6 @@ export class DeviceEntity {
   diesAtDate: string;
   @Column({ type: 'varchar', length: 300 })
   title: string;
+  @Column({ type: 'varchar', length: 100 })
+  ip: string;
 }

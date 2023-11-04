@@ -76,7 +76,7 @@ export class AuthService {
         createUserDto.login,
         createUserDto.email,
       ),
-    ); // проверка есть в декораторе
+    ); // проверка есть в декораторе ggg
     const userConfirmationCode = await this.commandBus.execute(
       new CreateNewUserForRegistrationUseCaseCommand(createUserDto),
     );

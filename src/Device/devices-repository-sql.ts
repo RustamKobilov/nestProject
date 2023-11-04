@@ -11,14 +11,15 @@ export class DevicesRepositorySql {
   constructor(@InjectDataSource() private dataSource: DataSource) {}
   async createTokenByUserIdInBase(device: Device) {
     const queryInsertDeviceEntity = await this.dataSource.query(
-      'INSERT INTO device_entity ("deviceId", "userId", "lastActiveDate", "diesAtDate", "title")' +
-        ' VALUES ($1,$2, $3, $4, $5)',
+      'INSERT INTO device_entity ("deviceId", "userId", "lastActiveDate", "diesAtDate", "title", "ip")' +
+        ' VALUES ($1,$2, $3, $4, $5, $6)',
       [
         device.deviceId,
         device.userId,
         device.lastActiveDate,
         device.diesAtDate,
         device.title,
+        device.ip,
       ],
     );
     return;
@@ -28,7 +29,7 @@ export class DevicesRepositorySql {
     title: string,
   ): Promise<Device | false> {
     const table = await this.dataSource.query(
-      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title"' +
+      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title", "ip"' +
         ' FROM device_entity' +
         ' WHERE device_entity."userId" = $1 AND device_entity."title" = $2',
       [userId, title],
@@ -61,7 +62,7 @@ export class DevicesRepositorySql {
     lastActiveDate: string,
   ): Promise<Device | boolean> {
     const table = await this.dataSource.query(
-      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title"' +
+      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title", "ip"' +
         ' FROM device_entity' +
         ' WHERE device_entity."userId" = $1 AND device_entity."deviceId" = $2' +
         ' AND device_entity."lastActiveDate" = $3',
@@ -102,7 +103,7 @@ export class DevicesRepositorySql {
   }
   async getDevice(deviceId: string): Promise<Device | false> {
     const table = await this.dataSource.query(
-      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title"' +
+      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title", "ip"' +
         ' FROM device_entity' +
         ' WHERE device_entity."deviceId" = $1',
       [deviceId],
@@ -115,12 +116,12 @@ export class DevicesRepositorySql {
   }
   async getDevices(userId: string): Promise<DeviceViewModel[]> {
     const table = await this.dataSource.query(
-      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title"' +
+      'SELECT "deviceId", "userId", "lastActiveDate", "diesAtDate", "title", "ip"' +
         ' FROM device_entity' +
         ' WHERE device_entity."userId" = $1',
       [userId],
     );
-    const devices = mapObject.mapDeviceFromSql(table);
+    const devices = mapObject.mapDevicesFromSql(table);
     return devices;
   }
   async deleteDevicesExceptForHim(deviceId: string, userId: string) {

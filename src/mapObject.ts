@@ -155,14 +155,27 @@ export const mapObject = {
     }
     return reactions;
   },
-  mapDeviceFromSql(sqlArray: [any]) {
+  mapDeviceFromSql(sqlArray: [any]): Device[] {
     const devices: Device[] = [];
     for (const deviceSql of sqlArray) {
       const device: Device = {
-        deviceId: deviceSql.deviceId,
         userId: deviceSql.userId,
+        deviceId: deviceSql.deviceId,
         lastActiveDate: deviceSql.lastActiveDate,
         diesAtDate: deviceSql.diesAtDate,
+        title: deviceSql.title,
+        ip: deviceSql.ip,
+      };
+      devices.push(device);
+    }
+    return devices;
+  },
+  mapDevicesFromSql(sqlArray: [any]): DeviceViewModel[] {
+    const devices: DeviceViewModel[] = [];
+    for (const deviceSql of sqlArray) {
+      const device: DeviceViewModel = {
+        deviceId: deviceSql.deviceId,
+        lastActiveDate: deviceSql.lastActiveDate,
         title: deviceSql.title,
         ip: deviceSql.ip,
       };

@@ -124,7 +124,10 @@ import { DevicesRepositorySql } from './Device/devices-repository-sql';
 import { CommentsRepositorySql } from './Comment/comments-repository-sql';
 import { DataRepository } from './dataRepository';
 import { DataRepositorySql } from './dataRepositorySql';
-import { AdminController } from './Admin/adminController';
+import {
+  adminBlogsController,
+  adminUserController,
+} from './Admin/adminController';
 
 dotenv.config();
 const useCaseUser = [
@@ -297,7 +300,8 @@ const sqlEntity = [
     AuthController,
     CommentController,
     SecurityController,
-    AdminController,
+    adminUserController,
+    adminBlogsController,
   ],
   providers: [
     {
@@ -366,10 +370,10 @@ const sqlEntity = [
     ...useCaseAdapters,
     ...useCaseUser,
     ...sqlEntity,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AppModule {}

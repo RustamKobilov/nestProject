@@ -10,7 +10,7 @@ export class SendEmailForRegistrationUserUseCase {
   constructor(private mailerService: MailerService) {}
 
   async execute(command: SendEmailForRegistrationUserUseCaseCommand) {
-    this.mailerService.sendMail({
+    await this.mailerService.sendMail({
       from: 'admin <rustamincubator@gmail.com>',
       to: command.email,
       subject: 'Registration in platform',

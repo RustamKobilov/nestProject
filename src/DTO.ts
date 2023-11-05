@@ -71,13 +71,13 @@ export class CreatePostDTO {
   @Transform(({ value }) => helper.getValueTrim(value))
   @Length(1, 1000)
   content: string;
-  @IsString()
-  @Transform(({ value }) => helper.getValueTrim(value))
-  @IsBlogChecking({
-    message: 'Blog for $value not found. Decorator /DTO.',
-  })
-  @Length(1)
-  blogId: string;
+  // @IsString()
+  // @Transform(({ value }) => helper.getValueTrim(value))
+  // @IsBlogChecking({
+  //   message: 'Blog for $value not found. Decorator /DTO.',
+  // })
+  // @Length(1)
+  // blogId: string;
 }
 
 export class CreatePostByBlogDTO {

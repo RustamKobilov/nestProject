@@ -36,7 +36,7 @@ export class PostRepositorySql {
   async getPost(postId: string): Promise<Post | false> {
     const table = await this.dataSource.query(
       'SELECT "id", "title", "shortDescription", content, "blogId", "blogName",' +
-        ' post_entity."createdAt", "likesCount", "dislikesCount", "myStatus"' +
+        ' "createdAt", "likesCount", "dislikesCount", "myStatus"' +
         ' FROM post_entity' +
         ' WHERE post_entity."id" = $1',
       [postId],
@@ -44,6 +44,8 @@ export class PostRepositorySql {
     if (table.length < 1) {
       return false;
     }
+    console.log('iz bazy');
+    console.log(table);
     const zaprosForNewestLike =
       'SELECT "parentId", "userId", "userLogin", status, "createdAt"' +
       ' FROM reaction_entity WHERE reaction_entity."parentId" = ' +
@@ -312,7 +314,11 @@ export class PostRepositorySql {
       items: resultPosts,
     };
   }
-  async updatePost(postId: string, updatePostDto: CreatePostDTO) {
+  async updatePost(
+    postId: string,
+    updatePostDto: CreatePostDTO,
+    blogId: string,
+  ) {
     const update = await this.dataSource.query(
       'UPDATE post_entity ' +
         ' SET "title" = $1,"shortDescription" = $2,' +
@@ -322,7 +328,7 @@ export class PostRepositorySql {
         updatePostDto.title,
         updatePostDto.shortDescription,
         updatePostDto.content,
-        updatePostDto.blogId,
+        blogId,
         postId,
       ],
     );

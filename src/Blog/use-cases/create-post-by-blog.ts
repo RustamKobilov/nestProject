@@ -26,8 +26,7 @@ export class CreatePostByBlog {
       title: command.createPostByBlogDTO.title,
       shortDescription: command.createPostByBlogDTO.shortDescription,
       content: command.createPostByBlogDTO.content,
-      blogId: command.blogId,
     };
-    return this.postService.createNewPost(postByBlog);
+    return this.postService.createNewPost(postByBlog, command.blogId);
   }
 }

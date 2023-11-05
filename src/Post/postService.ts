@@ -19,8 +19,11 @@ export class PostService {
     private readonly blogRepository: BlogRepository,
   ) {}
 
-  async createNewPost(createPostDto: CreatePostDTO): Promise<PostViewModel> {
-    const blog = await this.blogRepository.getBlog(createPostDto.blogId);
+  async createNewPost(
+    createPostDto: CreatePostDTO,
+    blogId: string,
+  ): Promise<PostViewModel> {
+    const blog = await this.blogRepository.getBlog(blogId);
     if (!blog) {
       throw new BadRequestException('blogId not found for blog /postService');
     }
@@ -29,7 +32,7 @@ export class PostService {
       title: createPostDto.title,
       shortDescription: createPostDto.shortDescription,
       content: createPostDto.content,
-      blogId: createPostDto.blogId,
+      blogId: blogId,
       blogName: blog.name,
       createdAt: new Date().toISOString(),
       extendedLikesInfo: {
@@ -43,7 +46,7 @@ export class PostService {
     const outputPostModel = mapObject.mapPost(post);
     return outputPostModel;
   }
-  async getPost(postId: string): Promise<PostViewModel | false> {
+  async getPost(postId: string): Promise<PostViewModel> {
     const post = await this.postRepository.getPost(postId);
     if (!post) {
       throw new NotFoundException('postId not found post /postService');

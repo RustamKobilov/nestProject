@@ -27,7 +27,10 @@ export class BlogsRepositorySql {
   getFilterBlog(paginationBlog: BlogPaginationDTO): string | null {
     const searchNameTermFilter =
       paginationBlog.searchNameTerm != null
-        ? ' WHERE "name" LIKE ' + "'%" + paginationBlog.searchNameTerm + "%'"
+        ? ' WHERE LOWER("name") LIKE ' +
+          "'%" +
+          paginationBlog.searchNameTerm.toLowerCase() +
+          "%'"
         : null;
     return searchNameTermFilter;
   }

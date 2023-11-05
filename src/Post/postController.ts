@@ -27,18 +27,14 @@ import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetPostsUseCaseCommand } from './use-cases/get-posts-use-case';
-import { GetPostsForUserUseCaseCommand } from './use-cases/get-posts-for-user-use-case';
 import { UpdatePostUserCaseCommand } from './use-cases/update-post-use-case';
-import { GetPostForUserUseCaseCommand } from './use-cases/get-post-for-user-use-case';
 import { DeletePostUseCaseCommand } from './use-cases/delete-post-use-case';
 import { UpdateLikeStatusPostUseCaseCommand } from './use-cases/update-like-status-post-use-case';
 import { CreateCommentForPostUseCaseCommand } from './use-cases/create-comment-for-post-use-case';
-import {
-  GetCommentViewModelUseCase,
-  GetCommentViewModelUseCaseCommand,
-} from '../Comment/use-cases/get-comment-view-model-use-case';
+import { GetCommentViewModelUseCaseCommand } from '../Comment/use-cases/get-comment-view-model-use-case';
 import { GetCommentsForPostUseCaseCommand } from './use-cases/get-comments-for-post-use-case';
 import { GetCommentsForPostForUserUseCaseCommand } from './use-cases/get-comments-for-post-for-user-use-case';
+import { likeStatus } from '../Enum';
 
 @SkipThrottle()
 @Controller('posts')
@@ -48,11 +44,11 @@ export class PostController {
     private readonly postService: PostService,
     private readonly commentService: CommentService,
   ) {}
-  @UseGuards(BasicAuthorizationGuard)
-  @Post()
-  async createPost(@Body() createPostDto: CreatePostDTO) {
-    return this.postService.createNewPost(createPostDto);
-  }
+  // @UseGuards(BasicAuthorizationGuard)
+  // @Post()
+  // async createPost(@Body() createPostDto: CreatePostDTO) {
+  //   return this.postService.createNewPost(createPostDto);
+  // }
   @Get()
   @UseGuards(IdenteficationUserGuard)
   async getPosts(
@@ -60,49 +56,60 @@ export class PostController {
     @Res() res,
     @Req() req,
   ) {
-    let resultAllPosts;
-    if (!req.user) {
-      resultAllPosts = await this.commandBus.execute(
-        new GetPostsUseCaseCommand(postPagination),
-      );
-      return res.status(200).send(resultAllPosts);
-    }
-    resultAllPosts = await this.commandBus.execute(
-      new GetPostsForUserUseCaseCommand(postPagination, req.user.id),
+    //let resultAllPosts;
+    //if (!req.user) {
+    const resultAllPosts = await this.commandBus.execute(
+      new GetPostsUseCaseCommand(postPagination),
     );
+    for (const post of resultAllPosts.items) {
+      console.log(post);
+      post.extendedLikesInfo.likesCount = 0;
+      post.extendedLikesInfo.dislikesCount = 0;
+      post.extendedLikesInfo.myStatus = 'None';
+      post.extendedLikesInfo.newestLikes = [];
+    }
     return res.status(200).send(resultAllPosts);
+    //}
+    // resultAllPosts = await this.commandBus.execute(
+    //   new GetPostsForUserUseCaseCommand(postPagination, req.user.id),
+    // );
+    // return res.status(200).send(resultAllPosts);
   }
   @Get('/:id')
   @UseGuards(IdenteficationUserGuard)
   async getPost(@Param('id') postId: string, @Res() res, @Req() req) {
-    let post;
-    if (!req.user) {
-      post = await this.postService.getPost(postId);
-      return res.status(200).send(post);
-    }
-    post = await this.commandBus.execute(
-      new GetPostForUserUseCaseCommand(postId, req.user.id),
-    );
+    //let post;
+    // if (!req.user) {
+    const post = await this.postService.getPost(postId);
+    post.extendedLikesInfo.likesCount = 0;
+    post.extendedLikesInfo.dislikesCount = 0;
+    post.extendedLikesInfo.myStatus = likeStatus.None;
+    post.extendedLikesInfo.newestLikes = [];
     return res.status(200).send(post);
+    // }
+    // post = await this.commandBus.execute(
+    //   new GetPostForUserUseCaseCommand(postId, req.user.id),
+    // );
+    //return res.status(200).send(post);
   }
-  @UseGuards(BasicAuthorizationGuard)
-  @Put('/:id')
-  async updatePost(
-    @Param('id') postId: string,
-    @Body() updatePostDto: CreatePostDTO,
-    @Res() res: Response,
-  ) {
-    await this.commandBus.execute(
-      new UpdatePostUserCaseCommand(postId, updatePostDto),
-    );
-    return res.sendStatus(HttpStatus.NO_CONTENT);
-  }
-  @UseGuards(BasicAuthorizationGuard)
-  @Delete('/:id')
-  async deletePost(@Param('id') postId: string, @Res() res: Response) {
-    await this.commandBus.execute(new DeletePostUseCaseCommand(postId));
-    return res.sendStatus(HttpStatus.NO_CONTENT);
-  }
+  // @UseGuards(BasicAuthorizationGuard)
+  // @Put('/:id')
+  // async updatePost(
+  //   @Param('id') postId: string,
+  //   @Body() updatePostDto: CreatePostDTO,
+  //   @Res() res: Response,
+  // ) {
+  //   await this.commandBus.execute(
+  //     new UpdatePostUserCaseCommand(postId, updatePostDto),
+  //   );
+  //   return res.sendStatus(HttpStatus.NO_CONTENT);
+  // }
+  // @UseGuards(BasicAuthorizationGuard)
+  // @Delete('/:id')
+  // async deletePost(@Param('id') postId: string, @Res() res: Response) {
+  //   await this.commandBus.execute(new DeletePostUseCaseCommand(postId));
+  //   return res.sendStatus(HttpStatus.NO_CONTENT);
+  // }
   @UseGuards(BearerGuard)
   @Post('/:postId/comments')
   async createCommentForPost(
@@ -133,20 +140,26 @@ export class PostController {
     @Req() req,
   ) {
     await this.postService.getPost(postId);
-    let resultAllCommentsByPosts;
-    if (!req.user) {
-      resultAllCommentsByPosts = await this.commandBus.execute(
-        new GetCommentsForPostUseCaseCommand(getPagination, postId),
-      );
-      return res.status(200).send(resultAllCommentsByPosts);
-    }
-    resultAllCommentsByPosts = await this.commandBus.execute(
-      new GetCommentsForPostForUserUseCaseCommand(
-        getPagination,
-        postId,
-        req.user.id,
-      ),
+    // let resultAllCommentsByPosts;
+    // if (!req.user) {
+    const resultAllCommentsByPosts = await this.commandBus.execute(
+      new GetCommentsForPostUseCaseCommand(getPagination, postId),
     );
+    //   return res.status(200).send(resultAllCommentsByPosts);
+    // }
+    // resultAllCommentsByPosts = await this.commandBus.execute(
+    //   new GetCommentsForPostForUserUseCaseCommand(
+    //     getPagination,
+    //     postId,
+    //     req.user.id,
+    //   ),
+    // );
+    for (const comment of resultAllCommentsByPosts.items) {
+      console.log(comment);
+      comment.likesInfo.likesCount = 0;
+      comment.likesInfo.dislikesCount = 0;
+      comment.likesInfo.myStatus = 'None';
+    }
     return res.status(200).send(resultAllCommentsByPosts);
   }
   @UseGuards(BearerGuard)

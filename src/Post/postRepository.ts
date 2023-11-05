@@ -219,14 +219,18 @@ export class PostRepository {
       items: resulPostsSortDate,
     };
   }
-  async updatePost(postId: string, updatePostDto: CreatePostDTO) {
+  async updatePost(
+    postId: string,
+    updatePostDto: CreatePostDTO,
+    blogId: string,
+  ) {
     const updatePost: UpdateWriteOpResult = await this.postModel.updateOne(
       { id: postId },
       {
         title: updatePostDto.title,
         shortDescription: updatePostDto.shortDescription,
         content: updatePostDto.content,
-        blogId: updatePostDto.blogId,
+        blogId: blogId,
       },
     );
     return updatePost.matchedCount === 1;

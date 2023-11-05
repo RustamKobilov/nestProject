@@ -157,18 +157,26 @@ export class adminBlogsController {
   @Put('/:id/posts/:postId')
   async updatePost(
     @Param('postId') postId: string,
+    @Param('id') blogId: string,
     @Body() updatePostDto: CreatePostDTO,
     @Res() res: Response,
   ) {
+    console.log("vhod /:id/posts/:postId'");
     await this.commandBus.execute(
-      new UpdatePostUserCaseCommand(postId, updatePostDto),
+      new UpdatePostUserCaseCommand(postId, updatePostDto, blogId),
     );
+
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)
-  @Delete('/:id/posts/:postId') //////
-  async deletePost(@Param('postId') postId: string, @Res() res: Response) {
-    await this.commandBus.execute(new DeletePostUseCaseCommand(postId));
+  @Delete('/:id/posts/:postId')
+  async deletePost(
+    @Param('postId') postId: string,
+    @Param('id') blogId: string,
+    @Res() res: Response,
+  ) {
+    console.log(postId + ' postId');
+    await this.commandBus.execute(new DeletePostUseCaseCommand(postId, blogId));
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
 }

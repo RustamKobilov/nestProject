@@ -17,9 +17,9 @@ export class PostEntity {
   blogName: string;
   @Column({ type: 'varchar', length: 30 })
   createdAt: string;
-  @Column({ type: 'numeric' })
+  @Column({ type: 'integer' })
   likesCount: number;
-  @Column({ type: 'numeric' })
+  @Column({ type: 'integer' })
   dislikesCount: number;
   @Column({
     type: 'enum',

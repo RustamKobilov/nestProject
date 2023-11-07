@@ -40,7 +40,9 @@ export class ReactionRepositorySql {
     if (reactionsSql.length < 1) {
       return false;
     }
+    console.log(reactionsSql);
     const reactions = mapObject.mapReactionFromSql(reactionsSql);
+    console.log(reactions);
     return reactions[0];
   }
   async getCountLikeStatusUser(
@@ -122,6 +124,10 @@ export class ReactionRepositorySql {
       ' FROM reaction_entity WHERE reaction_entity."parentId" = ' +
       " '" +
       parentId +
+      "' " +
+      ' AND reaction_entity."status" = ' +
+      " '" +
+      likeStatus.Like +
       "' " +
       ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
     const tableNewestLike = await this.dataSource.query(zaprosForNewestLike);

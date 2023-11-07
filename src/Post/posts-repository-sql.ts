@@ -7,6 +7,7 @@ import { ReactionRepository } from '../Like/reactionRepository';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
 import { PostViewModel } from '../viewModelDTO';
+import { likeStatus } from '../Enum';
 
 @Injectable()
 export class PostRepositorySql {
@@ -52,12 +53,17 @@ export class PostRepositorySql {
       " '" +
       postId +
       "' " +
+      ' AND reaction_entity."status" = ' +
+      " '" +
+      likeStatus.Like +
+      "' " +
       ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
     const tableNewestLike = await this.dataSource.query(zaprosForNewestLike);
     const post = mapObject.mapPostFromSql(
       table[0],
       mapObject.mapNewestLikesFromSql(tableNewestLike),
     );
+    console.log(post);
     return post;
   }
   async getPosts(paginationPost: PaginationDTO) {
@@ -102,6 +108,10 @@ export class PostRepositorySql {
           " '" +
           postSql.id +
           "' " +
+          ' AND reaction_entity."status" = ' +
+          " '" +
+          likeStatus.Like +
+          "' " +
           ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
         const tableNewestLike = await this.dataSource.query(
           zaprosForNewestLike,
@@ -139,7 +149,24 @@ export class PostRepositorySql {
     if (table.length < 1) {
       return false;
     }
-    const postUpgrade = mapObject.mapPostFromSql(table[0]);
+
+    const zaprosForNewestLike =
+      'SELECT "parentId", "userId", "userLogin", status, "createdAt"' +
+      ' FROM reaction_entity WHERE reaction_entity."parentId" = ' +
+      " '" +
+      table[0].id +
+      "' " +
+      ' AND reaction_entity."status" = ' +
+      " '" +
+      likeStatus.Like +
+      "' " +
+      ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
+    const tableNewestLike = await this.dataSource.query(zaprosForNewestLike);
+
+    const postUpgrade = mapObject.mapPostFromSql(
+      table[0],
+      mapObject.mapNewestLikesFromSql(tableNewestLike),
+    );
 
     const searchReaction =
       await this.reactionRepository.getReactionUserForParent(postId, userId);
@@ -153,12 +180,24 @@ export class PostRepositorySql {
     return postUpgrade;
   }
   async getPostsForUser(filter, paginationPost: PaginationDTO, userId: string) {
+    console.log('filter');
+    console.log(filter);
+    console.log('filter.blogId');
+    console.log(filter.blogId);
+    const whereFilterSql =
+      filter.blogId === null || filter.blogId === undefined
+        ? ''
+        : ' WHERE post_entity."blogId" = ' + " '" + filter.blogId + "' ";
+    console.log('filterSql');
+    console.log(whereFilterSql);
     const filterCount =
-      'SELECT COUNT (*) FROM post_entity WHERE "blogId" = ' +
-      "'" +
-      filter.blogId +
-      "'";
-    //console.log(filterCount);
+      filter.blogId === null || filter.blogId === undefined
+        ? 'SELECT COUNT (*) FROM post_entity'
+        : 'SELECT COUNT (*) FROM post_entity WHERE "blogId" = ' +
+          "'" +
+          filter.blogId +
+          "'";
+    console.log(filterCount);
     const sortDirection = paginationPost.sortDirection === 1 ? 'ASC' : 'DESC';
     const queryCountPost = await this.dataSource.query(filterCount);
     //console.log('filterCount');
@@ -177,10 +216,7 @@ export class PostRepositorySql {
       'SELECT "id", "title", "shortDescription", content, "blogId", "blogName",' +
       ' post_entity."createdAt", "likesCount", "dislikesCount", "myStatus"' +
       ' FROM post_entity' +
-      ' WHERE post_entity."blogId" = ' +
-      " '" +
-      filter.blogId +
-      "' " +
+      whereFilterSql +
       ' ORDER BY' +
       ' "' +
       paginationPost.sortBy +
@@ -202,6 +238,10 @@ export class PostRepositorySql {
           ' FROM reaction_entity WHERE reaction_entity."parentId" = ' +
           " '" +
           postSql.id +
+          "' " +
+          ' AND reaction_entity."status" = ' +
+          " '" +
+          likeStatus.Like +
           "' " +
           ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
         const tableNewestLike = await this.dataSource.query(
@@ -225,8 +265,6 @@ export class PostRepositorySql {
         //console.log(postSql);
       }
     }
-    //console.log('finish');
-    //console.log(resultPosts);
 
     return {
       pagesCount: paginationFromHelperForPosts.totalCount,
@@ -290,6 +328,10 @@ export class PostRepositorySql {
           ' FROM reaction_entity WHERE reaction_entity."parentId" = ' +
           " '" +
           postSql.id +
+          "' " +
+          ' AND reaction_entity."status" = ' +
+          " '" +
+          likeStatus.Like +
           "' " +
           ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
         const tableNewestLike = await this.dataSource.query(

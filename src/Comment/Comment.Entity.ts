@@ -15,9 +15,9 @@ export class CommentEntity {
   userLogin: string;
   @Column({ type: 'uuid' })
   userId: string;
-  @Column({ type: 'numeric' })
+  @Column({ type: 'integer' })
   likesCount: number;
-  @Column({ type: 'numeric' })
+  @Column({ type: 'integer' })
   dislikesCount: number;
   @Column({
     type: 'enum',

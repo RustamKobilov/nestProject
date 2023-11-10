@@ -36,11 +36,7 @@ export class PostController {
     private readonly postService: PostService,
     private readonly commentService: CommentService,
   ) {}
-  // @UseGuards(BasicAuthorizationGuard)
-  // @Post()
-  // async createPost(@Body() createPostDto: CreatePostDTO) {
-  //   return this.postService.createNewPost(createPostDto);
-  // }
+
   @Get()
   @UseGuards(IdenteficationUserGuard)
   async getPosts(
@@ -53,13 +49,6 @@ export class PostController {
       resultAllPosts = await this.commandBus.execute(
         new GetPostsUseCaseCommand(postPagination),
       );
-      // for (const post of resultAllPosts.items) {
-      //   console.log(post);
-      //   post.extendedLikesInfo.likesCount = 0;
-      //   post.extendedLikesInfo.dislikesCount = 0;
-      // post.extendedLikesInfo.myStatus = 'None';
-      // post.extendedLikesInfo.newestLikes = [];
-      // }
       console.log('async getPosts/post Controller');
       console.log(resultAllPosts);
       return res.status(200).send(resultAllPosts);
@@ -67,13 +56,6 @@ export class PostController {
     resultAllPosts = await this.commandBus.execute(
       new GetPostsForUserUseCaseCommand(postPagination, req.user.id),
     );
-    // for (const post of resultAllPosts.items) {
-    //   console.log(post);
-    //   post.extendedLikesInfo.likesCount = 0;
-    //   post.extendedLikesInfo.dislikesCount = 0;
-    //   post.extendedLikesInfo.myStatus = 'None';
-    //   post.extendedLikesInfo.newestLikes = [];
-    // }
     return res.status(200).send(resultAllPosts);
   }
   @Get('/:id')
@@ -82,42 +64,13 @@ export class PostController {
     let post;
     if (!req.user) {
       post = await this.postService.getPost(postId);
-      // post.extendedLikesInfo.likesCount = 0;
-      // post.extendedLikesInfo.dislikesCount = 0;
-      // post.extendedLikesInfo.myStatus = likeStatus.None;
-      // post.extendedLikesInfo.newestLikes = [];
-      //console.log('async getPost/post Controller');
-      //console.log(post);
       return res.status(200).send(post);
     }
     post = await this.commandBus.execute(
       new GetPostForUserUseCaseCommand(postId, req.user.id),
     );
-    //post = await this.postService.getPost(postId);
-    // // post.extendedLikesInfo.likesCount = 0;
-    // // post.extendedLikesInfo.dislikesCount = 0;
-    // // post.extendedLikesInfo.myStatus = likeStatus.None;
-    // post.extendedLikesInfo.newestLikes = [];
     return res.status(200).send(post);
   }
-  // @UseGuards(BasicAuthorizationGuard)
-  // @Put('/:id')
-  // async updatePost(
-  //   @Param('id') postId: string,
-  //   @Body() updatePostDto: CreatePostDTO,
-  //   @Res() res: Response,
-  // ) {
-  //   await this.commandBus.execute(
-  //     new UpdatePostUserCaseCommand(postId, updatePostDto),
-  //   );
-  //   return res.sendStatus(HttpStatus.NO_CONTENT);
-  // }
-  // @UseGuards(BasicAuthorizationGuard)
-  // @Delete('/:id')
-  // async deletePost(@Param('id') postId: string, @Res() res: Response) {
-  //   await this.commandBus.execute(new DeletePostUseCaseCommand(postId));
-  //   return res.sendStatus(HttpStatus.NO_CONTENT);
-  // }
 
   @UseGuards(BearerGuard)
   @Post('/:postId/comments')
@@ -165,12 +118,6 @@ export class PostController {
       ),
     );
 
-    // for (const comment of resultAllCommentsByPosts.items) {
-    //   console.log(comment);
-    //   comment.likesInfo.likesCount = 0;
-    //   comment.likesInfo.dislikesCount = 0;
-    //   comment.likesInfo.myStatus = 'None';
-    // }
     return res.status(200).send(resultAllCommentsByPosts);
   }
   @UseGuards(BearerGuard)

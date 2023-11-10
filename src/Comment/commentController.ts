@@ -19,6 +19,8 @@ import { UpdateCommentUseCaseCommand } from './use-cases/update-comment-use-case
 import { DeleteCommentUseCaseCommand } from './use-cases/delete-comment-use-case';
 import { UpdateLikeStatusCommentUseCaseCommand } from './use-cases/update-like-status-comment-use-case';
 import { likeStatus } from '../Enum';
+import { GetCommentForUserUseCaseCommand } from './use-cases/get-comment-for-user-use-case';
+import { AuthCommentForUserGuard } from '../auth/Guard/authCommentForUserGuard';
 
 @SkipThrottle()
 @Controller('comments')
@@ -31,24 +33,21 @@ export class CommentController {
   @UseGuards(IdenteficationUserGuard)
   @Get('/:id')
   async getComment(@Param('id') commentId: string, @Res() res, @Req() req) {
-    // let resultSearch;
-    // if (!req.user) {
-    const resultSearch = await this.commentService.getComment(commentId);
-    resultSearch.likesInfo.likesCount = 0;
-    resultSearch.likesInfo.dislikesCount = 0;
-    resultSearch.likesInfo.myStatus = likeStatus.None;
+    let resultSearch;
+    if (!req.user) {
+      resultSearch = await this.commentService.getComment(commentId);
+      return res.status(200).send(resultSearch);
+    }
+    console.log(req.user);
+    resultSearch = await this.commandBus.execute(
+      new GetCommentForUserUseCaseCommand(commentId, req.user.id),
+    );
+
+    if (!resultSearch) {
+      return res.sendStatus(404);
+    }
     return res.status(200).send(resultSearch);
   }
-  // console.log(req.user);
-  // resultSearch = await this.commandBus.execute(
-  //   new GetCommentForUserUseCaseCommand(commentId, req.user.id),
-  // );
-
-  //   if (!resultSearch) {
-  //     return res.sendStatus(404);
-  //   }
-  //   return res.status(200).send(resultSearch);
-  // }
   @UseGuards(BearerGuard)
   @Put('/:id')
   async updateComment(
@@ -75,7 +74,6 @@ export class CommentController {
     return res.sendStatus(204);
   }
   @UseGuards(BearerGuard)
-  //@UseGuards(AuthCommentForUserGuard)
   @Put('/:id/like-status')
   async updateLikeStatus(
     @Param('id') commentId: string,

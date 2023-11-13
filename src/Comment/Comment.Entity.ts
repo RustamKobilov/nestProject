@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { likeStatus } from '../Enum';
+import { PostEntity } from '../Post/Post.Entity';
 
 @Entity()
 export class CommentEntity {
@@ -24,6 +25,10 @@ export class CommentEntity {
     enum: [likeStatus.None, likeStatus.Like, likeStatus.Dislike],
   })
   myStatus: likeStatus;
+
+  @ManyToOne(() => PostEntity, (post) => post.comments)
+  @JoinColumn({ name: 'postId' })
+  post: PostEntity;
 }
 // @Entity()
 // export class CommentatorInfoEntity {

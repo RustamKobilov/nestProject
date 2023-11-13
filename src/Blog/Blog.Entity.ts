@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, PrimaryColumn } from 'typeorm';
+import { PostEntity } from '../Post/Post.Entity';
 
 @Entity()
 export class BlogEntity {
@@ -14,4 +15,8 @@ export class BlogEntity {
   createdAt: string;
   @Column({ type: 'boolean' })
   isMembership: boolean;
+
+  @OneToMany(() => PostEntity, (post) => post.blog)
+  @JoinColumn({ name: 'blogId' })
+  posts: PostEntity[];
 }

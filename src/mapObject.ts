@@ -11,17 +11,35 @@ import {
 import { Blog } from './Blog/Blog';
 import { NewestLikes, Post } from './Post/Post';
 import { Reaction } from './Like/Reaction';
-import { Comment, CommentatorInfo } from './Comment/Comment';
+import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
-import { CommentEntity } from './Comment/Comment.Entity';
 
 export const mapObject = {
+  mapRawManyQBOnTableName(rawArray: any[], nameTable: any[]): any {
+    for (const name of nameTable) {
+      console.log(name);
+      for (const user of rawArray) {
+        // console.log('before');
+        // console.log(user);
+        Object.keys(user).forEach((key) => {
+          const newKey = key.replace(name, '');
+          const valueKey = user[key];
+          //console.log(newKey + ' newKey');
+          delete user[key];
+          user[newKey] = valueKey;
+        });
+      }
+    }
+    console.log('rawArray');
+    console.log(rawArray);
+    return rawArray;
+  },
   //TODO как проставить тепизацию на выход и вход чтобы не ругалось на never. какой тип у массиа приходящего
-  mapUsersFromSql(sqlArray: [any]) {
-    const users: any[] = [];
+  mapUsersFromSql(sqlArray: any[any]) {
+    const users: User[] = [];
     for (const sqlUser of sqlArray) {
-      const user = {
+      const user: User = {
         id: sqlUser.id,
         login: sqlUser.login,
         email: sqlUser.email,

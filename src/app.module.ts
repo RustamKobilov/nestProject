@@ -106,11 +106,7 @@ import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmat
 import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
 import { GetDeviceUseCase } from './Device/use-case/get-device-use-case';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import {
-  UserConfirmationInfoEntity,
-  UserEntity,
-  UserRecoveryPasswordInfoEntity,
-} from './User/User.Entity';
+import { UserEntity } from './User/User.Entity';
 import { BlogEntity } from './Blog/Blog.Entity';
 import { CommentEntity } from './Comment/Comment.Entity';
 import { ReactionEntity } from './Like/Reaction.Entity';
@@ -128,6 +124,9 @@ import {
   adminBlogsController,
   adminUserController,
 } from './Admin/adminController';
+import { UsersRepositoryTypeORM } from './User/usersRepositoryTypeORM';
+import { UserConfirmationInfoEntity } from './User/UserConfirmationInfo.Entity';
+import { UserRecoveryPasswordInfoEntity } from './User/UserRecoveryPasswordInfo.Entity';
 
 dotenv.config();
 const useCaseUser = [
@@ -307,7 +306,9 @@ const sqlEntity = [
     {
       provide: UserRepository,
       useClass:
-        process.env.DATA_BASE === 'SQL' ? UsersRepositorySql : UserRepository,
+        process.env.DATA_BASE === 'SQL'
+          ? /*UsersRepositorySql*/ UsersRepositoryTypeORM
+          : UserRepository,
     },
     {
       provide: BlogRepository,

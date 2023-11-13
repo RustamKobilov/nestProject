@@ -1,5 +1,14 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 import { likeStatus } from '../Enum';
+import { BlogEntity } from '../Blog/Blog.Entity';
+import { CommentEntity } from '../Comment/Comment.Entity';
 
 @Entity()
 export class PostEntity {
@@ -26,9 +35,15 @@ export class PostEntity {
     enum: [likeStatus.None, likeStatus.Like, likeStatus.Dislike],
   })
   myStatus: likeStatus;
-}
 
-//TODO когда появляются таблицы созданные из entity
+  @ManyToOne(() => BlogEntity, (blog) => blog.posts)
+  @JoinColumn({ name: 'blogId' })
+  blog: BlogEntity;
+
+  @OneToMany(() => CommentEntity, (comment) => comment.post)
+  @JoinColumn({ name: 'blogId' })
+  comments: CommentEntity[];
+}
 
 // @Entity()
 // export class ExtendedLikesInfoEntity {

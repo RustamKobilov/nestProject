@@ -1,4 +1,14 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  OneToOne,
+  PrimaryColumn,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+import { UserConfirmationInfoEntity } from './UserConfirmationInfo.Entity';
+import { UserRecoveryPasswordInfoEntity } from './UserRecoveryPasswordInfo.Entity';
 
 @Entity()
 export class UserEntity {
@@ -15,71 +25,15 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 30 })
   salt: string;
 
-  // @OneToOne(() => UserConfirmationInfoEntity)
-  // @JoinTable({ joinColumn: { name: 'ownerId' } })
-  // confirmationInfo: UserConfirmationInfoEntity;
-}
-@Entity()
-export class UserConfirmationInfoEntity {
-  @PrimaryGeneratedColumn()
-  idSql: number;
-  @Column({ type: 'uuid' })
-  ownerId: string;
-  @Column({ type: 'boolean' })
-  userConformation: boolean;
-  @Column({ type: 'uuid' })
-  code: string;
-  @Column({ type: 'varchar', length: 30 })
-  expirationCode: string;
-}
+  @OneToOne(
+    () => UserConfirmationInfoEntity,
+    (userConfirmationInfoEntity) => userConfirmationInfoEntity.user,
+  )
+  userConfirmationInfo: UserConfirmationInfoEntity;
 
-@Entity()
-export class UserRecoveryPasswordInfoEntity {
-  @PrimaryGeneratedColumn()
-  idSql: number;
-  @Column({ type: 'uuid' })
-  ownerId: string;
-  @Column({ type: 'varchar', length: 36 })
-  recoveryCode: string;
-  @Column({ type: 'varchar', length: 30 })
-  diesAtDate: string;
+  @OneToOne(
+    () => UserRecoveryPasswordInfoEntity,
+    (userRecoveryPasswordInfoEntity) => userRecoveryPasswordInfoEntity.user,
+  )
+  userRecoveryPasswordInfo: UserRecoveryPasswordInfoEntity;
 }
-
-// @Prop({ required: true, type: UserConfirmationInfoSchema })
-// iduserConfirmationInfo: UserConfirmationInfo;
-// @Prop({ required: true, type: UserRecoveryPasswordInfoSchema })
-// recoveryPasswordInfo: UserRecoveryPasswordInfo;
-
-// import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-//
-// @Entity()
-// export class User {
-//   /**
-//    * this decorator will help to auto generate id for the table.
-//    */
-//   @PrimaryGeneratedColumn()
-//   id: number;
-//
-//   @Column({ type: 'varchar', length: 30 })
-//   name: string;
-//
-//   @Column({ type: 'varchar', length: 15 })
-//   username: string;
-//
-//   @Column({ type: 'varchar', length: 40 })
-//   email: string;
-//
-//   @Column({ type: 'int' })
-//   age: number;
-//
-//   @Column({ type: 'varchar' })
-//   password: string;
-//
-//   @Column({ type: 'enum', enum: ['m', 'f', 'u'] })
-//   /**
-//    * m - male
-//    * f - female
-//    * u - unspecified
-//    */
-//   gender: string;
-// }

@@ -64,7 +64,6 @@ export class UsersRepositorySql {
     return;
   }
   async deleteUser(userId: string) {
-    //TODO как защитить от попадание подзапроса
     console.log(userId);
     const deleteUser = await this.dataSource.query(
       'DELETE FROM user_entity' + ' WHERE "id" = $1',
@@ -276,7 +275,6 @@ export class UsersRepositorySql {
       paginationUser.searchLoginTerm != null &&
       paginationUser.searchEmailTerm != null
     ) {
-      //paginationUser.searchLoginTerm
       const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
       const emailTerm = paginationUser.searchEmailTerm.toLowerCase();
       return (

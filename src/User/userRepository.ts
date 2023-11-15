@@ -160,7 +160,7 @@ export class UserRepository {
     }
     return user;
   }
-  async updateConfirmationUserId(userId: string) {
+  async updateConfirmationUserId(userId: string): Promise<boolean> {
     const updateConfirmation: UpdateWriteOpResult =
       await this.userModel.updateOne(
         { id: userId },

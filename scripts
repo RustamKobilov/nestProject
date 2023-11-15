@@ -141,3 +141,23 @@ SELECT id, title, "shortDescription", content, "blogId", "blogName",
 
 SELECT "idSql", "parentId", "userId", "userLogin", status, "createdAt"
   FROM reaction_entity;
+
+/////
+27/10/23
+   SELECT "id", "title", "shortDescription", content, "blogId", "blogName",
+       post_entity."createdAt", "likesCount", "dislikesCount", "myStatus","userId", "userLogin",
+       status,reaction_entity."createdAt" AS "createdAt_Reaction"
+  FROM post_entity
+          join reaction_entity
+          on post_entity."id" = reaction_entity."parentId" AND post_entity."blogId" = '1f3d2f30-cb83-48d9-9ea0-6dd9515350dd'
+           ORDER BY "createdAt" DESC
+  LIMIT 3 OFFSET 0 ;
+
+     SELECT "id", "title", "shortDescription", content, "blogId", "blogName",
+       post_entity."createdAt", "likesCount", "dislikesCount", "myStatus","userId", "userLogin",
+       status,reaction_inside."createdAt" AS "createdAt_Reaction"
+  FROM post_entity
+          join (SELECT * FROM reaction_entity ORDER BY "createdAt" DESC) AS reaction_inside
+          on post_entity."id" = reaction_inside."parentId" AND post_entity."blogId" = '1f3d2f30-cb83-48d9-9ea0-6dd9515350dd'
+           ORDER BY "createdAt" DESC
+  LIMIT 3 OFFSET 0 ;

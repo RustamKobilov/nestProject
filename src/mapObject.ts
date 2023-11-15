@@ -36,7 +36,7 @@ export const mapObject = {
     return rawArray;
   },
   //TODO как проставить тепизацию на выход и вход чтобы не ругалось на never. какой тип у массиа приходящего
-  mapUsersFromSql(sqlArray: any[any]) {
+  mapUsersFromSql(sqlArray: any[any]): User[] {
     const users: User[] = [];
     for (const sqlUser of sqlArray) {
       const user: User = {

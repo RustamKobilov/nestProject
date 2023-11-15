@@ -360,7 +360,7 @@ export class UsersRepositoryTypeORM {
       const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
       const emailTerm = paginationUser.searchEmailTerm.toLowerCase();
       return {
-        where: 'u.login like :loginTerm OR u.email like :emailTerm',
+        where: 'u.login ilike :loginTerm OR u.email ilike :emailTerm',
         params: { loginTerm: `%${loginTerm}%`, emailTerm: `%${emailTerm}%` },
       };
       //params: {loginTerm: `%${loginTerm}%`, emailTerm: `%${emailTerm}%`}
@@ -369,7 +369,7 @@ export class UsersRepositoryTypeORM {
     if (paginationUser.searchLoginTerm != null) {
       const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
       return {
-        where: 'u.login like :loginTerm',
+        where: 'u.login ilike :loginTerm',
         params: { loginTerm: `%${loginTerm}%` },
       };
       //return ' WHERE LOWER("login") LIKE ' + "'%" + loginTerm + "%'";
@@ -377,7 +377,7 @@ export class UsersRepositoryTypeORM {
     if (paginationUser.searchEmailTerm != null) {
       const emailTerm = paginationUser.searchEmailTerm.toLowerCase();
       return {
-        where: 'u.email like :emailTerm',
+        where: 'u.email ilike :emailTerm',
         params: { emailTerm: `%${emailTerm}%` },
       };
       //return (' WHERE LOWER("email") LIKE ' +"'%" +paginationUser.searchEmailTerm +"%'");

@@ -127,6 +127,7 @@ import {
 import { UsersRepositoryTypeORM } from './User/usersRepositoryTypeORM';
 import { UserConfirmationInfoEntity } from './User/UserConfirmationInfo.Entity';
 import { UserRecoveryPasswordInfoEntity } from './User/UserRecoveryPasswordInfo.Entity';
+import { BlogsRepositoryTypeORM } from './Blog/blogsRepositoryTypeORM';
 
 dotenv.config();
 const useCaseUser = [
@@ -313,7 +314,9 @@ const sqlEntity = [
     {
       provide: BlogRepository,
       useClass:
-        process.env.DATA_BASE === 'SQL' ? BlogsRepositorySql : BlogRepository,
+        process.env.DATA_BASE === 'SQL'
+          ? BlogsRepositoryTypeORM /*BlogsRepositorySql*/
+          : BlogRepository,
     },
     {
       provide: PostRepository,

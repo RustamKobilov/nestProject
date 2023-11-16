@@ -13,8 +13,6 @@ export class BlogsRepositoryTypeORM {
   constructor(
     @InjectRepository(BlogEntity)
     private readonly blogRepositoryTypeOrm: Repository<BlogEntity>,
-    @InjectRepository(PostEntity)
-    private readonly postRepositoryTypeOrm: Repository<PostEntity>,
   ) {}
   async createBlog(newBlog: Blog) {
     const queryInsertBlogEntity = await this.blogRepositoryTypeOrm.save({
@@ -121,7 +119,7 @@ export class BlogsRepositoryTypeORM {
       .where('id = :id', { id: blogId })
       .execute();
     if (deleteOperation.affected !== 1) {
-      return false;
+      throw new NotFoundException('0 item delete /userRepositorySql');
     }
     return true;
   }

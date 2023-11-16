@@ -147,7 +147,7 @@ export const mapObject = {
       login: reaction.userLogin,
     };
   },
-  mapNewestLikesFromSql(sqlArray: [any]) {
+  mapNewestLikesFromSql(sqlArray: any[]) {
     const newestLikes: newestLikeViewModel[] = [];
     for (const sqlReaction of sqlArray) {
       const newestLike = {

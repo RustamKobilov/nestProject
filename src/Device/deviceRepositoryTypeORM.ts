@@ -139,35 +139,34 @@ export class DeviceRepositoryTypeORM {
       return false;
     }
     const devices = mapObject.mapRawManyQBOnTableName(take, ['d' + '_']);
-
-    const devicesViewModel = mapObject.mapDeviceFromSql(devices);
-    return devicesViewModel[0];
+    const deviceViewModel = mapObject.mapDeviceFromSql(devices);
+    return deviceViewModel[0];
   }
   async getDevices(userId: string): Promise<DeviceViewModel[]> {
     const qbDevice = await this.deviceRepositoryTypeOrm.createQueryBuilder('d');
     const take = await qbDevice
-      .where('userId = :userId', {
+      .where('d.userId = :userId', {
         userId: userId,
       })
       .getRawMany();
 
-    const devices = mapObject.mapRawManyQBOnTableName(take, ['d' + '_']);
-
-    const devicesViewModel = mapObject.mapDeviceFromSql(devices);
-    return devicesViewModel;
+    const devicesSQL = mapObject.mapRawManyQBOnTableName(take, ['d' + '_']);
+    const deviceViewModel = mapObject.mapDevicesFromSql(devicesSQL);
+    return deviceViewModel;
   }
   async deleteDevicesExceptForHim(deviceId: string, userId: string) {
     const qbDevice = await this.deviceRepositoryTypeOrm.createQueryBuilder('d');
     const deleteOperation = await qbDevice
       .delete()
-      .where('d.userId = :userId ANT NOT d.deviceId = :deviceId', {
+      .where('userId = :userId AND NOT deviceId = :deviceId', {
         userId: userId,
         deviceId: deviceId,
       })
       .execute();
-    if (deleteOperation.affected !== 1) {
-      throw new NotFoundException('0 item delete /userRepositorySql');
-    }
+    //TODO как проверить?
+    // if (deleteOperation.affected !== 1) {
+    //   throw new NotFoundException('0 item delete /userRepositorySql');
+    // }
     return true;
   }
 }

@@ -73,7 +73,7 @@ export class CommentRepositoryTypeORM {
         userId: userId,
       })
       .orderBy('r.' + 'createdAt', 'DESC')
-      .take(limitLike)
+      .limit(limitLike)
       .getRawMany();
     if (tableNewestLike.length < 1) {
       return commentViewModels;
@@ -171,8 +171,8 @@ export class CommentRepositoryTypeORM {
     const zaprosQb = await qbComment
       .where(whereFilter.where, whereFilter.params)
       .orderBy('c.' + pagination.sortBy, sortDirection)
-      .take(pagination.pageSize)
-      .skip(paginationFromHelperForComments.skipPage)
+      .limit(pagination.pageSize)
+      .offset(paginationFromHelperForComments.skipPage)
       .getRawMany();
     console.log('after');
 
@@ -220,8 +220,8 @@ export class CommentRepositoryTypeORM {
     const zaprosQb = await qbComment
       .where(whereFilter.where, whereFilter.params)
       .orderBy('c.' + pagination.sortBy, sortDirection)
-      .take(pagination.pageSize)
-      .skip(paginationFromHelperForComments.skipPage)
+      .limit(pagination.pageSize)
+      .offset(paginationFromHelperForComments.skipPage)
       .getRawMany();
     console.log('after');
 

@@ -78,8 +78,8 @@ export class PostsRepositoryTypeORM {
     //console.log(paginationPost);
     const zaprosQb = await qbPost
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
-      .take(paginationPost.pageSize)
-      .skip(paginationFromHelperForPosts.skipPage)
+      .limit(paginationPost.pageSize)
+      .offset(paginationFromHelperForPosts.skipPage)
       .getRawMany();
     console.log('after');
     console.log(zaprosQb);
@@ -99,7 +99,7 @@ export class PostsRepositoryTypeORM {
             status: likeStatus.Like,
           })
           .orderBy('r.' + 'createdAt', sortDirection)
-          .take(limitLike)
+          .limit(limitLike)
           .getRawMany();
         const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
           'r' + '_',
@@ -145,7 +145,7 @@ export class PostsRepositoryTypeORM {
         status: likeStatus.Like,
       })
       .orderBy('r.' + 'createdAt', 'DESC')
-      .take(limitLike)
+      .limit(limitLike)
       .getRawMany();
     const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
       'r' + '_',
@@ -198,8 +198,8 @@ export class PostsRepositoryTypeORM {
     const zaprosQb = await qbPost
       .where(whereFilterSql.where, whereFilterSql.params)
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
-      .take(paginationPost.pageSize)
-      .skip(paginationFromHelperForPosts.skipPage)
+      .limit(paginationPost.pageSize)
+      .offset(paginationFromHelperForPosts.skipPage)
       .getRawMany();
     console.log('after');
     console.log(zaprosQb);
@@ -219,7 +219,7 @@ export class PostsRepositoryTypeORM {
             status: likeStatus.Like,
           })
           .orderBy('r.' + 'createdAt', sortDirection)
-          .take(limitLike)
+          .limit(limitLike)
           .getRawMany();
         const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
           'r' + '_',
@@ -274,8 +274,8 @@ export class PostsRepositoryTypeORM {
     const zaprosQb = await qbPost
       //.where()
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
-      .take(paginationPost.pageSize)
-      .skip(paginationFromHelperForPosts.skipPage)
+      .limit(paginationPost.pageSize)
+      .offset(paginationFromHelperForPosts.skipPage)
       .getRawMany();
     console.log('after');
     console.log(zaprosQb);
@@ -295,7 +295,7 @@ export class PostsRepositoryTypeORM {
             status: likeStatus.Like,
           })
           .orderBy('r.' + 'createdAt', sortDirection)
-          .take(limitLike)
+          .limit(limitLike)
           .getRawMany();
         const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
           'r' + '_',

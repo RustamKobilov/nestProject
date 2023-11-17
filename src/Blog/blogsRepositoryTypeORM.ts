@@ -59,8 +59,8 @@ export class BlogsRepositoryTypeORM {
     const zaprosQb = await qbBlog
       .where(filter.where, filter.params)
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
-      .take(paginationBlog.pageSize)
-      .skip(paginationFromHelperForBlogs.skipPage)
+      .limit(paginationBlog.pageSize)
+      .offset(paginationFromHelperForBlogs.skipPage)
       .getRawMany();
     console.log('after');
     console.log(zaprosQb);

@@ -118,7 +118,7 @@ export class ReactionRepositoryTypeORM {
           status: likeStatus.Like,
         })
         .orderBy('r.' + 'createdAt', 'DESC')
-        .take(limitLike)
+        .limit(limitLike)
         .getRawMany();
 
       const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [

@@ -40,8 +40,6 @@ export class UsersRepositoryTypeORM {
   }
 
   async createUser(newUser: User) {
-    console.log(newUser);
-
     const user = await this.userRepository.save({
       id: newUser.id,
       login: newUser.login,
@@ -64,7 +62,8 @@ export class UsersRepositoryTypeORM {
         recoveryCode: newUser.recoveryPasswordInfo.recoveryCode,
         diesAtDate: newUser.recoveryPasswordInfo.diesAtDate,
       });
-
+    console.log('sozadali ego');
+    console.log(newUser);
     return;
   }
   async deleteUser(userId: string) {
@@ -448,9 +447,10 @@ export class UsersRepositoryTypeORM {
       .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
       .where(filter.where, filter.params)
       .orderBy('u.' + paginationUser.sortBy, sortDirection)
-      .take(paginationUser.pageSize)
-      .skip(paginationFromHelperForUsers.skipPage)
+      .limit(paginationUser.pageSize)
+      .offset(paginationFromHelperForUsers.skipPage)
       .getRawMany();
+
     console.log('after');
     console.log(zaprosQb);
 

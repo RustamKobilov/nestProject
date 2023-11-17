@@ -7,7 +7,7 @@ export class ReactionEntity {
   @PrimaryColumn({ type: 'uuid' })
   userId: string;
   @Column({ type: 'varchar', length: 20 })
-  userLogin;
+  userLogin: string;
   @Column({ type: 'enum', enum: likeStatus })
   status: likeStatus;
   @Column({ type: 'varchar', length: 30 })

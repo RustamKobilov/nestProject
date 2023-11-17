@@ -1,5 +1,4 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { BlogEntity } from '../Blog/Blog.Entity';
 import { Repository } from 'typeorm';
 import { PostEntity } from './Post.Entity';
 import { NewestLikes, Post } from './Post';
@@ -14,13 +13,10 @@ import { ReactionRepository } from '../Like/reactionRepository';
 
 export class PostsRepositoryTypeORM {
   constructor(
-    @InjectRepository(BlogEntity)
-    private readonly blogRepositoryTypeOrm: Repository<BlogEntity>,
     @InjectRepository(PostEntity)
     private readonly postRepositoryTypeOrm: Repository<PostEntity>,
     @InjectRepository(ReactionEntity)
     private readonly reactionRepositoryTypeOrm: Repository<ReactionEntity>,
-
     private reactionRepository: ReactionRepository,
   ) {}
 
@@ -200,7 +196,7 @@ export class PostsRepositoryTypeORM {
         totalCountPost,
       );
     const zaprosQb = await qbPost
-      //.where()
+      .where(whereFilterSql.where, whereFilterSql.params)
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
       .take(paginationPost.pageSize)
       .skip(paginationFromHelperForPosts.skipPage)

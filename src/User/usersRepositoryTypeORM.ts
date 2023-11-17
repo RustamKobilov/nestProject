@@ -68,6 +68,26 @@ export class UsersRepositoryTypeORM {
     return;
   }
   async deleteUser(userId: string) {
+    const qbUserConfirmation =
+      await this.userConfirmationRepository.createQueryBuilder('uCI');
+    const deleteOperationUCI = await qbUserConfirmation
+      .delete()
+      .where('ownerId = :ownerId', { ownerId: userId })
+      .execute();
+    if (deleteOperationUCI.affected !== 1) {
+      throw new NotFoundException('0 item delete /userRepositorySql');
+    }
+    //uCI
+    const qbUserRecoveryPassword =
+      await this.userRecoveryPasswordInfoRepository.createQueryBuilder('uRPI');
+    const deleteOperationURPI = await qbUserRecoveryPassword
+      .delete()
+      .where('ownerId = :ownerId', { ownerId: userId })
+      .execute();
+    if (deleteOperationURPI.affected !== 1) {
+      throw new NotFoundException('0 item delete /userRepositorySql');
+    }
+    //uRPI
     const qbUser = await this.userRepository.createQueryBuilder('u');
     const deleteOperation = await qbUser
       .delete()

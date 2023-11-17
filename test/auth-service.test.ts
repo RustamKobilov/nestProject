@@ -118,7 +118,7 @@ describe('test App', () => {
     it('create blog', async () => {
       const inputBlogTest = await helperTest.createTestingBlog();
       const response = await request(server)
-        .post(endpoints.blogController)
+        .post(endpoints.admin + endpoints.blogController)
         .auth(basicAuthorization.username, basicAuthorization.password, {
           type: 'basic',
         })
@@ -163,7 +163,7 @@ describe('test App', () => {
     it('get blog by id', async () => {
       const createDifferentBlog = await helperTest.createTestingBlog();
       const responseCreateDifferentBlog = await request(server)
-        .post(endpoints.blogController)
+        .post(endpoints.admin + endpoints.blogController)
         .auth(basicAuthorization.username, basicAuthorization.password, {
           type: 'basic',
         })
@@ -180,7 +180,7 @@ describe('test App', () => {
     it('update blog by id', async () => {
       const createUpdateBlog = await helperTest.createTestingBlog();
       const responseUpdateBlog = await request(server)
-        .put(endpoints.blogController + '/' + blogTest.id)
+        .put(endpoints.admin + endpoints.blogController + '/' + blogTest.id)
         .auth(basicAuthorization.username, basicAuthorization.password, {
           type: 'basic',
         })
@@ -201,7 +201,7 @@ describe('test App', () => {
     });
     it('delete blog by id', async () => {
       const responseDelete = await request(server)
-        .delete(endpoints.blogController + '/' + blogTest.id)
+        .delete(endpoints.admin + endpoints.blogController + '/' + blogTest.id)
         .auth(basicAuthorization.username, basicAuthorization.password, {
           type: 'basic',
         });

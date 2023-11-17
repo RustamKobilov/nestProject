@@ -1,9 +1,7 @@
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { ReactionRepository } from '../Like/reactionRepository';
 import { Device } from './Device';
 import { mapObject } from '../mapObject';
-import { UpdateWriteOpResult } from 'mongoose';
 import { NotFoundException } from '@nestjs/common';
 import { DeviceViewModel } from '../viewModelDTO';
 

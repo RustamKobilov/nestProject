@@ -129,6 +129,8 @@ import { UserConfirmationInfoEntity } from './User/UserConfirmationInfo.Entity';
 import { UserRecoveryPasswordInfoEntity } from './User/UserRecoveryPasswordInfo.Entity';
 import { BlogsRepositoryTypeORM } from './Blog/blogsRepositoryTypeORM';
 import { PostsRepositoryTypeORM } from './Post/postsRepositoryTypeORM';
+import { CommentRepositoryTypeORM } from './Comment/use-cases/commentRepositoryTypeORM';
+import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
 
 dotenv.config();
 const useCaseUser = [
@@ -337,15 +339,15 @@ const sqlEntity = [
       provide: DeviceRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
-          ? DevicesRepositorySql
+          ? /*DevicesRepositorySql*/ DeviceRepositoryTypeORM
           : DeviceRepository,
     },
     {
       provide: CommentRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
-          ? CommentsRepositorySql
-          : DeviceRepository,
+          ? /*CommentsRepositorySql*/ CommentRepositoryTypeORM
+          : CommentRepository,
     },
     {
       provide: DataRepository,

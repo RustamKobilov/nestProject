@@ -5,8 +5,10 @@ const authController = `/auth`;
 const usersController = `/users`;
 const securityController = `/security/devices`;
 const testingController = `/testing`;
+const admin = '/sa';
 
 export const endpoints = {
+  admin,
   blogController,
   postController,
   commentController,

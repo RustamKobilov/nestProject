@@ -1,13 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { DeviceEntity } from './Device.Entity';
 import { Repository } from 'typeorm';
 import { ReactionEntity } from '../Like/Reaction.Entity';
 import { likeStatus } from '../Enum';
 import { Reaction } from '../Like/Reaction';
 import { mapObject } from '../mapObject';
 import { User } from '../User/User';
-import { ta } from 'date-fns/locale';
-import { PostEntity } from '../Post/Post.Entity';
 
 export class ReactionRepositoryTypeORM {
   constructor(

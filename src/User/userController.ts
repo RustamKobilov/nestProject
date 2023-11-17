@@ -20,7 +20,7 @@ import { GetUsersUseCaseCommand } from './use-cases/get-users-use-case';
 import { DeleteUserUseCaseCommand } from './use-cases/delete-user-use-case';
 
 @SkipThrottle()
-@Controller('users')
+@Controller('sa/users')
 export class UserController {
   constructor(private commandBus: CommandBus) {}
   @UseGuards(BasicAuthorizationGuard)

@@ -261,6 +261,24 @@ export class UsersRepositoryTypeORM {
     //console.log(user[0]);
     return user[0];
   }
+  async updateUserConformationCode(
+    userId: string,
+    newCode: string,
+    expirationCode: string,
+  ): Promise<boolean> {
+    const qbUserConfirmation =
+      await this.userConfirmationRepository.createQueryBuilder('uCI');
+    const update = await qbUserConfirmation
+      .update(UserConfirmationInfoEntity)
+      .set({ code: newCode, expirationCode: expirationCode })
+      .where('ownerId = :ownerId', { ownerId: userId })
+      .execute();
+    //TODO верно ли так проверять
+    if (!update.affected) {
+      return false;
+    }
+    return true;
+  }
   async updateConfirmationUserId(userId: string): Promise<boolean> {
     const qbUserConfirmation =
       await this.userConfirmationRepository.createQueryBuilder('uCI');
@@ -400,11 +418,10 @@ export class UsersRepositoryTypeORM {
         where: 'u.email ilike :emailTerm',
         params: { emailTerm: `%${emailTerm}%` },
       };
-      //return (' WHERE LOWER("email") LIKE ' +"'%" +paginationUser.searchEmailTerm +"%'");
     }
     return {
       where: '',
-      params: '',
+      params: {},
     };
   }
   async getUsers(

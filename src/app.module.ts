@@ -131,6 +131,7 @@ import { BlogsRepositoryTypeORM } from './Blog/blogsRepositoryTypeORM';
 import { PostsRepositoryTypeORM } from './Post/postsRepositoryTypeORM';
 import { CommentRepositoryTypeORM } from './Comment/use-cases/commentRepositoryTypeORM';
 import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
+import { ReactionRepositoryTypeORM } from './Device/reactionRepositoryTypeORM';
 
 dotenv.config();
 const useCaseUser = [
@@ -332,7 +333,7 @@ const sqlEntity = [
       provide: ReactionRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
-          ? ReactionRepositorySql
+          ? /*ReactionRepositorySql*/ ReactionRepositoryTypeORM
           : ReactionRepository,
     },
     {

@@ -41,14 +41,6 @@ export class BlogController {
     @Res() res: Response,
     @Req() req,
   ) {
-    //   console.log(req.user);
-    //   const blog = await this.blogService.getBlog(blogId);
-    //   const resultAllPostsByBlog = await this.commandBus.execute(
-    //     new GetPostByBlogCommand(blogId, getPagination),
-    //   );
-    //   return res.status(200).send(resultAllPostsByBlog);
-    // }
-
     const blog = await this.blogService.getBlog(blogId);
     let resultAllPostsByBlog;
     if (!req.user) {
@@ -56,13 +48,6 @@ export class BlogController {
       resultAllPostsByBlog = await this.commandBus.execute(
         new GetPostByBlogCommand(blogId, getPagination),
       );
-      // for (const post of resultAllPostsByBlog.items) {
-      //   //   console.log(post);
-      //   //   post.extendedLikesInfo.likesCount = 0;
-      //   //   post.extendedLikesInfo.dislikesCount = 0;
-      //   post.extendedLikesInfo.myStatus = 'None';
-      //   post.extendedLikesInfo.newestLikes = [];
-      // }
       return res.status(200).send(resultAllPostsByBlog);
     }
     console.log('user init');

@@ -85,7 +85,6 @@ export class ReactionRepositoryTypeORM {
       });
     } else {
       console.log('staryi');
-      //TODO ошибка типа
 
       const update = await qbReaction
         .update(ReactionEntity)

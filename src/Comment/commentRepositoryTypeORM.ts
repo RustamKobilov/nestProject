@@ -81,9 +81,7 @@ export class CommentRepositoryTypeORM {
     const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
       'r' + '_',
     ]);
-    console.log(newestLike);
-
-    commentViewModels.likesInfo.myStatus = newestLike.status;
+    commentViewModels.likesInfo.myStatus = newestLike[0].status;
 
     return commentViewModels;
   }

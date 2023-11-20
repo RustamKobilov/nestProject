@@ -80,18 +80,18 @@ export class PostController {
     @Res() res: Response,
     @Req() req,
   ) {
-    await this.postService.getPost(postId);
-    const addCommentByPostReturnIdComment = await this.commandBus.execute(
-      new CreateCommentForPostUseCaseCommand(
-        postId,
-        createCommentDto.content,
-        req.user,
-      ),
-    ); //return id new comment
-    const newCommentByPost = await this.commandBus.execute(
-      new GetCommentViewModelUseCaseCommand(addCommentByPostReturnIdComment),
-    );
-    return res.status(201).send(newCommentByPost);
+    // await this.postService.getPost(postId);
+    // const addCommentByPostReturnIdComment = await this.commandBus.execute(
+    //   new CreateCommentForPostUseCaseCommand(
+    //     postId,
+    //     createCommentDto.content,
+    //     req.user,
+    //   ),
+    // ); //return id new comment
+    // const newCommentByPost = await this.commandBus.execute(
+    //   new GetCommentViewModelUseCaseCommand(addCommentByPostReturnIdComment),
+    // );
+    return res.status(201) /*.send(newCommentByPost)*/;
   }
 
   @UseGuards(IdenteficationUserGuard)
@@ -128,13 +128,13 @@ export class PostController {
     @Param('id') postId: string,
     @Body() updateLikeStatus: UpdateLikeStatusDto,
   ) {
-    await this.commandBus.execute(
-      new UpdateLikeStatusPostUseCaseCommand(
-        postId,
-        updateLikeStatus.likeStatus,
-        req.user,
-      ),
-    );
+    // await this.commandBus.execute(
+    //   new UpdateLikeStatusPostUseCaseCommand(
+    //     postId,
+    //     updateLikeStatus.likeStatus,
+    //     req.user,
+    //   ),
+    // );
 
     return res.sendStatus(204);
   }

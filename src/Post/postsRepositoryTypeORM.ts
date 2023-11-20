@@ -180,7 +180,7 @@ export class PostsRepositoryTypeORM {
             params: {},
           }
         : {
-            where: 'blogId = :blogId',
+            where: 'p.blogId = :blogId',
             params: { blogId: `${filter.blogId}` },
           };
     const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');

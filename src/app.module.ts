@@ -129,9 +129,9 @@ import { UserConfirmationInfoEntity } from './User/UserConfirmationInfo.Entity';
 import { UserRecoveryPasswordInfoEntity } from './User/UserRecoveryPasswordInfo.Entity';
 import { BlogsRepositoryTypeORM } from './Blog/blogsRepositoryTypeORM';
 import { PostsRepositoryTypeORM } from './Post/postsRepositoryTypeORM';
-import { CommentRepositoryTypeORM } from './Comment/use-cases/commentRepositoryTypeORM';
+import { CommentRepositoryTypeORM } from './Comment/commentRepositoryTypeORM';
 import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
-import { ReactionRepositoryTypeORM } from './Device/reactionRepositoryTypeORM';
+import { ReactionRepositoryTypeORM } from './Like/reactionRepositoryTypeORM';
 
 dotenv.config();
 const useCaseUser = [
@@ -380,10 +380,10 @@ const sqlEntity = [
     ...useCaseAdapters,
     ...useCaseUser,
     ...sqlEntity,
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AppModule {}

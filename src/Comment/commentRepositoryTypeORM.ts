@@ -1,14 +1,14 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ReactionEntity } from '../../Like/Reaction.Entity';
-import { CommentEntity } from '../Comment.Entity';
-import { Comment } from '../Comment';
-import { CommentViewModel } from '../../viewModelDTO';
-import { mapObject } from '../../mapObject';
+import { ReactionEntity } from '../Like/Reaction.Entity';
+import { CommentEntity } from './Comment.Entity';
+import { Comment } from './Comment';
+import { CommentViewModel } from '../viewModelDTO';
+import { mapObject } from '../mapObject';
 import { NotFoundException } from '@nestjs/common';
-import { PaginationDTO } from '../../DTO';
-import { helper } from '../../helper';
-import { ReactionRepository } from '../../Like/reactionRepository';
+import { PaginationDTO } from '../DTO';
+import { helper } from '../helper';
+import { ReactionRepository } from '../Like/reactionRepository';
 
 export class CommentRepositoryTypeORM {
   constructor(

@@ -1,8 +1,8 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ReactionEntity } from '../Like/Reaction.Entity';
+import { ReactionEntity } from './Reaction.Entity';
 import { likeStatus } from '../Enum';
-import { Reaction } from '../Like/Reaction';
+import { Reaction } from './Reaction';
 import { mapObject } from '../mapObject';
 import { User } from '../User/User';
 
@@ -40,6 +40,7 @@ export class ReactionRepositoryTypeORM {
         parentId: parentId,
       })
       .getRawMany();
+
     if (take.length < 1) {
       return false;
     }
@@ -70,6 +71,8 @@ export class ReactionRepositoryTypeORM {
         parentId: parentId,
       })
       .getRawMany();
+    console.log('take search');
+    console.log(take);
 
     if (take.length < 1) {
       console.log('novyi');
@@ -91,49 +94,55 @@ export class ReactionRepositoryTypeORM {
           status: newReaction.status,
           createdAt: newReaction.createdAt,
         })
-        .where('r.userId = :userId AND r.parentId = :parentId', {
+        .where('userId = :userId AND parentId = :parentId', {
           userId: newReaction.userId,
           parentId: parentId,
         })
         .execute();
-
-      const likesCount = await qbReaction
-        .where('r.status = :status AND r.parentId = :parentId', {
-          status: likeStatus.Like,
-          parentId: parentId,
-        })
-        .getCount();
-
-      const dislikesCount = await qbReaction
-        .where('r.status = :status AND r.parentId = :parentId', {
-          status: likeStatus.Dislike,
-          parentId: parentId,
-        })
-        .getCount();
-
-      const limitLike = 3;
-      const tableNewestLike = await qbReaction
-        .where('r.parentId = :parentId AND r.status = :status', {
-          parentId: parentId,
-          status: likeStatus.Like,
-        })
-        .orderBy('r.' + 'createdAt', 'DESC')
-        .limit(limitLike)
-        .getRawMany();
-
-      const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-        'r' + '_',
-      ]);
-
-      const lastlikeUser = mapObject.mapNewestLikesFromSql(newestLike);
-      console.log('imenno tyt');
-      console.log(likesCount);
-      console.log(dislikesCount);
-      return {
-        likesCount: likesCount,
-        dislikesCount: dislikesCount,
-        lastLikeUser: lastlikeUser,
-      };
+      console.log('affected');
+      console.log(update.affected);
     }
+    //TODO почему qb старый считает неправильно
+    const qbReaction1 = await this.reactionRepositoryTypeOrm.createQueryBuilder(
+      'r',
+    );
+
+    const likesCount = await qbReaction1
+      .where('r.status = :status AND r.parentId = :parentId', {
+        status: likeStatus.Like,
+        parentId: parentId,
+      })
+      .getCount();
+
+    const dislikesCount = await qbReaction1
+      .where('r.status = :status AND r.parentId = :parentId', {
+        status: likeStatus.Dislike,
+        parentId: parentId,
+      })
+      .getCount();
+
+    const limitLike = 3;
+    const tableNewestLike = await qbReaction1
+      .where('r.parentId = :parentId AND r.status = :status', {
+        parentId: parentId,
+        status: likeStatus.Like,
+      })
+      .orderBy('r.createdAt', 'DESC')
+      .limit(limitLike)
+      .getRawMany();
+
+    const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
+      'r' + '_',
+    ]);
+
+    const lastLikeUser = mapObject.mapNewestLikesFromSql(newestLike);
+    console.log('imenno tyt');
+    console.log(likesCount);
+    console.log(dislikesCount);
+    return {
+      likesCount: likesCount,
+      dislikesCount: dislikesCount,
+      lastLikeUser: lastLikeUser,
+    };
   }
 }

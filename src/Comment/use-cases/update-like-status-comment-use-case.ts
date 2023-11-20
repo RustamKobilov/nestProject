@@ -32,7 +32,7 @@ export class UpdateLikeStatusCommentUseCase {
       command.user,
       command.likeStatus,
     );
-
+    console.log(await updateReaction);
     if (!updateReaction) {
       throw new NotFoundException(
         'comment ne obnovilsya, CommentService ,update',

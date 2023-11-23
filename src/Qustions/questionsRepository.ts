@@ -1,9 +1,10 @@
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuestionEntity } from './Entitys/QuestionEntity';
 import { Injectable } from '@nestjs/common';
 import { QuestionsPaginationDTO } from './questionDTO';
 import { helper } from '../helper';
+import { skip, take } from 'rxjs';
 
 @Injectable()
 export class QuestionsRepository {
@@ -18,6 +19,7 @@ export class QuestionsRepository {
 
   async getQuestions(pagination: QuestionsPaginationDTO) {
     const countQuestion = await this.questionRepositoryTypeOrm.count({});
+    const sortDirection = pagination.sortDirection === 1 ? 'ASC' : 'DESC';
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(
         pagination.pageNumber,
@@ -25,7 +27,12 @@ export class QuestionsRepository {
         countQuestion,
       );
 
-    const getQuestions = await this.questionRepositoryTypeOrm.find();
+    //const getQuestions = await this.questionRepositoryTypeOrm.find({
+    //order: pagination.sortBy : sortDirection,
+    //take(pagination.pageSize),
+    //skip(paginationFromHelperForPosts.skipPage)
+    //})
+    //find(order:{pagination.sortBy:sortDirection},);
     //findAndCount(
     //         {
     //             where: { name: Like('%' + keyword + '%') }, order: { name: "DESC" },
@@ -33,6 +40,7 @@ export class QuestionsRepository {
     //             skip: skip
     //         }
     //     );
+    //console.log(getQuestions);
     return true;
   }
 }

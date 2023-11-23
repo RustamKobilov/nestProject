@@ -12,7 +12,7 @@ describe('test App', () => {
 
   let app: INestApplication;
   let server;
-  let mongoMemoryServer;
+  let dataBaseServer;
   let helperTest;
   let basicAuthorization;
   let userTest;
@@ -22,10 +22,6 @@ describe('test App', () => {
   let refreshTokenCookies;
 
   beforeAll(async () => {
-    // mongoMemoryServer = await MongoMemoryServer.create();
-    // const mongoUri = mongoMemoryServer.getUri();
-    // console.log(mongoUri);
-    // process.env['MONGO_URI_CLUSTER'] = mongoUri;
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
@@ -41,7 +37,7 @@ describe('test App', () => {
   });
   afterAll(async () => {
     await app.close();
-    await mongoMemoryServer.stop();
+    await dataBaseServer.stop();
   });
 
   describe('CRUD User for Admin', () => {

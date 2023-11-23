@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpStatus,
+  Injectable,
   Param,
   Post,
   Put,
@@ -37,6 +38,12 @@ import { GetPostByBlogCommand } from '../Blog/use-cases/get-post-by-blog';
 import { UpdatePostUserCaseCommand } from '../Post/use-cases/update-post-use-case';
 import { DeletePostUseCaseCommand } from '../Post/use-cases/delete-post-use-case';
 import { BlogService } from '../Blog/blogService';
+import { QuestionsService } from '../Qustions/questionsService';
+import { BearerGuard } from '../auth/Guard/bearerGuard';
+import {
+  CreateQuestionDTO,
+  QuestionsPaginationDTO,
+} from '../Qustions/questionDTO';
 
 @SkipThrottle()
 @Controller('/sa/users')
@@ -109,7 +116,6 @@ export class adminBlogsController {
   async getPostsByBlog(
     @Query() getPagination: PaginationDTO,
     @Param('id') blogId: string,
-    @Query() postPagination: PaginationDTO,
     @Res() res: Response,
     @Req() req,
   ) {
@@ -165,5 +171,22 @@ export class adminBlogsController {
     console.log(postId + ' postId');
     await this.commandBus.execute(new DeletePostUseCaseCommand(postId, blogId));
     return res.sendStatus(HttpStatus.NO_CONTENT);
+  }
+}
+
+@Injectable()
+@Controller('sa/quiz')
+export class adminQuestionsController {
+  constructor(private readonly questionsService: QuestionsService) {}
+
+  @UseGuards(BasicAuthorizationGuard)
+  @Post()
+  async createQuestion(@Body() createQuestionDTO: CreateQuestionDTO) {
+    return this.questionsService.createQuestion(createQuestionDTO);
+  }
+  @UseGuards(BasicAuthorizationGuard)
+  @Get()
+  async getQuestions(@Query() questionPaginationDTO: QuestionsPaginationDTO) {
+    return this.questionsService.getQuestions(questionPaginationDTO);
   }
 }

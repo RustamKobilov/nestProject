@@ -2,6 +2,7 @@ import { CreateBlogDTO, CreateUserDto } from '../src/DTO';
 import { faker } from '@faker-js/faker';
 import request from 'supertest';
 import { endpoints } from './routing';
+import { CreateQuestionDTO } from '../src/Qustions/questionDTO';
 
 export type CreateUserTest = {
   id: string;
@@ -65,6 +66,15 @@ export class HelperTest {
       name: faker.lorem.word({ length: { min: 1, max: 15 } }),
       description: faker.lorem.word({ length: { min: 3, max: 500 } }),
       websiteUrl: faker.internet.url(),
+    };
+  }
+  async createTestingQuestion(): Promise<CreateQuestionDTO> {
+    return {
+      correctAnswers: [
+        faker.lorem.word({ length: { min: 10, max: 20 } }),
+        faker.lorem.word({ length: { min: 10, max: 20 } }),
+      ],
+      body: faker.lorem.word({ length: { min: 10, max: 500 } }),
     };
   }
 }

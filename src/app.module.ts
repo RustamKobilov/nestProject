@@ -122,6 +122,7 @@ import { DataRepository } from './dataRepository';
 import { DataRepositorySql } from './dataRepositorySql';
 import {
   adminBlogsController,
+  adminQuestionsController,
   adminUserController,
 } from './Admin/adminController';
 import { UsersRepositoryTypeORM } from './User/usersRepositoryTypeORM';
@@ -132,6 +133,10 @@ import { PostsRepositoryTypeORM } from './Post/postsRepositoryTypeORM';
 import { CommentRepositoryTypeORM } from './Comment/commentRepositoryTypeORM';
 import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
 import { ReactionRepositoryTypeORM } from './Like/reactionRepositoryTypeORM';
+import { QuestionEntity } from './Qustions/Entitys/QuestionEntity';
+import { QuestionsController } from './Qustions/questionsController';
+import { QuestionsService } from './Qustions/questionsService';
+import { QuestionsRepository } from './Qustions/questionsRepository';
 
 dotenv.config();
 const useCaseUser = [
@@ -196,6 +201,7 @@ const sqlEntity = [
   DeviceEntity,
   CommentEntity,
   ReactionEntity,
+  QuestionEntity,
 ];
 @Module({
   imports: [
@@ -306,6 +312,8 @@ const sqlEntity = [
     SecurityController,
     adminUserController,
     adminBlogsController,
+    adminQuestionsController,
+    QuestionsController,
   ],
   providers: [
     {
@@ -369,6 +377,8 @@ const sqlEntity = [
     CommentService,
     //CommentRepository,
     //ReactionRepository,
+    QuestionsRepository,
+    QuestionsService,
     JwtServices,
     isEmailNoUniqueValidate,
     IsLoginNoUniqueValidate,

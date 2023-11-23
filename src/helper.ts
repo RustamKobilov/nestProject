@@ -1,4 +1,6 @@
 import { BlogPaginationDTO, PaginationDTO, UserPaginationDTO } from './DTO';
+import { QuestionsPaginationDTO } from './Qustions/questionDTO';
+import { publishedStatusEnum } from './Qustions/questionEnum';
 
 export const helper = {
   getPaginationFunctionSkipSortTotal(
@@ -48,5 +50,18 @@ export const helper = {
   },
   getValueTrim(value: string): string {
     return value.trim();
+  },
+  getQuestionPaginationDTO(query: any): QuestionsPaginationDTO {
+    return {
+      pageNumber: query.pageNumber || 1,
+      pageSize: query.pageSize || 10,
+      sortBy: query.sortBy || 'createdAt',
+      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
+      bodySearchTerm: query.bodySearchTerm,
+      publishedStatus:
+        query.publishedStatus === null
+          ? publishedStatusEnum.all
+          : query.publishedStatus,
+    };
   },
 };

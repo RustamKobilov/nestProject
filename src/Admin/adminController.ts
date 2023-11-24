@@ -189,4 +189,9 @@ export class adminQuestionsController {
   async getQuestions(@Query() questionPaginationDTO: QuestionsPaginationDTO) {
     return this.questionsService.getQuestions(questionPaginationDTO);
   }
+  @UseGuards(BasicAuthorizationGuard)
+  @Delete('/:id')
+  async deleteQuestions(@Param('id') questionId: string) {
+    return this.questionsService.deleteQuestions(questionId);
+  }
 }

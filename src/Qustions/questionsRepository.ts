@@ -43,4 +43,12 @@ export class QuestionsRepository {
     //console.log(getQuestions);
     return true;
   }
+
+  async deleteQuestion(questionId: string) {
+    const deleteQuestion = await this.questionRepositoryTypeOrm.delete({
+      id: questionId,
+    });
+    console.log(deleteQuestion);
+    return true;
+  }
 }

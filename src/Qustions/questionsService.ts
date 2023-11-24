@@ -28,9 +28,13 @@ export class QuestionsService {
     const questionViewModel = mapQuestions.mapQuestionViewModel(question);
     return questionViewModel;
   }
-  getQuestions(questionPaginationDTO: QuestionsPaginationDTO) {
+  async getQuestions(questionPaginationDTO: QuestionsPaginationDTO) {
     const pagination = helper.getQuestionPaginationDTO(questionPaginationDTO);
     console.log(pagination);
     return this.questionsRepository.getQuestions(pagination);
+  }
+
+  async deleteQuestions(questionId: string): Promise<boolean> {
+    return this.questionsRepository.deleteQuestion(questionId);
   }
 }

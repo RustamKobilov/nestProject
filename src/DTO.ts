@@ -17,6 +17,7 @@ import { likeStatus } from './Enum';
 import {
   IsBlogChecking,
   IsEmailNoUnique,
+  IsEntityQuestionChecking,
   IsLoginNoUnique,
 } from './pipes/customValidator';
 
@@ -120,7 +121,6 @@ export class PaginationDTO {
   pageSize: number;
   @IsOptional()
   @Transform(({ value }) => helper.getValueTrim(value))
-  //@Transform(({ value }) => helper.toSortBy(value,'createdAt'))
   sortBy: string;
   @IsOptional()
   @Transform(({ value }) => helper.getValueTrim(value))
@@ -189,4 +189,26 @@ export class UpdatePasswordDTO {
   @IsString()
   @Transform(({ value }) => helper.getValueTrim(value))
   recoveryCode: string;
+}
+
+export class PaginationSqlDTO {
+  @IsOptional()
+  @Type((type) => Number)
+  @Min(1)
+  //@Transform(({ value }) => helper.toNumber(value,  1,  1))
+  @IsNumber()
+  pageNumber: number;
+  @IsOptional()
+  @Type((type) => Number)
+  @Min(1)
+  //@Transform(({ value }) => helper.toNumber(value,  1,  10),)
+  @IsNumber()
+  pageSize: number;
+  @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
+  sortBy: string;
+  @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
+  //@Transform(({ value }) => helper.toSortDirection(value,-1))
+  sortDirection: 'asc' | 'desc';
 }

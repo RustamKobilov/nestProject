@@ -1,5 +1,13 @@
-import { BlogPaginationDTO, PaginationDTO, UserPaginationDTO } from './DTO';
-import { QuestionsPaginationDTO } from './Qustions/questionDTO';
+import {
+  BlogPaginationDTO,
+  PaginationDTO,
+  PaginationSqlDTO,
+  UserPaginationDTO,
+} from './DTO';
+import {
+  QuestionsPagination,
+  QuestionsPaginationDTO,
+} from './Qustions/questionDTO';
 import { publishedStatusEnum } from './Qustions/questionEnum';
 
 export const helper = {
@@ -51,17 +59,16 @@ export const helper = {
   getValueTrim(value: string): string {
     return value.trim();
   },
-  getQuestionPaginationDTO(query: any): QuestionsPaginationDTO {
+  getQuestionPaginationDTO(
+    query: QuestionsPaginationDTO,
+  ): QuestionsPaginationDTO {
     return {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
       sortBy: query.sortBy || 'createdAt',
-      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
-      bodySearchTerm: query.bodySearchTerm,
-      publishedStatus:
-        query.publishedStatus === null
-          ? publishedStatusEnum.all
-          : query.publishedStatus,
+      sortDirection: query.sortDirection || 'desc',
+      bodySearchTerm: query.bodySearchTerm || '',
+      publishedStatus: query.publishedStatus || publishedStatusEnum.all,
     };
   },
 };

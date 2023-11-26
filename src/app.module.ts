@@ -61,6 +61,7 @@ import { JwtServices } from './application/jwtService';
 import {
   IsBlogCheckingValidate,
   isEmailNoUniqueValidate,
+  IsEntityQuestionCheckingValidate,
   IsLoginNoUniqueValidate,
 } from './pipes/customValidator';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -383,6 +384,7 @@ const sqlEntity = [
     isEmailNoUniqueValidate,
     IsLoginNoUniqueValidate,
     IsBlogCheckingValidate,
+    IsEntityQuestionCheckingValidate,
     ...useCaseBlog,
     ...useCasePost,
     ...useCaseComment,

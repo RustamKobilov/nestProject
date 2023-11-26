@@ -9,7 +9,7 @@ export class QuestionEntity {
   @Column('text', { array: true, default: '{}' })
   correctAnswers: string[];
   @Column({ type: 'boolean' })
-  published: false;
+  published: boolean;
   @Column({ type: 'varchar' })
   createdAt: string;
   @Column({ type: 'varchar' })

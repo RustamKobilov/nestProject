@@ -8,6 +8,7 @@ import {
 import { UserRepository } from '../User/userRepository';
 import { Inject, Injectable } from '@nestjs/common';
 import { BlogRepository } from '../Blog/blogRepository';
+import { QuestionEntity } from '../Qustions/Entitys/QuestionEntity';
 
 @ValidatorConstraint({ name: 'IsEmailNoUnique', async: true })
 @Injectable()
@@ -80,6 +81,36 @@ export function IsBlogChecking(validationOptions?: ValidationOptions) {
       options: validationOptions,
       constraints: [],
       validator: IsBlogCheckingValidate,
+    });
+  };
+}
+
+@ValidatorConstraint({ name: 'IsEntityQuestionChecking', async: true })
+@Injectable()
+export class IsEntityQuestionCheckingValidate
+  implements ValidatorConstraintInterface
+{
+  async validate(paramSortBy: string, args: ValidationArguments) {
+    const keys = QuestionEntity.arguments;
+    // if(keys<1){
+    //   return false;
+    // }
+    console.log(keys);
+    return true;
+  }
+}
+
+export function IsEntityQuestionChecking(
+  validationOptions?: ValidationOptions,
+) {
+  return function (object: object, propertyName: string) {
+    registerDecorator({
+      name: 'IsEntityQuestionChecking',
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: IsEntityQuestionCheckingValidate,
     });
   };
 }

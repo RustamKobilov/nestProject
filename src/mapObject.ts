@@ -35,7 +35,6 @@ export const mapObject = {
     console.log(rawArray);
     return rawArray;
   },
-  //TODO как проставить тепизацию на выход и вход чтобы не ругалось на never. какой тип у массиа приходящего
   mapUsersFromSql(sqlArray: any[any]): User[] {
     const users: User[] = [];
     for (const sqlUser of sqlArray) {
@@ -217,22 +216,3 @@ export const mapObject = {
     };
   },
 };
-// const user = table.map((value) => {
-//   return {
-//     id: value.id,
-//     login: value.login,
-//     email: value.email,
-//     createdAt: value.createdAt,
-//     salt: value.salt,
-//     password: value.password,
-//     recoveryPasswordInfo: {
-//       recoveryCode: value.recoveryCode,
-//       diesAtDate: value.diesAtDate,
-//     },
-//     userConfirmationInfo: {
-//       userConformation: value.userConformation,
-//       code: value.code,
-//       expirationCode: value.expirationCode,
-//     },
-//   };
-// });

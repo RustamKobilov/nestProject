@@ -39,10 +39,10 @@ import { UpdatePostUserCaseCommand } from '../Post/use-cases/update-post-use-cas
 import { DeletePostUseCaseCommand } from '../Post/use-cases/delete-post-use-case';
 import { BlogService } from '../Blog/blogService';
 import { QuestionsService } from '../Qustions/questionsService';
-import { BearerGuard } from '../auth/Guard/bearerGuard';
 import {
   CreateQuestionDTO,
   QuestionsPaginationDTO,
+  UpdatePublishedQuestionDTO,
 } from '../Qustions/questionDTO';
 
 @SkipThrottle()
@@ -191,7 +191,27 @@ export class adminQuestionsController {
   }
   @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
-  async deleteQuestions(@Param('id') questionId: string) {
+  async deleteQuestion(@Param('id') questionId: string) {
     return this.questionsService.deleteQuestions(questionId);
+  }
+  @UseGuards(BasicAuthorizationGuard)
+  @Put('/:id')
+  async updateQuestion(
+    @Param('id') questionId: string,
+    @Body() updateQuestionDTO: CreateQuestionDTO,
+  ) {
+    return this.questionsService.updateQuestion(questionId, updateQuestionDTO);
+  }
+  @UseGuards(BasicAuthorizationGuard)
+  @Put('/:id/publish')
+  async updatePublishQuestion(
+    @Param('id') questionId: string,
+    @Body() updatePublishedQuestion: UpdatePublishedQuestionDTO,
+  ) {
+    console.log(updatePublishedQuestion.published);
+    return this.questionsService.updatePublishQuestion(
+      questionId,
+      updatePublishedQuestion.published,
+    );
   }
 }

@@ -8,8 +8,11 @@ import { CreateQuestionDTO } from './questionDTO';
 @Controller('sa/quiz')
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
-  //   @UseGuards(BearerGuard)
-  // @Post()
-  // createQuestion(@Body() createQuestionDTO: CreateQuestionDTO) {
-  //   return this.questionsService.createQuestion(createQuestionDTO,req.user)
+
+  @UseGuards(BearerGuard)
+  @Post()
+  createQuestion(@Body() createQuestionDTO: CreateQuestionDTO) {
+    return true;
+    //return this.questionsService.createQuestion(createQuestionDTO,req.user)
+  }
 }

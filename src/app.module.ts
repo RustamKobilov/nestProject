@@ -134,7 +134,11 @@ import { PostsRepositoryTypeORM } from './Post/postsRepositoryTypeORM';
 import { CommentRepositoryTypeORM } from './Comment/commentRepositoryTypeORM';
 import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
 import { ReactionRepositoryTypeORM } from './Like/reactionRepositoryTypeORM';
-import { QuestionEntity } from './Qustions/Entitys/QuestionEntity';
+import {
+  GameEntity,
+  PlayerEntity,
+  QuestionEntity,
+} from './Qustions/Entitys/QuestionEntity';
 import { QuestionsController } from './Qustions/questionsController';
 import { QuestionsService } from './Qustions/questionsService';
 import { QuestionsRepository } from './Qustions/questionsRepository';
@@ -203,6 +207,8 @@ const sqlEntity = [
   CommentEntity,
   ReactionEntity,
   QuestionEntity,
+  PlayerEntity,
+  GameEntity,
 ];
 @Module({
   imports: [

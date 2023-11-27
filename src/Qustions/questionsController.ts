@@ -1,18 +1,26 @@
 import { QuestionsService } from './questionsService';
-import { Body, Controller, Injectable, Post, UseGuards } from '@nestjs/common';
-import { CreateUserDto } from '../DTO';
-import { CreateUserAdminUseCaseCommand } from '../User/use-cases/create-user-admin-use-case';
+import {
+  Controller,
+  Injectable,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
-import { CreateQuestionDTO } from './questionDTO';
+import { Response } from 'express';
+
 @Injectable()
 @Controller('sa/quiz')
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
   @UseGuards(BearerGuard)
-  @Post()
-  createQuestion(@Body() createQuestionDTO: CreateQuestionDTO) {
-    return true;
-    //return this.questionsService.createQuestion(createQuestionDTO,req.user)
+  @Post('/pairs/connection')
+  async connectionGame(@Res() res: Response, @Req() req) {
+    const output = await this.questionsService.connectionGame(req.user);
+
+    //check game for awaiting user
+    return res.status(201).send(output);
   }
 }

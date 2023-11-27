@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   IsUUID,
@@ -11,11 +12,16 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { helper } from '../helper';
 import { PaginationSqlDTO } from '../DTO';
-import { publishedStatusEnum } from './questionEnum';
+import {
+  answerStatusesEnum,
+  gameStatusesEnum,
+  publishedStatusEnum,
+} from './questionEnum';
 import { PostEntity } from '../Post/Post.Entity';
 import { NewestLikes } from '../Post/Post';
 import { PostViewModel } from '../viewModelDTO';
 import { QuestionEntity } from './Entitys/QuestionEntity';
+import { Entity } from 'typeorm';
 
 export class CreateQuestionDTO {
   @IsString()
@@ -60,49 +66,76 @@ export class QuestionViewModel {
   createdAt: string;
   updatedAt: string;
 }
+//TODO убрать приенить entity класс
 export class GamePairViewModel {
   id: string;
-
-  //   "firstPlayerProgress": {
-  //     "answers": [
-  //       {
-  //         "questionId": "string",
-  //         "answerStatus": "Correct",
-  //         "addedAt": "2023-11-26T14:41:43.251Z"
-  //       }
-  //     ],
-  //     "player": {
-  //       "id": "string",
-  //       "login": "string"
-  //     },
-  //     "score": 0
-  //   },
-  //   "secondPlayerProgress": {
-  //     "answers": [
-  //       {
-  //         "questionId": "string",
-  //         "answerStatus": "Correct",
-  //         "addedAt": "2023-11-26T14:41:43.251Z"
-  //       }
-  //     ],
-  //     "player": {
-  //       "id": "string",
-  //       "login": "string"
-  //     },
-  //     "score": 0
-  //   },
-  //   "questions": [
-  //     {
-  //       "id": "string",
-  //       "body": "string"
-  //     }
-  //   ],
-  //   "status": "PendingSecondPlayer",
-  //   "pairCreatedDate": "2023-11-26T14:41:43.251Z",
-  //   "startGameDate": "2023-11-26T14:41:43.251Z",
-  //   "finishGameDate": "2023-11-26T14:41:43.251Z"
+  firstPlayerProgress: {
+    answers: [
+      {
+        questionId: string;
+        answerStatus: answerStatusesEnum;
+        addedAt: string;
+      },
+    ];
+    player: {
+      id: string;
+      login: string;
+    };
+    score: number;
+  };
+  secondPlayerProgress: {
+    answers: [
+      {
+        questionId: string;
+        answerStatus: answerStatusesEnum;
+        addedAt: string;
+      },
+    ];
+    player: {
+      id: string;
+      login: string;
+    };
+    score: number;
+  };
+  questions: [
+    {
+      id: string;
+      body: string;
+    },
+  ];
+  status: gameStatusesEnum;
+  pairCreatedDate: string;
+  startGameDate: string;
+  finishGameDate: string | null;
 }
-export class AnswerViewModel {}
+export class GamePairViewModelPendingSecondPlayer {
+  id: string;
+  firstPlayerProgress: {
+    answers: AnswerViewModel[];
+    player: {
+      id: string;
+      login: string;
+    };
+    score: number;
+  };
+  secondPlayerProgress: null;
+  questions: null;
+  status: gameStatusesEnum.PendingSecondPlayer;
+  pairCreatedDate: string;
+  startGameDate: null;
+  finishGameDate: null;
+}
+
+export class AnswerViewModel {
+  questionId: string;
+  answerStatus: answerStatusesEnum;
+  addedAt: string;
+}
+export class QuestionPlayerProgressViewModel {
+  id: string;
+  body: string;
+}
+
 export const mapQuestion = {
   mapQuestionFromSql(sqlArray: QuestionEntity[]): QuestionViewModel[] {
     const questionsViewModel: QuestionViewModel[] = [];

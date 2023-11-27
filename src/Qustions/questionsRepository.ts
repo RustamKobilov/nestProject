@@ -1,6 +1,10 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QuestionEntity } from './Entitys/QuestionEntity';
+import {
+  GameEntity,
+  PlayerEntity,
+  QuestionEntity,
+} from './Entitys/QuestionEntity';
 import { Injectable } from '@nestjs/common';
 import {
   CreateQuestionDTO,
@@ -8,9 +12,10 @@ import {
   QuestionsPaginationDTO,
 } from './questionDTO';
 import { helper } from '../helper';
-import { publishedStatusEnum } from './questionEnum';
+import { gameStatusesEnum, publishedStatusEnum } from './questionEnum';
 import { mapObject } from '../mapObject';
 import { PostEntity } from '../Post/Post.Entity';
+import { mapQuestions } from './mapQuestions';
 
 enum SortBy {
   createdAt = 'createdAt',
@@ -23,6 +28,10 @@ export class QuestionsRepository {
   constructor(
     @InjectRepository(QuestionEntity)
     protected questionRepositoryTypeOrm: Repository<QuestionEntity>,
+    @InjectRepository(PlayerEntity)
+    protected playerRepositoryTypeOrm: Repository<PlayerEntity>,
+    @InjectRepository(GameEntity)
+    protected gameRepositoryTypeOrm: Repository<GameEntity>,
   ) {}
 
   async createQuestion(question: QuestionEntity) {
@@ -102,7 +111,10 @@ export class QuestionsRepository {
       items: questions,
     };
   }
-
+  async getRandomQuestionsAmount(amount: number) {
+    ///random question
+    return true;
+  }
   async deleteQuestion(questionId: string) {
     const deleteQuestion = await this.questionRepositoryTypeOrm.delete({
       id: questionId,
@@ -115,10 +127,14 @@ export class QuestionsRepository {
     const qbQuestion = await this.questionRepositoryTypeOrm.createQueryBuilder(
       'q',
     );
-    const question = await qbQuestion
+    const questionSql = await qbQuestion
       .where('id = :id', { id: questionId })
       .getRawMany();
-    return question;
+    const question = mapObject.mapRawManyQBOnTableName(questionSql, [
+      'q' + '_',
+    ]);
+    const questionViewModel = mapQuestions.mapQuestionsViewModel(question);
+    return questionViewModel;
   }
 
   async updateQuestion(
@@ -158,5 +174,28 @@ export class QuestionsRepository {
       return false;
     }
     return true;
+  }
+
+  async createPlayer(player: PlayerEntity) {
+    return await this.playerRepositoryTypeOrm.save(player);
+  }
+
+  async getPlayerAwaitGame() {
+    const qbPlayer = await this.playerRepositoryTypeOrm.createQueryBuilder(
+      'player',
+    );
+    const playersSql = await qbPlayer
+      .where('status = :status', {
+        status: gameStatusesEnum.PendingSecondPlayer,
+      })
+      .getRawMany();
+    const players = mapObject.mapRawManyQBOnTableName(playersSql, [
+      'player' + '_',
+    ]);
+    const playersEntity = mapObject.mapPlayersEntity(players);
+    return playersEntity;
+  }
+  async createGame(game: GameEntity) {
+    return await this.playerRepositoryTypeOrm.save(game);
   }
 }

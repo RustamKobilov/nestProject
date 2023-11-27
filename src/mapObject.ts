@@ -14,6 +14,13 @@ import { Reaction } from './Like/Reaction';
 import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
+import {
+  GameEntity,
+  PlayerEntity,
+  QuestionEntity,
+} from './Qustions/Entitys/QuestionEntity';
+import { GamePairViewModel } from './Qustions/questionDTO';
+import { gameStatusesEnum } from './Qustions/questionEnum';
 
 export const mapObject = {
   mapRawManyQBOnTableName(rawArray: any[], nameTable: any[]): any {
@@ -215,4 +222,51 @@ export const mapObject = {
       deviceId: device.deviceId,
     };
   },
+  mapPlayersEntity(players: any): PlayerEntity[] {
+    const playerEntitys: PlayerEntity[] = [];
+    for (const player of players) {
+      playerEntitys.push({
+        idGame: player.idGame,
+        playerId: player.playerId,
+        playerLogin: player.playerLogin,
+        playerScore: player.playerScore,
+        playerAnswers: player.playerAnswers,
+        status: player.status,
+        playerPairCreatedDate: player.playerPairCreatedDate,
+      });
+    }
+    return playerEntitys;
+  },
+  mapGameViewModel(
+    playerAwait: PlayerEntity,
+    playerConnect: PlayerEntity,
+    game: GameEntity,
+    questions: QuestionEntity[],
+  ): GamePairViewModel {
+    return {
+      id: game.id,
+      firstPlayerProgress: {
+        player: {
+          id: playerConnect.playerId,
+          login: playerConnect.playerLogin,
+        },
+        answers: playerConnect.playerAnswers,
+        score: playerConnect.playerScore,
+      },
+      secondPlayerProgress: {
+        player: {
+          id: playerAwait.playerId,
+          login: playerAwait.playerLogin,
+        },
+        answers: playerAwait.playerAnswers,
+        score: playerAwait.playerScore,
+      },
+      questions: questions,
+      status: gameStatusesEnum.Active,
+      pairCreatedDate: playerAwait.playerPairCreatedDate,
+      startGameDate: new Date().toISOString(),
+      finishGameDate: null,
+    };
+  },
+  mapQuestions(qbQuestions: QuestionEntity[]) {},
 };

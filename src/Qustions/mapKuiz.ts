@@ -6,8 +6,7 @@ import {
   SaQuestionViewModel,
 } from './questionDTO';
 import { gameStatusesEnum } from './questionEnum';
-import { PlayerEntityType } from './Entitys/PlayerEntity';
-import { GameEntityType } from './Entitys/GameEntity';
+import { GameEntity } from './Entitys/GameEntity';
 
 export const mapKuiz = {
   mapSaQuestionsViewModel(questions: QuestionEntity[]): SaQuestionViewModel[] {
@@ -24,31 +23,31 @@ export const mapKuiz = {
     }
     return questionsViewModel;
   },
-  mapPlayersEntity(players: any): PlayerEntityType[] {
-    const playerEntitys: PlayerEntityType[] = [];
-    for (const player of players) {
-      playerEntitys.push({
-        idGame: player.idGame,
-        playerId: player.playerId,
-        playerLogin: player.playerLogin,
-        playerScore: player.playerScore,
-        playerAnswers: player.playerAnswers,
-        status: player.status,
-        playerPairCreatedDate: player.playerPairCreatedDate,
-      });
-    }
-    return playerEntitys;
-  },
+  // mapPlayersEntity(players: any): PlayerEntityType[] {
+  //   const playerEntitys: PlayerEntityType[] = [];
+  //   for (const player of players) {
+  //     playerEntitys.push({
+  //       gameId: player.gameId,
+  //       playerId: player.playerId,
+  //       playerLogin: player.playerLogin,
+  //       playerScore: player.playerScore,
+  //       playerAnswers: player.playerAnswers,
+  //       status: player.status,
+  //       playerPairCreatedDate: player.playerPairCreatedDate,
+  //     });
+  //   }
+  //   return playerEntitys;
+  // },
   mapGamePairViewModelPendingSecondPlayer(
-    player: PlayerEntityType,
+    game: GameEntity,
   ): GamePairViewModelPendingSecondPlayer {
     return {
-      id: player.idGame,
+      id: game.id,
       firstPlayerProgress: {
         answers: [],
         player: {
-          id: player.playerId,
-          login: player.playerLogin,
+          id: game.firstPlayerId,
+          login: game.firstPlayerLogin,
         },
         score: 0,
       },
@@ -60,36 +59,37 @@ export const mapKuiz = {
       finishGameDate: null,
     };
   },
-  mapGameViewModel(
-    playerAwait: PlayerEntityType,
-    playerConnect: PlayerEntityType,
-    game: GameEntityType,
-    questions: QuestionViewModel[],
-  ): GamePairViewModel {
-    return {
-      id: game.id,
-      firstPlayerProgress: {
-        player: {
-          id: playerConnect.playerId,
-          login: playerConnect.playerLogin,
+  mapGameViewModel(games: GameEntity[]) /*: GamePairViewModel[]*/ {
+    //TODO ttype no initilize
+    const gamesPairViewModel: GamePairViewModel[] = [];
+    for (const game of games) {
+      const gamePairViewModel: GamePairViewModel = {
+        id: game.id,
+        firstPlayerProgress: {
+          player: {
+            id: game.firstPlayerId,
+            login: game.firstPlayerLogin,
+          },
+          answers: game.firstPlayerAnswers,
+          score: game.firstPlayerScore,
         },
-        answers: playerConnect.playerAnswers,
-        score: playerConnect.playerScore,
-      },
-      secondPlayerProgress: {
-        player: {
-          id: playerAwait.playerId,
-          login: playerAwait.playerLogin,
+        secondPlayerProgress: {
+          player: {
+            id: game.secondPlayerId,
+            login: game.secondPlayerLogin,
+          },
+          answers: game.secondPlayerAnswers,
+          score: game.secondPlayerScore,
         },
-        answers: playerAwait.playerAnswers,
-        score: playerAwait.playerScore,
-      },
-      questions: questions,
-      status: gameStatusesEnum.Active,
-      pairCreatedDate: playerAwait.playerPairCreatedDate,
-      startGameDate: new Date().toISOString(),
-      finishGameDate: game.finishGameDate,
-    };
+        questions: game.questions,
+        status: game.status,
+        pairCreatedDate: game.pairCreatedDate,
+        startGameDate: game.startGameDate,
+        finishGameDate: game.finishGameDate,
+      };
+      gamesPairViewModel.push(gamePairViewModel);
+    }
+    return /*gamesPairViewModel*/ true;
   },
   mapQuestionsViewModel(sqlQuestions: QuestionEntity[]): QuestionViewModel[] {
     const questionsViewModel: QuestionViewModel[] = [];

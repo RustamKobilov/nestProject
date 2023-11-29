@@ -85,7 +85,7 @@ export class GamePairViewModel {
     };
     score: number;
   };
-  questions: QuestionViewModel[];
+  questions: QuestionViewModel[] = [];
   status: gameStatusesEnum;
   pairCreatedDate: string;
   startGameDate: string;

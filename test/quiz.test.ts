@@ -6,7 +6,7 @@ import { HelperTest } from './helperTest';
 import request from 'supertest';
 import { endpoints } from './routing';
 import { BlogViewModel } from '../src/viewModelDTO';
-import { QuestionViewModel } from '../src/Qustions/questionDTO';
+import { SaQuestionViewModel } from '../src/Qustions/questionDTO';
 import { faker } from '@faker-js/faker';
 
 describe('test App', () => {
@@ -58,7 +58,7 @@ describe('test App', () => {
 
       expect(response.status).toBe(201);
       expect(response.body).toBeDefined();
-      expect(response.body).toEqual(<QuestionViewModel>{
+      expect(response.body).toEqual(<SaQuestionViewModel>{
         id: expect.any(String),
         body: inputQuestionTest.body,
         correctAnswers: inputQuestionTest.correctAnswers,

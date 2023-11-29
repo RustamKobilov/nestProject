@@ -1,12 +1,4 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  JoinTable,
-  OneToOne,
-  PrimaryColumn,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryColumn } from 'typeorm';
 import { UserConfirmationInfoEntity } from './UserConfirmationInfo.Entity';
 import { UserRecoveryPasswordInfoEntity } from './UserRecoveryPasswordInfo.Entity';
 

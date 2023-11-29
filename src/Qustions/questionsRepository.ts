@@ -1,27 +1,19 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  GameEntity,
-  PlayerEntity,
-  QuestionEntity,
-} from './Entitys/QuestionEntity';
+import { QuestionEntity } from './Entitys/QuestionEntity';
 import { Injectable } from '@nestjs/common';
 import {
   CreateQuestionDTO,
   mapQuestion,
   QuestionsPaginationDTO,
+  QuestionViewModel,
 } from './questionDTO';
 import { helper } from '../helper';
 import { gameStatusesEnum, publishedStatusEnum } from './questionEnum';
 import { mapObject } from '../mapObject';
-import { PostEntity } from '../Post/Post.Entity';
-import { mapQuestions } from './mapQuestions';
-
-enum SortBy {
-  createdAt = 'createdAt',
-  updatedAt = 'updatedAt',
-  id = 'id',
-}
+import { mapKuiz } from './mapKuiz';
+import { PlayerEntity, PlayerEntityType } from './Entitys/PlayerEntity';
+import { GameEntity, GameEntityType } from './Entitys/GameEntity';
 
 @Injectable()
 export class QuestionsRepository {
@@ -111,9 +103,17 @@ export class QuestionsRepository {
       items: questions,
     };
   }
-  async getRandomQuestionsAmount(amount: number) {
-    ///random question
-    return true;
+  async getRandomQuestionsAmount(): Promise<QuestionViewModel[]> {
+    const questions = await this.questionRepositoryTypeOrm.find({});
+    const questionsRandom: QuestionEntity[] = [];
+    for (let x = 0; x < 5; x++) {
+      questionsRandom.push(
+        questions[helper.getRandomIntInclusive(0, questions.length)],
+      );
+    }
+    const questionsViewModel: QuestionViewModel[] =
+      mapKuiz.mapQuestionsViewModel(questionsRandom);
+    return questionsViewModel;
   }
   async deleteQuestion(questionId: string) {
     const deleteQuestion = await this.questionRepositoryTypeOrm.delete({
@@ -133,7 +133,7 @@ export class QuestionsRepository {
     const question = mapObject.mapRawManyQBOnTableName(questionSql, [
       'q' + '_',
     ]);
-    const questionViewModel = mapQuestions.mapQuestionsViewModel(question);
+    const questionViewModel = mapKuiz.mapSaQuestionsViewModel(question);
     return questionViewModel;
   }
 
@@ -176,7 +176,7 @@ export class QuestionsRepository {
     return true;
   }
 
-  async createPlayer(player: PlayerEntity) {
+  async createPlayer(player: PlayerEntityType) {
     return await this.playerRepositoryTypeOrm.save(player);
   }
 
@@ -192,10 +192,80 @@ export class QuestionsRepository {
     const players = mapObject.mapRawManyQBOnTableName(playersSql, [
       'player' + '_',
     ]);
-    const playersEntity = mapObject.mapPlayersEntity(players);
+    const playersEntity = mapKuiz.mapPlayersEntity(players);
     return playersEntity;
   }
-  async createGame(game: GameEntity) {
-    return await this.playerRepositoryTypeOrm.save(game);
+  async createGame(game: GameEntityType) {
+    return await this.gameRepositoryTypeOrm.save(game);
+  }
+
+  async getGameNotFinished(userId: string) {
+    const qbGame = await this.gameRepositoryTypeOrm.createQueryBuilder('g');
+    const qbQuestion = await this.questionRepositoryTypeOrm.createQueryBuilder(
+      'q',
+    );
+
+    const take = await qbGame
+      .leftJoinAndSelect('g.players', 'uGP')
+      .getRawMany();
+
+    //.where('')
+    //.addWhere('status = :status', { status: gameStatusesEnum.Active })
+    //.andWhere('status = :status', { status: gameStatusesEnum.Finished })
+    console.log('getGameNotFinished');
+    console.log(take);
+    if (take.length < 1) {
+      const qbPlayer = await this.playerRepositoryTypeOrm.createQueryBuilder(
+        'player',
+      );
+      const playersSql = await qbPlayer
+        .where('player.playerId = :playerId', {
+          playerId: userId,
+        })
+        .getRawMany();
+      if (playersSql.length < 1) {
+        return false;
+      }
+      const players = mapObject.mapRawManyQBOnTableName(playersSql, [
+        'player' + '_',
+      ]);
+      const playersEntityType = mapKuiz.mapPlayersEntity(players);
+      const playerGamePairViewModelPendingSecondPlayer =
+        mapKuiz.mapGamePairViewModelPendingSecondPlayer(playersEntityType[0]);
+      return playerGamePairViewModelPendingSecondPlayer;
+    }
+    //where('id = :id', { id: userId });
+    // .leftJoinAndSelect('p.Players', 'uGP')
+    // .where('id = :id', { id: userId })
+    // .getRawMany();
+    //sort playerjoin
+    //const questionSql = await qbGame
+    //.where('id = :id', { id: questionId })
+    //.getRawMany();
+    //const question = mapObject.mapRawManyQBOnTableName(questionSql, [
+    //  'q' + '_',
+    // ]);
+    //  const questionViewModel = mapKuiz.mapSaQuestionsViewModel(question);
+    //  return questionViewModel;
+    return true;
+  }
+
+  async updatePlayerStatus(playerId: string) {
+    const qbPlayer = await this.playerRepositoryTypeOrm.createQueryBuilder(
+      'player',
+    );
+    const update = await qbPlayer
+      .update(PlayerEntity)
+      .set({
+        status: gameStatusesEnum.Active,
+      })
+      .where('player.playerId = :playerId', {
+        playerId: playerId,
+      })
+      .execute();
+    if (!update.affected) {
+      return false;
+    }
+    return true;
   }
 }

@@ -37,11 +37,11 @@ export class PostEntity {
   myStatus: likeStatus;
 
   @ManyToOne(() => BlogEntity, (blog) => blog.posts)
-  @JoinColumn({ name: 'blogId' })
+  //@JoinColumn({ name: 'blogId' })
   blog: BlogEntity;
 
   @OneToMany(() => CommentEntity, (comment) => comment.post)
-  @JoinColumn({ name: 'blogId' })
+  //@JoinColumn({ name: 'blogId' })
   comments: CommentEntity[];
 }
 

@@ -27,17 +27,6 @@ export class CommentEntity {
   myStatus: likeStatus;
 
   @ManyToOne(() => PostEntity, (post) => post.comments)
-  @JoinColumn({ name: 'postId' })
+  //@JoinColumn({ name: 'postId' })
   post: PostEntity;
 }
-// @Entity()
-// export class CommentatorInfoEntity {
-//   @PrimaryGeneratedColumn()
-//   idSql: number;
-//   @Column({ type: 'uuid' })
-//   postId: string;
-//   @Column({ type: 'varchar', length: 30 })
-//   userLogin: string;
-//   @Column({ type: 'varchar', length: 30 })
-//   userId: string;
-// }

@@ -17,6 +17,6 @@ export class BlogEntity {
   isMembership: boolean;
 
   @OneToMany(() => PostEntity, (post) => post.blog)
-  @JoinColumn({ name: 'blogId' })
+  //@JoinColumn({ name: 'blogId' })
   posts: PostEntity[];
 }

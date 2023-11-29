@@ -3,20 +3,18 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateQuestionDTO,
   GamePairViewModel,
+  GamePairViewModelPendingSecondPlayer,
   QuestionsPaginationDTO,
-  QuestionViewModel,
+  SaQuestionViewModel,
 } from './questionDTO';
-import {
-  GameEntity,
-  PlayerEntity,
-  QuestionEntity,
-} from './Entitys/QuestionEntity';
+import { QuestionEntity } from './Entitys/QuestionEntity';
 import { randomUUID } from 'crypto';
-import { mapQuestions } from './mapQuestions';
+import { mapKuiz } from './mapKuiz';
 import { helper } from '../helper';
 import { isUUID } from 'class-validator';
 import { gameStatusesEnum } from './questionEnum';
-import { mapObject } from '../mapObject';
+import { PlayerEntityType } from './Entitys/PlayerEntity';
+import { GameEntityType } from './Entitys/GameEntity';
 
 @Injectable()
 export class QuestionsService {
@@ -24,7 +22,7 @@ export class QuestionsService {
 
   async createQuestion(
     createQuestionDTO: CreateQuestionDTO,
-  ): Promise<QuestionViewModel> {
+  ): Promise<SaQuestionViewModel> {
     const question: QuestionEntity = {
       id: randomUUID(),
       body: createQuestionDTO.body,
@@ -34,7 +32,7 @@ export class QuestionsService {
       updatedAt: 'no update',
     };
     await this.questionsRepository.createQuestion(question);
-    const questionViewModel = mapQuestions.mapQuestionsViewModel([question])[0];
+    const questionViewModel = mapKuiz.mapSaQuestionsViewModel([question])[0];
     return questionViewModel;
   }
 
@@ -111,7 +109,7 @@ export class QuestionsService {
   }
 
   private async createPlayerAwaitGame(user) {
-    const player: PlayerEntity = {
+    const player: PlayerEntityType = {
       idGame: randomUUID(),
       playerId: user.id,
       playerLogin: user.login,
@@ -122,33 +120,43 @@ export class QuestionsService {
     };
     await this.questionsRepository.createPlayer(player);
     const playerGamePairViewModelPendingSecondPlayer =
-      mapQuestions.mapGamePairViewModelPendingSecondPlayer(player);
+      mapKuiz.mapGamePairViewModelPendingSecondPlayer(player);
     return playerGamePairViewModelPendingSecondPlayer;
   }
   private async createGame(
-    playerAwaitGame: PlayerEntity,
-    player: PlayerEntity,
-  ) {
-    const game: GameEntity = {
+    playerAwaitGame: PlayerEntityType,
+    player: PlayerEntityType,
+  ): Promise<GamePairViewModel> {
+    const game: GameEntityType = {
       id: playerAwaitGame.idGame,
       status: gameStatusesEnum.Active,
       pairCreatedDate: playerAwaitGame.playerPairCreatedDate,
       startGameDate: new Date().toISOString(),
-      finishGameDate: new Date().toISOString(),
+      finishGameDate: null,
     };
     await this.questionsRepository.createGame(game);
-    //const questions = await this.questionsRepository.
-    //const gameViewModel:GamePairViewModel = mapObject.mapGameViewModel(playerAwaitGame,player,game,questions)
-    return true;
+    const questionsViewModel =
+      await this.questionsRepository.getRandomQuestionsAmount();
+    const gameViewModel: GamePairViewModel = mapKuiz.mapGameViewModel(
+      playerAwaitGame,
+      player,
+      game,
+      questionsViewModel,
+    );
+    return gameViewModel;
   }
-  async connectionGame(user) {
+  async connectionGame(
+    user,
+  ): Promise<GamePairViewModelPendingSecondPlayer | GamePairViewModel> {
     const getPlayerAwaitGame =
       await this.questionsRepository.getPlayerAwaitGame();
+    console.log('await Player');
+    console.log(getPlayerAwaitGame);
     if (getPlayerAwaitGame.length < 1) {
       console.log('CreatePlayerAwaitGame');
       return this.createPlayerAwaitGame(user);
     }
-    const player: PlayerEntity = {
+    const player: PlayerEntityType = {
       idGame: getPlayerAwaitGame[0].idGame,
       playerId: user.id,
       playerLogin: user.login,
@@ -157,10 +165,30 @@ export class QuestionsService {
       status: gameStatusesEnum.Active,
       playerPairCreatedDate: new Date().toISOString(),
     };
+    console.log('model');
+    console.log(player);
     await this.questionsRepository.createPlayer(player);
+    console.log('create Player');
+    console.log(player);
     const game = await this.createGame(getPlayerAwaitGame[0], player);
-    console.log('pereskochili');
-    console.log(getPlayerAwaitGame);
+    const updateStatusAwaitUser =
+      await this.questionsRepository.updatePlayerStatus(
+        getPlayerAwaitGame[0].playerId,
+      );
+    if (!updateStatusAwaitUser) {
+      throw new NotFoundException(
+        'awaitUser not found for update, questionService ,connectionGame',
+      );
+    }
+    return game;
+  }
+  async getGameNotFinished(userId: string) /*Promise<GamePairViewModel>*/ {
+    const game = await this.questionsRepository.getGameNotFinished(userId);
+    if (!game) {
+      throw new NotFoundException(
+        'game not found fr user, questionService ,getGameNotFinished',
+      );
+    }
     return game;
   }
 }

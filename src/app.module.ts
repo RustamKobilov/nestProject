@@ -134,14 +134,12 @@ import { PostsRepositoryTypeORM } from './Post/postsRepositoryTypeORM';
 import { CommentRepositoryTypeORM } from './Comment/commentRepositoryTypeORM';
 import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
 import { ReactionRepositoryTypeORM } from './Like/reactionRepositoryTypeORM';
-import {
-  GameEntity,
-  PlayerEntity,
-  QuestionEntity,
-} from './Qustions/Entitys/QuestionEntity';
+import { QuestionEntity } from './Qustions/Entitys/QuestionEntity';
 import { QuestionsController } from './Qustions/questionsController';
 import { QuestionsService } from './Qustions/questionsService';
 import { QuestionsRepository } from './Qustions/questionsRepository';
+import { GameEntity } from './Qustions/Entitys/GameEntity';
+import { PlayerEntity } from './Qustions/Entitys/PlayerEntity';
 
 dotenv.config();
 const useCaseUser = [

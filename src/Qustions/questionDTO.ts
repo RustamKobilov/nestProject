@@ -21,7 +21,7 @@ import { PostEntity } from '../Post/Post.Entity';
 import { NewestLikes } from '../Post/Post';
 import { PostViewModel } from '../viewModelDTO';
 import { QuestionEntity } from './Entitys/QuestionEntity';
-import { Entity } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 
 export class CreateQuestionDTO {
   @IsString()
@@ -58,7 +58,7 @@ export class QuestionsPagination {
   published: boolean;
 }
 
-export class QuestionViewModel {
+export class SaQuestionViewModel {
   id: string;
   body: string;
   correctAnswers: string[];
@@ -70,13 +70,7 @@ export class QuestionViewModel {
 export class GamePairViewModel {
   id: string;
   firstPlayerProgress: {
-    answers: [
-      {
-        questionId: string;
-        answerStatus: answerStatusesEnum;
-        addedAt: string;
-      },
-    ];
+    answers: AnswerViewModel[];
     player: {
       id: string;
       login: string;
@@ -84,25 +78,14 @@ export class GamePairViewModel {
     score: number;
   };
   secondPlayerProgress: {
-    answers: [
-      {
-        questionId: string;
-        answerStatus: answerStatusesEnum;
-        addedAt: string;
-      },
-    ];
+    answers: AnswerViewModel[];
     player: {
       id: string;
       login: string;
     };
     score: number;
   };
-  questions: [
-    {
-      id: string;
-      body: string;
-    },
-  ];
+  questions: QuestionViewModel[];
   status: gameStatusesEnum;
   pairCreatedDate: string;
   startGameDate: string;
@@ -131,14 +114,13 @@ export class AnswerViewModel {
   answerStatus: answerStatusesEnum;
   addedAt: string;
 }
-export class QuestionPlayerProgressViewModel {
+export class QuestionViewModel {
   id: string;
   body: string;
 }
-
 export const mapQuestion = {
-  mapQuestionFromSql(sqlArray: QuestionEntity[]): QuestionViewModel[] {
-    const questionsViewModel: QuestionViewModel[] = [];
+  mapQuestionFromSql(sqlArray: QuestionEntity[]): SaQuestionViewModel[] {
+    const questionsViewModel: SaQuestionViewModel[] = [];
     for (const question of sqlArray) {
       questionsViewModel.push({
         id: question.id,

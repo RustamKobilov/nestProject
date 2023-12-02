@@ -59,8 +59,7 @@ export const mapKuiz = {
       finishGameDate: null,
     };
   },
-  mapGameViewModel(games: GameEntity[]) /*: GamePairViewModel[]*/ {
-    //TODO ttype no initilize
+  mapGameViewModel(games: GameEntity[]): GamePairViewModel[] {
     const gamesPairViewModel: GamePairViewModel[] = [];
     for (const game of games) {
       const gamePairViewModel: GamePairViewModel = {
@@ -89,12 +88,14 @@ export const mapKuiz = {
       };
       gamesPairViewModel.push(gamePairViewModel);
     }
-    return /*gamesPairViewModel*/ true;
+    return gamesPairViewModel;
   },
   mapQuestionsViewModel(sqlQuestions: QuestionEntity[]): QuestionViewModel[] {
     const questionsViewModel: QuestionViewModel[] = [];
     for (const question of sqlQuestions) {
       console.log(question);
+      console.log(question.id);
+      console.log(question.body);
       const questionViewModel: QuestionViewModel = {
         id: question.id,
         body: question.body,

@@ -41,8 +41,7 @@ import { JwtStrategy } from './auth/Strategy/jwtStrategy';
 import { DeviceRepository } from './Device/deviceRepository';
 import { Device, DeviceSchema } from './Device/Device';
 import { DeviceService } from './Device/deviceService';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule } from '@nestjs/throttler';
 import {
   Comment,
   CommentatorInfo,
@@ -113,12 +112,6 @@ import { CommentEntity } from './Comment/Comment.Entity';
 import { ReactionEntity } from './Like/Reaction.Entity';
 import { DeviceEntity } from './Device/Device.Entity';
 import { PostEntity } from './Post/Post.Entity';
-import { UsersRepositorySql } from './User/users-repository-sql';
-import { BlogsRepositorySql } from './Blog/blogs-repository-sql';
-import { PostRepositorySql } from './Post/posts-repository-sql';
-import { ReactionRepositorySql } from './Like/reaction-repository-sql';
-import { DevicesRepositorySql } from './Device/devices-repository-sql';
-import { CommentsRepositorySql } from './Comment/comments-repository-sql';
 import { DataRepository } from './dataRepository';
 import { DataRepositorySql } from './dataRepositorySql';
 import {
@@ -139,7 +132,8 @@ import { QuizController } from './Qustions/quizController';
 import { QuestionsService } from './Qustions/questionsService';
 import { QuestionsRepository } from './Qustions/questionsRepository';
 import { GameEntity } from './Qustions/Entitys/GameEntity';
-import { PlayerEntity } from './Qustions/Entitys/PlayerEntity';
+import { QuizRepository } from './Qustions/QuizRepository';
+import { QuizService } from './Qustions/quizService';
 
 dotenv.config();
 const useCaseUser = [
@@ -205,8 +199,7 @@ const sqlEntity = [
   CommentEntity,
   ReactionEntity,
   QuestionEntity,
-  PlayerEntity,
-  GameEntity,
+  /*PlayerEntity*/ GameEntity,
 ];
 @Module({
   imports: [
@@ -384,6 +377,8 @@ const sqlEntity = [
     //ReactionRepository,
     QuestionsRepository,
     QuestionsService,
+    QuizRepository,
+    QuizService,
     JwtServices,
     isEmailNoUniqueValidate,
     IsLoginNoUniqueValidate,

@@ -9,19 +9,16 @@ import {
   QuestionViewModel,
 } from './questionDTO';
 import { helper } from '../helper';
-import { gameStatusesEnum, publishedStatusEnum } from './questionEnum';
+import { publishedStatusEnum } from './questionEnum';
 import { mapObject } from '../mapObject';
 import { mapKuiz } from './mapKuiz';
-import { PlayerEntity, PlayerEntityType } from './Entitys/PlayerEntity';
-import { GameEntity, GameEntityType } from './Entitys/GameEntity';
+import { GameEntity } from './Entitys/GameEntity';
 
 @Injectable()
 export class QuestionsRepository {
   constructor(
     @InjectRepository(QuestionEntity)
     protected questionRepositoryTypeOrm: Repository<QuestionEntity>,
-    @InjectRepository(PlayerEntity)
-    protected playerRepositoryTypeOrm: Repository<PlayerEntity>,
     @InjectRepository(GameEntity)
     protected gameRepositoryTypeOrm: Repository<GameEntity>,
   ) {}
@@ -105,14 +102,27 @@ export class QuestionsRepository {
   }
   async getRandomQuestionsAmount(): Promise<QuestionViewModel[]> {
     const questions = await this.questionRepositoryTypeOrm.find({});
+    console.log(questions);
     const questionsRandom: QuestionEntity[] = [];
     for (let x = 0; x < 5; x++) {
-      questionsRandom.push(
-        questions[helper.getRandomIntInclusive(0, questions.length)],
-      );
+      const question =
+        questions[helper.getRandomIntInclusive(0, questions.length)];
+      if (questions.length > 5) {
+        if (questionsRandom.includes(question) === true) {
+          x--;
+          break;
+        }
+        questionsRandom.push(question);
+        break;
+      }
+      questionsRandom.push(question);
     }
+    console.log('questionsRandom');
+    console.log(questionsRandom);
     const questionsViewModel: QuestionViewModel[] =
       mapKuiz.mapQuestionsViewModel(questionsRandom);
+    console.log('questionsViewModel');
+    console.log(questionsViewModel);
     return questionsViewModel;
   }
   async deleteQuestion(questionId: string) {

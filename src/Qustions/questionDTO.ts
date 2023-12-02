@@ -80,15 +80,15 @@ export class GamePairViewModel {
   secondPlayerProgress: {
     answers: AnswerViewModel[];
     player: {
-      id: string;
-      login: string;
+      id: string | null;
+      login: string | null;
     };
     score: number;
   };
   questions: QuestionViewModel[] = [];
   status: gameStatusesEnum;
   pairCreatedDate: string;
-  startGameDate: string;
+  startGameDate: string | null;
   finishGameDate: string | null;
 }
 export class GamePairViewModelPendingSecondPlayer {

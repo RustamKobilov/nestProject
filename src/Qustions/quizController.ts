@@ -10,6 +10,7 @@ import {
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { Response } from 'express';
 import { QuizService } from './quizService';
+import { PlayerInformation } from './Entitys/GameEntity';
 
 @Injectable()
 @Controller('/pair-game-quiz')
@@ -19,13 +20,17 @@ export class QuizController {
   @UseGuards(BearerGuard)
   @Post('/pairs/connection')
   async connectionGame(@Res() res: Response, @Req() req) {
-    const game = await this.quizService.connectionGame(req.user);
+    const player: PlayerInformation = {
+      playerId: req.user.id,
+      playerLogin: req.user.login,
+    };
+    const game = await this.quizService.connectionGame(player);
     return res.status(201).send(game);
   }
-  @UseGuards(BearerGuard)
-  @Get('/pairs/my-currents')
-  async getGameNotFinished(@Res() res: Response, @Req() req) {
-    const game = await this.quizService.getGameNotFinished(req.user.id);
-    return res.status(201).send(game);
-  }
+  // @UseGuards(BearerGuard)
+  // @Get('/pairs/my-currents')
+  // async getGameNotFinished(@Res() res: Response, @Req() req) {
+  //   const game = await this.quizService.getGameNotFinished(req.user.id);
+  //   return res.status(201).send(game);
+  // }
 }

@@ -2,8 +2,6 @@ import { QuestionsRepository } from './questionsRepository';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateQuestionDTO,
-  GamePairViewModel,
-  GamePairViewModelPendingSecondPlayer,
   QuestionsPaginationDTO,
   SaQuestionViewModel,
 } from './questionDTO';
@@ -12,9 +10,6 @@ import { randomUUID } from 'crypto';
 import { mapKuiz } from './mapKuiz';
 import { helper } from '../helper';
 import { isUUID } from 'class-validator';
-import { gameStatusesEnum } from './questionEnum';
-import { PlayerEntityType } from './Entitys/PlayerEntity';
-import { GameEntityType } from './Entitys/GameEntity';
 
 @Injectable()
 export class QuestionsService {

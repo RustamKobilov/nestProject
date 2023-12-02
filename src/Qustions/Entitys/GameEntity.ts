@@ -10,15 +10,15 @@ export class GameEntity {
   firstPlayerId: string;
   @Column({ type: 'varchar' })
   firstPlayerLogin: string;
-  @Column({ type: 'number' })
+  @Column({ type: 'integer' })
   firstPlayerScore: number;
   @Column('text', { array: true, default: '{}' })
   firstPlayerAnswers: AnswerViewModel[] = [];
-  @Column({ type: 'uuid' })
-  secondPlayerId: string;
-  @Column({ type: 'varchar' })
-  secondPlayerLogin: string;
-  @Column({ type: 'number' })
+  @Column({ type: 'uuid', nullable: true })
+  secondPlayerId: string | null;
+  @Column({ type: 'varchar', nullable: true })
+  secondPlayerLogin: string | null;
+  @Column({ type: 'integer' })
   secondPlayerScore: number;
   @Column('text', { array: true, default: '{}' })
   secondPlayerAnswers: AnswerViewModel[] = [];
@@ -40,10 +40,8 @@ export class GameEntity {
   @Column({ type: 'varchar', nullable: true })
   finishGameDate: string | null;
 }
-// export type GameEntityType = {
-//   id: string;
-//   status: gameStatusesEnum;
-//   pairCreatedDate: string;
-//   startGameDate: string | null;
-//   finishGameDate: string | null;
-// };
+
+export type PlayerInformation = {
+  playerId: string;
+  playerLogin: string;
+};

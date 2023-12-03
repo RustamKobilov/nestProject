@@ -347,7 +347,7 @@ export class UsersRepositoryTypeORM {
   async updatePasswordUserByRecoveryCode(recoveryCode: string, hash: string) {
     const qbUserRecoveryPassword =
       await this.userRecoveryPasswordInfoRepository.createQueryBuilder('uRPI');
-    const dateNow = '2023-11-14T13:40:43.272Z'; /*new Date().toISOString()*/
+    const dateNow = new Date().toISOString();
     const userIdSql = await qbUserRecoveryPassword
       .select('uRPI.ownerId')
       .where(

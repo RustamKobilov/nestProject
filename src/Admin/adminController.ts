@@ -175,7 +175,7 @@ export class adminBlogsController {
 }
 
 @Injectable()
-@Controller('sa/quiz')
+@Controller('sa/quiz/questions')
 export class adminQuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
@@ -186,32 +186,42 @@ export class adminQuestionsController {
   }
   @UseGuards(BasicAuthorizationGuard)
   @Get()
-  async getQuestions(@Query() questionPaginationDTO: QuestionsPaginationDTO) {
-    return this.questionsService.getQuestions(questionPaginationDTO);
+  async getQuestions(
+    @Query() questionPaginationDTO: QuestionsPaginationDTO,
+    @Res() res: Response,
+  ) {
+    res
+      .status(200)
+      .send(await this.questionsService.getQuestions(questionPaginationDTO));
   }
   @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
-  async deleteQuestion(@Param('id') questionId: string) {
-    return this.questionsService.deleteQuestions(questionId);
+  async deleteQuestion(@Param('id') questionId: string, @Res() res: Response) {
+    await this.questionsService.deleteQuestions(questionId);
+    res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)
   @Put('/:id')
   async updateQuestion(
     @Param('id') questionId: string,
     @Body() updateQuestionDTO: CreateQuestionDTO,
+    @Res() res: Response,
   ) {
-    return this.questionsService.updateQuestion(questionId, updateQuestionDTO);
+    await this.questionsService.updateQuestion(questionId, updateQuestionDTO);
+    res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)
   @Put('/:id/publish')
   async updatePublishQuestion(
     @Param('id') questionId: string,
     @Body() updatePublishedQuestion: UpdatePublishedQuestionDTO,
+    @Res() res: Response,
   ) {
     console.log(updatePublishedQuestion.published);
-    return this.questionsService.updatePublishQuestion(
+    await this.questionsService.updatePublishQuestion(
       questionId,
       updatePublishedQuestion.published,
     );
+    res.sendStatus(HttpStatus.NO_CONTENT);
   }
 }

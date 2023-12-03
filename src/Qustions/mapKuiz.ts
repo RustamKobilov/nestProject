@@ -6,7 +6,7 @@ import {
   SaQuestionViewModel,
 } from './questionDTO';
 import { gameStatusesEnum } from './questionEnum';
-import { GameEntity } from './Entitys/GameEntity';
+import { GameEntity, QuestionInGameEntityType } from './Entitys/GameEntity';
 
 export const mapKuiz = {
   mapSaQuestionsViewModel(questions: QuestionEntity[]): SaQuestionViewModel[] {
@@ -23,21 +23,6 @@ export const mapKuiz = {
     }
     return questionsViewModel;
   },
-  // mapPlayersEntity(players: any): PlayerEntityType[] {
-  //   const playerEntitys: PlayerEntityType[] = [];
-  //   for (const player of players) {
-  //     playerEntitys.push({
-  //       gameId: player.gameId,
-  //       playerId: player.playerId,
-  //       playerLogin: player.playerLogin,
-  //       playerScore: player.playerScore,
-  //       playerAnswers: player.playerAnswers,
-  //       status: player.status,
-  //       playerPairCreatedDate: player.playerPairCreatedDate,
-  //     });
-  //   }
-  //   return playerEntitys;
-  // },
   mapGamePairViewModelPendingSecondPlayer(
     game: GameEntity,
   ): GamePairViewModelPendingSecondPlayer {
@@ -59,9 +44,12 @@ export const mapKuiz = {
       finishGameDate: null,
     };
   },
-  mapGameViewModel(games: GameEntity[]): GamePairViewModel[] {
+  mapGamesViewModel(games: GameEntity[]): GamePairViewModel[] {
     const gamesPairViewModel: GamePairViewModel[] = [];
     for (const game of games) {
+      const questionViewModel = mapKuiz.mapQuestionsViewModelForGameEntityType(
+        game.questions,
+      );
       const gamePairViewModel: GamePairViewModel = {
         id: game.id,
         firstPlayerProgress: {
@@ -80,7 +68,7 @@ export const mapKuiz = {
           answers: game.secondPlayerAnswers,
           score: game.secondPlayerScore,
         },
-        questions: game.questions,
+        questions: questionViewModel,
         status: game.status,
         pairCreatedDate: game.pairCreatedDate,
         startGameDate: game.startGameDate,
@@ -103,5 +91,38 @@ export const mapKuiz = {
       questionsViewModel.push(questionViewModel);
     }
     return questionsViewModel;
+  },
+  mapQuestionsViewModelForGameEntityType(
+    sqlQuestions: QuestionInGameEntityType[],
+  ): QuestionViewModel[] {
+    const questionsViewModel: QuestionViewModel[] = [];
+    for (const question of sqlQuestions) {
+      console.log(question);
+      console.log(question.id);
+      console.log(question.body);
+      const questionViewModel: QuestionViewModel = {
+        id: question.id,
+        body: question.body,
+      };
+      questionsViewModel.push(questionViewModel);
+    }
+    return questionsViewModel;
+  },
+  mapQuestionInGameEntityType(
+    sqlQuestions: QuestionEntity[],
+  ): QuestionInGameEntityType[] {
+    const questionInGameEntityType: QuestionInGameEntityType[] = [];
+    for (const question of sqlQuestions) {
+      console.log(question);
+      console.log(question.id);
+      console.log(question.body);
+      const questionQuestionInGameEntityType: QuestionInGameEntityType = {
+        id: question.id,
+        body: question.body,
+        correctAnswers: question.correctAnswers,
+      };
+      questionInGameEntityType.push(questionQuestionInGameEntityType);
+    }
+    return questionInGameEntityType;
   },
 };

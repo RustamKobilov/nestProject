@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { gameStatusesEnum } from '../questionEnum';
 import { AnswerViewModel, QuestionViewModel } from '../questionDTO';
 
@@ -12,7 +12,7 @@ export class GameEntity {
   firstPlayerLogin: string;
   @Column({ type: 'integer' })
   firstPlayerScore: number;
-  @Column('text', { array: true, default: '{}' })
+  @Column('jsonb', { array: false, default: '{}' })
   firstPlayerAnswers: AnswerViewModel[] = [];
   @Column({ type: 'uuid', nullable: true })
   secondPlayerId: string | null;
@@ -20,10 +20,10 @@ export class GameEntity {
   secondPlayerLogin: string | null;
   @Column({ type: 'integer' })
   secondPlayerScore: number;
-  @Column('text', { array: true, default: '{}' })
+  @Column('jsonb', { array: false, default: '{}' })
   secondPlayerAnswers: AnswerViewModel[] = [];
-  @Column('text', { array: true, default: '{}' })
-  questions: QuestionViewModel[] = [];
+  @Column('jsonb', { array: false, default: '{}' })
+  questions: QuestionInGameEntityType[] = [];
   @Column({
     type: 'enum',
     enum: [
@@ -44,4 +44,10 @@ export class GameEntity {
 export type PlayerInformation = {
   playerId: string;
   playerLogin: string;
+};
+
+export type QuestionInGameEntityType = {
+  id: string;
+  body: string;
+  correctAnswers: string[];
 };

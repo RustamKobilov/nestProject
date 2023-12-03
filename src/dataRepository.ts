@@ -11,6 +11,10 @@ import {
 } from './Comment/Comment';
 import { Device, DeviceDocument } from './Device/Device';
 import { Reaction, ReactionDocument } from './Like/Reaction';
+import { InjectRepository } from '@nestjs/typeorm';
+import { QuestionEntity } from './Qustions/Entitys/QuestionEntity';
+import { Repository } from 'typeorm';
+import { GameEntity } from './Qustions/Entitys/GameEntity';
 
 export class DataRepository {
   constructor(
@@ -24,6 +28,10 @@ export class DataRepository {
     private likesInfoModel: Model<LikesInfoDocument>,
     @InjectModel(Reaction.name)
     private reactionInfoModel: Model<ReactionDocument>,
+    @InjectRepository(QuestionEntity)
+    protected questionRepositoryTypeOrm: Repository<QuestionEntity>,
+    @InjectRepository(GameEntity)
+    protected gameRepositoryTypeOrm: Repository<GameEntity>,
   ) {}
   async deleteBase() {
     await this.userModel.deleteMany({});
@@ -33,6 +41,8 @@ export class DataRepository {
     await this.deviceModel.deleteMany({});
     await this.likesInfoModel.deleteMany({});
     await this.reactionInfoModel.deleteMany({});
+    await this.questionRepositoryTypeOrm.delete({});
+    await this.gameRepositoryTypeOrm.delete({});
     return;
   }
 }

@@ -24,7 +24,7 @@ export class QuestionsService {
       correctAnswers: createQuestionDTO.correctAnswers,
       published: false,
       createdAt: new Date().toISOString(),
-      updatedAt: 'no update',
+      updatedAt: null,
     };
     await this.questionsRepository.createQuestion(question);
     const questionViewModel = mapKuiz.mapSaQuestionsViewModel([question])[0];

@@ -12,7 +12,7 @@ import { helper } from '../helper';
 import { publishedStatusEnum } from './questionEnum';
 import { mapObject } from '../mapObject';
 import { mapKuiz } from './mapKuiz';
-import { GameEntity } from './Entitys/GameEntity';
+import { GameEntity, QuestionInGameEntityType } from './Entitys/GameEntity';
 
 @Injectable()
 export class QuestionsRepository {
@@ -26,6 +26,7 @@ export class QuestionsRepository {
   async createQuestion(question: QuestionEntity) {
     return await this.questionRepositoryTypeOrm.save(question);
   }
+
   getFilterQuestionEntity(
     publishedStatus: publishedStatusEnum,
     bodySearchTerm: string,
@@ -53,6 +54,7 @@ export class QuestionsRepository {
       },
     };
   }
+
   async getQuestions(pagination: QuestionsPaginationDTO) {
     const qbQuestion = await this.questionRepositoryTypeOrm.createQueryBuilder(
       'q',
@@ -100,29 +102,28 @@ export class QuestionsRepository {
       items: questions,
     };
   }
-  async getRandomQuestionsAmount(): Promise<QuestionViewModel[]> {
+
+  async getRandomQuestionsAmount(): Promise<QuestionInGameEntityType[]> {
     const questions = await this.questionRepositoryTypeOrm.find({});
     console.log(questions);
     const questionsRandom: QuestionEntity[] = [];
     for (let x = 0; x < 5; x++) {
+      console.log(x);
       const question =
-        questions[helper.getRandomIntInclusive(0, questions.length)];
-      if (questions.length > 5) {
-        if (questionsRandom.includes(question) === true) {
-          x--;
-          break;
-        }
+        questions[helper.getRandomIntInclusive(0, questions.length - 1)];
+      if (questions.length < 5) {
         questionsRandom.push(question);
-        break;
       }
-      questionsRandom.push(question);
+      if (questionsRandom.includes(question) === true) {
+        x--;
+      } else {
+        questionsRandom.push(question);
+      }
     }
     console.log('questionsRandom');
     console.log(questionsRandom);
-    const questionsViewModel: QuestionViewModel[] =
-      mapKuiz.mapQuestionsViewModel(questionsRandom);
-    console.log('questionsViewModel');
-    console.log(questionsViewModel);
+    const questionsViewModel: QuestionInGameEntityType[] =
+      mapKuiz.mapQuestionInGameEntityType(questionsRandom);
     return questionsViewModel;
   }
   async deleteQuestion(questionId: string) {

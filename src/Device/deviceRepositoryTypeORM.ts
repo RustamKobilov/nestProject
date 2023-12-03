@@ -163,10 +163,6 @@ export class DeviceRepositoryTypeORM {
         deviceId: deviceId,
       })
       .execute();
-    //TODO как проверить?
-    // if (deleteOperation.affected !== 1) {
-    //   throw new NotFoundException('0 item delete /userRepositorySql');
-    // }
     return true;
   }
 }

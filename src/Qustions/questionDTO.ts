@@ -48,6 +48,12 @@ export class UpdatePublishedQuestionDTO {
   @IsBoolean()
   published: boolean;
 }
+export class CreateAnswerDTO {
+  @IsString()
+  @Transform(({ value }) => helper.getValueTrim(value))
+  @Length(1, 100)
+  answer: string;
+}
 
 export class QuestionsPagination {
   pageNumber: number;
@@ -64,7 +70,7 @@ export class SaQuestionViewModel {
   correctAnswers: string[];
   published: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt: string | null;
 }
 //TODO убрать приенить entity класс
 export class GamePairViewModel {
@@ -118,6 +124,7 @@ export class QuestionViewModel {
   id: string;
   body: string;
 }
+
 export const mapQuestion = {
   mapQuestionFromSql(sqlArray: QuestionEntity[]): SaQuestionViewModel[] {
     const questionsViewModel: SaQuestionViewModel[] = [];

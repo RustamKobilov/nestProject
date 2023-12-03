@@ -1,40 +1,24 @@
 import {
+  AnswerViewModel,
+  CreateAnswerDTO,
   GamePairViewModel,
   GamePairViewModelPendingSecondPlayer,
 } from './questionDTO';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { QuizRepository } from './QuizRepository';
 import { GameEntity, PlayerInformation } from './Entitys/GameEntity';
 import { randomUUID } from 'crypto';
-import { gameStatusesEnum } from './questionEnum';
+import { answerStatusesEnum, gameStatusesEnum } from './questionEnum';
 import { mapKuiz } from './mapKuiz';
 
 @Injectable()
 export class QuizService {
   constructor(private readonly quizRepository: QuizRepository) {}
 
-  // private async createPlayerAwaitGame(user) {
-  //   const game: GameEntityType = {
-  //     id: randomUUID(),
-  //     status: gameStatusesEnum.PendingSecondPlayer,
-  //     pairCreatedDate: new Date().toISOString(),
-  //     startGameDate: null,
-  //     finishGameDate: null,
-  //   };
-  //   const player: PlayerEntityType = {
-  //     gameId: game.id,
-  //     playerId: user.id,
-  //     playerLogin: user.login,
-  //     playerScore: 0,
-  //     playerAnswers: [],
-  //     status: gameStatusesEnum.PendingSecondPlayer,
-  //   };
-  //   await this.questionsRepository.createGame(game);
-  //   await this.questionsRepository.createPlayer(player);
-  //   const playerGamePairViewModelPendingSecondPlayer =
-  //     mapKuiz.mapGamePairViewModelPendingSecondPlayer(player);
-  //   return playerGamePairViewModelPendingSecondPlayer;
-  // }
   private async createGame(
     player: PlayerInformation,
   ) /*: Promise<GamePairViewModel> */ {
@@ -56,19 +40,17 @@ export class QuizService {
     };
     await this.quizRepository.createGame(game);
     return game;
-    //   const questionsViewModel =
-    //     await this.questionsRepository.getRandomQuestionsAmount();
-    //   const gameViewModel: GamePairViewModel = mapKuiz.mapGameViewModel(
-    //     playerAwaitGame,
-    //     player,
-    //     game,
-    //     questionsViewModel,
-    //   );
-    //   return gameViewModel;
   }
   async connectionGame(
     player: PlayerInformation,
   ): Promise<GamePairViewModelPendingSecondPlayer | GamePairViewModel> {
+    const activeGamePlayer = await this.checkActiveGamePlayer(player);
+    if (!activeGamePlayer) {
+      console.log('tyt vylitaem');
+      throw new ForbiddenException(
+        'est ActiveGame/ connectionGame/quizService',
+      );
+    }
     const getGamesAwaitPlayer = await this.quizRepository.getGameAwaitPlayer();
     if (getGamesAwaitPlayer.length < 1) {
       console.log('CreateGame');
@@ -96,35 +78,152 @@ export class QuizService {
       throw new NotFoundException('gameId not found game /gameService');
     }
     console.log(game);
-    const gamesViewModelModel = mapKuiz.mapGameViewModel([game]);
+    const gamesViewModelModel = mapKuiz.mapGamesViewModel(game);
     return gamesViewModelModel[0];
   }
-  //   console.log('player for game');
-  //   console.log(player);
-  //   await this.questionsRepository.createPlayer(player);
-  //   const updateStatusAwaitUser =
-  //     await this.questionsRepository.updatePlayerStatus(
-  //       getPlayerAwaitGame[0].playerId,
-  //     );
-  //   if (!updateStatusAwaitUser) {
-  //     throw new NotFoundException(
-  //       'awaitUser not found for update, questionService ,connectionGame',
-  //     );
+  async checkActiveGamePlayer(player: PlayerInformation): Promise<boolean> {
+    const getGamesAwaitPlayer =
+      await this.quizRepository.getActiveGameForPlayer(player);
+    if (getGamesAwaitPlayer.length < 1) {
+      return true;
+    }
+    return false;
+  }
+  async getGameNotFinished(
+    player: PlayerInformation,
+  ): Promise<GamePairViewModel> {
+    const games = await this.quizRepository.getGameNotFinished(player);
+    if (games.length < 1) {
+      throw new NotFoundException(
+        'game not found for user, questionService/getGameNotFinished',
+      );
+    }
+    const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
+    return game[0];
+  }
+
+  async getGame(gameId: string, player: PlayerInformation) {
+    const games = await this.quizRepository.getGame(gameId);
+    if (games.length < 1) {
+      throw new NotFoundException(
+        'game not found for user, questionService/getGameNotFinished',
+      );
+    }
+    if (
+      games[0].firstPlayerId !== player.playerId ||
+      games[0].secondPlayerId !== player.playerId
+    ) {
+      throw new ForbiddenException('cheshay Game/ getGame/quizService');
+    }
+    const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
+    return game[0];
+  }
+
+  async createAnswer(
+    player: PlayerInformation,
+    createAnswerDTO: CreateAnswerDTO,
+  ): Promise<AnswerViewModel> {
+    const getGames = await this.quizRepository.getActiveGameForPlayer(player);
+    const countAnswer = 5;
+    if (getGames.length < 1) {
+      throw new ForbiddenException(
+        'noActiveGameForUser / createAnswer/quizService',
+      );
+    }
+    const game = getGames[0];
+    //checkNaLishnieOtvety
+    if (game.firstPlayerId === player.playerId) {
+      if (game.firstPlayerAnswers.length > countAnswer - 1) {
+        throw new ForbiddenException('answerLength / createAnswer/quizService');
+      }
+      const questionForAnswer = game.questions[game.firstPlayerAnswers.length];
+      const answerStatus =
+        questionForAnswer.correctAnswers.includes(createAnswerDTO.answer) ===
+        true
+          ? answerStatusesEnum.Correct
+          : answerStatusesEnum.Incorrect;
+      if (answerStatus === answerStatusesEnum.Correct) {
+        game.firstPlayerScore = game.firstPlayerScore + 1;
+      }
+      //***
+      if (
+        game.firstPlayerScore > 0 ||
+        (game.secondPlayerScore > 0 &&
+          game.firstPlayerAnswers.length === countAnswer - 1 &&
+          game.secondPlayerAnswers.length === countAnswer)
+      ) {
+        game.secondPlayerScore = game.secondPlayerScore + 1;
+      }
+      //***
+      const answerViewModel: AnswerViewModel = {
+        answerStatus: answerStatus,
+        addedAt: new Date().toISOString(),
+        questionId: questionForAnswer.id,
+      };
+      game.firstPlayerAnswers.push(answerViewModel);
+      if (
+        game.firstPlayerAnswers.length === countAnswer &&
+        game.secondPlayerAnswers.length === countAnswer
+      ) {
+        (game.status = gameStatusesEnum.Finished),
+          (game.finishGameDate = new Date().toISOString());
+      }
+      await this.quizRepository.updateGameAfterAnswerPlayer(game);
+      return answerViewModel;
+    }
+    if (game.secondPlayerAnswers.length > countAnswer - 1) {
+      throw new ForbiddenException(
+        'noActiveGameForUser / createAnswer/quizService',
+      );
+    }
+    const questionForAnswer = game.questions[game.secondPlayerAnswers.length];
+    const answerStatus =
+      questionForAnswer.correctAnswers.includes(createAnswerDTO.answer) === true
+        ? answerStatusesEnum.Correct
+        : answerStatusesEnum.Incorrect;
+    if (answerStatus === answerStatusesEnum.Correct) {
+      game.secondPlayerScore = game.secondPlayerScore + 1;
+    }
+    ///***
+    if (
+      game.firstPlayerScore > 0 ||
+      (game.secondPlayerScore > 0 &&
+        game.secondPlayerAnswers.length === countAnswer - 1 &&
+        game.firstPlayerAnswers.length === countAnswer)
+    ) {
+      game.firstPlayerScore = game.firstPlayerScore + 1;
+    }
+    ///***
+    const answerViewModel: AnswerViewModel = {
+      answerStatus: answerStatus,
+      addedAt: new Date().toISOString(),
+      questionId: questionForAnswer.id,
+    };
+    game.secondPlayerAnswers.push(answerViewModel);
+    if (
+      game.firstPlayerAnswers.length === countAnswer &&
+      game.secondPlayerAnswers.length === countAnswer
+    ) {
+      (game.status = gameStatusesEnum.Finished),
+        (game.finishGameDate = new Date().toISOString());
+    }
+    await this.quizRepository.updateGameAfterAnswerPlayer(game);
+    return answerViewModel;
+  }
+  // checkDateMostFastPlayer(
+  //   player1Date: AnswerViewModel[],
+  //   player2Date: AnswerViewModel[],
+  // ) {
+  //   const coinFastAnswer = 0;
+  //   for (let x = 0; x < player1Date.length; x++) {
+  //     console.log(player1Date[x].addedAt);
+  //     console.log(player2Date[x].addedAt);
+  //     console.log(player1Date[x].addedAt < player2Date[x].addedAt);
+  //     //   if (player1Date[x] < player2Date[x]) {
+  //     //     console.log(pl)
+  //     //     coinFastAnswer++;
+  //     //   }
   //   }
-  //   const updateGameStatus = await this.questionsRepository.updateGameStatus(
-  //     player.gameId,
-  //     gameStatusesEnum.Active,
-  //   );
-  //   return;
-  // }
-  //
-  // async getGameNotFinished(userId: string) /*Promise<GamePairViewModel>*/ {
-  //   const game = await this.questionsRepository.getGameNotFinished(userId);
-  //   if (!game) {
-  //     throw new NotFoundException(
-  //       'game not found fr user, questionService ,getGameNotFinished',
-  //     );
-  //   }
-  //   return game;
+  //   return true;
   // }
 }

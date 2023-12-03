@@ -12,6 +12,6 @@ export class QuestionEntity {
   published: boolean;
   @Column({ type: 'varchar' })
   createdAt: string;
-  @Column({ type: 'varchar' })
-  updatedAt: string;
+  @Column({ type: 'varchar', nullable: true })
+  updatedAt: string | null;
 }

@@ -39,7 +39,7 @@ export const mapKuiz = {
       secondPlayerProgress: null,
       questions: null,
       status: gameStatusesEnum.PendingSecondPlayer,
-      pairCreatedDate: new Date().toISOString(),
+      pairCreatedDate: game.pairCreatedDate,
       startGameDate: null,
       finishGameDate: null,
     };

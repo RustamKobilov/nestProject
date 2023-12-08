@@ -13,11 +13,7 @@ import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { Response } from 'express';
 import { QuizService } from './quizService';
 import { PlayerInformation } from './Entitys/GameEntity';
-import {
-  AnswerViewModel,
-  CreateAnswerDTO,
-  CreateQuestionDTO,
-} from './questionDTO';
+import { CreateAnswerDTO } from './questionDTO';
 
 @Injectable()
 @Controller('/pair-game-quiz')
@@ -32,10 +28,10 @@ export class QuizController {
       playerLogin: req.user.login,
     };
     const game = await this.quizService.connectionGame(player);
-    return res.status(201).send(game);
+    return res.status(200).send(game);
   }
   @UseGuards(BearerGuard)
-  @Post('/pairs/my-currents/answers')
+  @Post('/pairs/my-current/answers')
   async createAnswer(
     @Res() res: Response,
     @Req() req,
@@ -49,17 +45,17 @@ export class QuizController {
       player,
       createAnswerDTO,
     );
-    return res.status(201).send(answerViewModel);
+    return res.status(200).send(answerViewModel);
   }
   @UseGuards(BearerGuard)
-  @Get('/pairs/my-currents')
+  @Get('/pairs/my-current')
   async getGameNotFinished(@Res() res: Response, @Req() req) {
     const player: PlayerInformation = {
       playerId: req.user.id,
       playerLogin: req.user.login,
     };
     const game = await this.quizService.getGameNotFinished(player);
-    return res.status(201).send(game);
+    return res.status(200).send(game);
   }
   @UseGuards(BearerGuard)
   @Get('/pairs/:id')
@@ -69,6 +65,6 @@ export class QuizController {
       playerLogin: req.user.login,
     };
     const game = await this.quizService.getGame(gameId, player);
-    return res.status(201).send(game);
+    return res.status(200).send(game);
   }
 }

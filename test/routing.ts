@@ -6,9 +6,11 @@ const usersController = `/users`;
 const securityController = `/security/devices`;
 const testingController = `/testing`;
 const admin = '/sa';
+const gameQuiz = '/pair-game-quiz';
 
 export const endpoints = {
   admin,
+  gameQuiz,
   blogController,
   postController,
   commentController,

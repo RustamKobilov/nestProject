@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuestionEntity } from './Entitys/QuestionEntity';
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateQuestionDTO,
   mapQuestion,
@@ -103,15 +103,25 @@ export class QuestionsRepository {
     };
   }
 
-  async getRandomQuestionsAmount(): Promise<QuestionInGameEntityType[]> {
-    const questions = await this.questionRepositoryTypeOrm.find({});
+  async getRandomQuestionsAmount(): Promise<QuestionInGameEntityType[] | []> {
+    const amountQuestions = 5;
+    const questions = await this.questionRepositoryTypeOrm.find({
+      where: {
+        published: true,
+      },
+    });
     console.log(questions);
+    if (questions.length < 1) {
+      throw new NotFoundException(
+        'questions not found getRandomQuestionsAmount /questionRepository',
+      );
+    }
     const questionsRandom: QuestionEntity[] = [];
-    for (let x = 0; x < 5; x++) {
+    for (let x = 0; x < amountQuestions; x++) {
       console.log(x);
       const question =
         questions[helper.getRandomIntInclusive(0, questions.length - 1)];
-      if (questions.length < 5) {
+      if (questions.length < amountQuestions) {
         questionsRandom.push(question);
       }
       if (questionsRandom.includes(question) === true) {
@@ -155,12 +165,13 @@ export class QuestionsRepository {
     const qbQuestion = await this.questionRepositoryTypeOrm.createQueryBuilder(
       'q',
     );
+    const updateDate = new Date().toISOString();
     const update = await qbQuestion
       .update(QuestionEntity)
       .set({
         body: updateQuestionDTO.body,
         correctAnswers: updateQuestionDTO.correctAnswers,
-        updatedAt: new Date().toISOString,
+        updatedAt: new Date().toISOString(),
       })
       .where('id = :id', { id: questionId })
       .execute();
@@ -178,6 +189,7 @@ export class QuestionsRepository {
       .update(QuestionEntity)
       .set({
         published: published,
+        updatedAt: new Date().toISOString(),
       })
       .where('id = :id', { id: questionId })
       .execute();

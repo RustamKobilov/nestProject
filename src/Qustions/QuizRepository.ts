@@ -32,19 +32,27 @@ export class QuizRepository {
     return await this.gameRepositoryTypeOrm.save(game);
   }
 
-  async getGameNotFinished(player: PlayerInformation) {
+  async checkActiveAndPendingGamePlayer(player: PlayerInformation) {
     const qbGame = await this.gameRepositoryTypeOrm.createQueryBuilder('game');
     const gameSql = await qbGame
       .where(
-        'game.firstPlayerId = :firstPlayerId OR game.secondPlayerId = :secondPlayerId',
+        'NOT status = :status AND (game.firstPlayerId = :firstPlayerId OR game.secondPlayerId = :secondPlayerId)',
         {
+          status: gameStatusesEnum.Finished,
           firstPlayerId: player.playerId,
           secondPlayerId: player.playerId,
         },
       )
-      .andWhere('NOT status = :status', {
-        status: gameStatusesEnum.Finished,
-      })
+      // .where(
+      //   'game.firstPlayerId = :firstPlayerId OR game.secondPlayerId = :secondPlayerId',
+      //   {
+      //     firstPlayerId: player.playerId,
+      //     secondPlayerId: player.playerId,
+      //   },
+      // )
+      // .andWhere('NOT status = :status', {
+      //   status: gameStatusesEnum.Finished,
+      // })
       .getRawMany();
     const gamesEntity: GameEntity[] = mapObject.mapRawManyQBOnTableName(
       gameSql,
@@ -85,7 +93,7 @@ export class QuizRepository {
       .set({
         questions: questions,
         secondPlayerId: player.playerId,
-        secondPlayerLogin: player.playerId,
+        secondPlayerLogin: player.playerLogin,
         startGameDate: new Date().toISOString(),
         status: gameStatusesEnum.Active,
       })

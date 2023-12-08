@@ -197,7 +197,7 @@ export class adminQuestionsController {
   @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
   async deleteQuestion(@Param('id') questionId: string, @Res() res: Response) {
-    await this.questionsService.deleteQuestions(questionId);
+    await this.questionsService.deleteQuestion(questionId);
     res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)

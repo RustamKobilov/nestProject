@@ -10,7 +10,7 @@ export class QuestionEntity {
   correctAnswers: string[];
   @Column({ type: 'boolean' })
   published: boolean;
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 30 })
   createdAt: string;
   @Column({ type: 'varchar', nullable: true })
   updatedAt: string | null;

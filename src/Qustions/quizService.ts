@@ -5,6 +5,7 @@ import {
   GamePairViewModelPendingSecondPlayer,
 } from './questionDTO';
 import {
+  BadRequestException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -14,6 +15,7 @@ import { GameEntity, PlayerInformation } from './Entitys/GameEntity';
 import { randomUUID } from 'crypto';
 import { answerStatusesEnum, gameStatusesEnum } from './questionEnum';
 import { mapKuiz } from './mapKuiz';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class QuizService {
@@ -44,7 +46,7 @@ export class QuizService {
   async connectionGame(
     player: PlayerInformation,
   ): Promise<GamePairViewModelPendingSecondPlayer | GamePairViewModel> {
-    const activeGamePlayer = await this.checkActiveGamePlayer(player);
+    const activeGamePlayer = await this.checkActiveAndPendingGamePlayer(player);
     if (!activeGamePlayer) {
       console.log('tyt vylitaem');
       throw new ForbiddenException(
@@ -57,14 +59,6 @@ export class QuizService {
       const game: GameEntity = await this.createGame(player);
       const gameAwaitPlayer: GamePairViewModelPendingSecondPlayer =
         mapKuiz.mapGamePairViewModelPendingSecondPlayer(game);
-      return gameAwaitPlayer;
-    }
-    if (
-      getGamesAwaitPlayer.length === 1 &&
-      getGamesAwaitPlayer[0].firstPlayerId === player.playerId
-    ) {
-      const gameAwaitPlayer: GamePairViewModelPendingSecondPlayer =
-        mapKuiz.mapGamePairViewModelPendingSecondPlayer(getGamesAwaitPlayer[0]);
       return gameAwaitPlayer;
     }
     const gameAwait: GameEntity = getGamesAwaitPlayer[0];
@@ -81,9 +75,11 @@ export class QuizService {
     const gamesViewModelModel = mapKuiz.mapGamesViewModel(game);
     return gamesViewModelModel[0];
   }
-  async checkActiveGamePlayer(player: PlayerInformation): Promise<boolean> {
+  async checkActiveAndPendingGamePlayer(
+    player: PlayerInformation,
+  ): Promise<boolean> {
     const getGamesAwaitPlayer =
-      await this.quizRepository.getActiveGameForPlayer(player);
+      await this.quizRepository.checkActiveAndPendingGamePlayer(player);
     if (getGamesAwaitPlayer.length < 1) {
       return true;
     }
@@ -91,18 +87,32 @@ export class QuizService {
   }
   async getGameNotFinished(
     player: PlayerInformation,
-  ): Promise<GamePairViewModel> {
-    const games = await this.quizRepository.getGameNotFinished(player);
+  ): Promise<GamePairViewModel | GamePairViewModelPendingSecondPlayer> {
+    const games = await this.quizRepository.checkActiveAndPendingGamePlayer(
+      player,
+    );
     if (games.length < 1) {
       throw new NotFoundException(
         'game not found for user, questionService/getGameNotFinished',
       );
     }
+    if (games[0].status === gameStatusesEnum.PendingSecondPlayer) {
+      return mapKuiz.mapGamePairViewModelPendingSecondPlayer(games[0]);
+    }
     const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
     return game[0];
   }
 
-  async getGame(gameId: string, player: PlayerInformation) {
+  async getGame(
+    gameId: string,
+    player: PlayerInformation,
+  ): Promise<GamePairViewModel | GamePairViewModelPendingSecondPlayer> {
+    //TODO почемутакой тест должен быть так
+    if (isUUID(gameId) === false) {
+      throw new BadRequestException(
+        'questionId not found question /questionService/deleteQuestion',
+      );
+    }
     const games = await this.quizRepository.getGame(gameId);
     if (games.length < 1) {
       throw new NotFoundException(
@@ -110,10 +120,15 @@ export class QuizService {
       );
     }
     if (
-      games[0].firstPlayerId !== player.playerId ||
+      games[0].firstPlayerId !== player.playerId &&
       games[0].secondPlayerId !== player.playerId
     ) {
       throw new ForbiddenException('cheshay Game/ getGame/quizService');
+    }
+    if (games[0].startGameDate === null) {
+      const game: GamePairViewModelPendingSecondPlayer =
+        mapKuiz.mapGamePairViewModelPendingSecondPlayer(games[0]);
+      return game;
     }
     const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
     return game[0];
@@ -131,7 +146,7 @@ export class QuizService {
       );
     }
     const game = getGames[0];
-    //checkNaLishnieOtvety
+    /////firstPlayer
     if (game.firstPlayerId === player.playerId) {
       if (game.firstPlayerAnswers.length > countAnswer - 1) {
         throw new ForbiddenException('answerLength / createAnswer/quizService');
@@ -143,18 +158,9 @@ export class QuizService {
           ? answerStatusesEnum.Correct
           : answerStatusesEnum.Incorrect;
       if (answerStatus === answerStatusesEnum.Correct) {
+        console.log('vernyi otvet + 1 firstPlayerScore');
         game.firstPlayerScore = game.firstPlayerScore + 1;
       }
-      //***
-      if (
-        game.firstPlayerScore > 0 ||
-        (game.secondPlayerScore > 0 &&
-          game.firstPlayerAnswers.length === countAnswer - 1 &&
-          game.secondPlayerAnswers.length === countAnswer)
-      ) {
-        game.secondPlayerScore = game.secondPlayerScore + 1;
-      }
-      //***
       const answerViewModel: AnswerViewModel = {
         answerStatus: answerStatus,
         addedAt: new Date().toISOString(),
@@ -165,12 +171,22 @@ export class QuizService {
         game.firstPlayerAnswers.length === countAnswer &&
         game.secondPlayerAnswers.length === countAnswer
       ) {
+        if (
+          game.firstPlayerScore > 0 &&
+          game.firstPlayerAnswers[countAnswer - 1].addedAt <
+            game.secondPlayerAnswers[countAnswer - 1].addedAt
+        ) {
+          game.firstPlayerScore = game.firstPlayerScore + 1;
+        } else {
+          game.secondPlayerScore = game.secondPlayerScore + 1;
+        }
         (game.status = gameStatusesEnum.Finished),
           (game.finishGameDate = new Date().toISOString());
       }
       await this.quizRepository.updateGameAfterAnswerPlayer(game);
       return answerViewModel;
     }
+    ///secondPlayer
     if (game.secondPlayerAnswers.length > countAnswer - 1) {
       throw new ForbiddenException(
         'noActiveGameForUser / createAnswer/quizService',
@@ -182,18 +198,9 @@ export class QuizService {
         ? answerStatusesEnum.Correct
         : answerStatusesEnum.Incorrect;
     if (answerStatus === answerStatusesEnum.Correct) {
+      console.log('vernyi otvet + 1 secondPlayerScore');
       game.secondPlayerScore = game.secondPlayerScore + 1;
     }
-    ///***
-    if (
-      game.firstPlayerScore > 0 ||
-      (game.secondPlayerScore > 0 &&
-        game.secondPlayerAnswers.length === countAnswer - 1 &&
-        game.firstPlayerAnswers.length === countAnswer)
-    ) {
-      game.firstPlayerScore = game.firstPlayerScore + 1;
-    }
-    ///***
     const answerViewModel: AnswerViewModel = {
       answerStatus: answerStatus,
       addedAt: new Date().toISOString(),
@@ -204,26 +211,19 @@ export class QuizService {
       game.firstPlayerAnswers.length === countAnswer &&
       game.secondPlayerAnswers.length === countAnswer
     ) {
+      if (
+        game.secondPlayerScore > 0 &&
+        game.secondPlayerAnswers[countAnswer - 1].addedAt <
+          game.firstPlayerAnswers[countAnswer - 1].addedAt
+      ) {
+        game.secondPlayerScore = game.secondPlayerScore + 1;
+      } else {
+        game.firstPlayerScore = game.firstPlayerScore + 1;
+      }
       (game.status = gameStatusesEnum.Finished),
         (game.finishGameDate = new Date().toISOString());
     }
     await this.quizRepository.updateGameAfterAnswerPlayer(game);
     return answerViewModel;
   }
-  // checkDateMostFastPlayer(
-  //   player1Date: AnswerViewModel[],
-  //   player2Date: AnswerViewModel[],
-  // ) {
-  //   const coinFastAnswer = 0;
-  //   for (let x = 0; x < player1Date.length; x++) {
-  //     console.log(player1Date[x].addedAt);
-  //     console.log(player2Date[x].addedAt);
-  //     console.log(player1Date[x].addedAt < player2Date[x].addedAt);
-  //     //   if (player1Date[x] < player2Date[x]) {
-  //     //     console.log(pl)
-  //     //     coinFastAnswer++;
-  //     //   }
-  //   }
-  //   return true;
-  // }
 }

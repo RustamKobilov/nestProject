@@ -10,6 +10,7 @@ import { randomUUID } from 'crypto';
 import { mapKuiz } from './mapKuiz';
 import { helper } from '../helper';
 import { isUUID } from 'class-validator';
+import { addHours } from 'date-fns';
 
 @Injectable()
 export class QuestionsService {
@@ -26,6 +27,7 @@ export class QuestionsService {
       createdAt: new Date().toISOString(),
       updatedAt: null,
     };
+    console.log(question);
     await this.questionsRepository.createQuestion(question);
     const questionViewModel = mapKuiz.mapSaQuestionsViewModel([question])[0];
     return questionViewModel;
@@ -37,7 +39,7 @@ export class QuestionsService {
     return this.questionsRepository.getQuestions(pagination);
   }
 
-  async deleteQuestions(questionId: string): Promise<boolean> {
+  async deleteQuestion(questionId: string): Promise<boolean> {
     if (isUUID(questionId) === false) {
       throw new NotFoundException(
         'questionId not found question /questionService/deleteQuestion',

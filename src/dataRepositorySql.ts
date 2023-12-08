@@ -10,7 +10,9 @@ export class DataRepositorySql {
       'TRUNCATE user_confirmation_info_entity, user_recovery_password_info_entity, user_entity,blog_entity, ' +
         'post_entity,comment_entity,' +
         ' reaction_entity,device_entity,' +
-        ' user_recovery_password_info_entity',
+        ' user_recovery_password_info_entity,' +
+        ' game_entity,' +
+        ' question_entity',
     );
     return;
   }

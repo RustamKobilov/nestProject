@@ -33,7 +33,7 @@ export class GameEntity {
     ],
   })
   status: gameStatusesEnum;
-  @Column({ type: 'varchar' })
+  @Column({ type: 'varchar', length: 30 })
   pairCreatedDate: string;
   @Column({ type: 'varchar', nullable: true })
   startGameDate: string | null;

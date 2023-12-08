@@ -1,9 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery } from 'mongoose';
 import { Comment, CommentDocument } from './Comment';
-import { OutputCommentType, PaginationDTO } from '../DTO';
-import { User } from '../User/User';
+import { PaginationDTO } from '../DTO';
 import { ReactionRepository } from '../Like/reactionRepository';
 import { mapObject } from '../mapObject';
 import { helper } from '../helper';

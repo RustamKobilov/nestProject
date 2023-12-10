@@ -5,12 +5,15 @@ import { gameStatusesEnum } from '../Qustions/questionEnum';
 import { mapObject } from '../mapObject';
 import { Injectable } from '@nestjs/common';
 import { QuestionsRepository } from '../Qustions/questionsRepository';
+import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
 
 @Injectable()
 export class QuizRepository {
   constructor(
     @InjectRepository(GameEntity)
     protected gameRepositoryTypeOrm: Repository<GameEntity>,
+    @InjectRepository(PlayerEntity)
+    protected playerRepositoryTypeOrm: Repository<PlayerEntity>,
     private readonly questionsRepository: QuestionsRepository,
   ) {}
 
@@ -140,18 +143,61 @@ export class QuizRepository {
   }
 
   async getStaticGameForStaticViewModel(playerId: string) {
-    const qbGame = await this.gameRepositoryTypeOrm.createQueryBuilder('game');
-    const gameSql = await qbGame
-      .where(
-        'game.firstPlayerId = :playerId OR game.secondPlayerId = :playerId ',
-        {
-          playerId: playerId,
-        },
-      )
-      .getMany();
-    //.select('AVG(rating)', 'avg')
-    //       .getRawOne();
-    console.log(gameSql);
+    const qbPlayer = await this.playerRepositoryTypeOrm.createQueryBuilder(
+      'player',
+    );
+    const player = await qbPlayer
+      .where('id = :id', {
+        id: playerId,
+      })
+      .getOne();
+    return player;
+  }
+
+  async getPlayerById(playerId: string) {
+    const qbPlayer = await this.playerRepositoryTypeOrm.createQueryBuilder(
+      'player',
+    );
+    const player = await qbPlayer
+      .where('id = :id', {
+        id: playerId,
+      })
+      .getOne();
+    return player;
+  }
+
+  async createPlayer(player: PlayerEntity) {
+    return await this.playerRepositoryTypeOrm.save(player);
+  }
+
+  async updatePlayerAfterGame(
+    playerStatic: updatePlayerStaticAfterGame,
+    playerId: string,
+  ) {
+    console.log('updatePlayerAfterGame');
+    const qbPlayer = await this.playerRepositoryTypeOrm
+      .createQueryBuilder('player')
+      .setLock('pessimistic_write');
+    const updatePlayer = await qbPlayer
+      .update(PlayerEntity)
+      .set({
+        games: () => `games + ${playerStatic.games}`,
+        scores: () => `scores + ${playerStatic.scores}`,
+        wins: () => `wins + ${playerStatic.wins}`,
+        draws: () => `draws + ${playerStatic.draws}`,
+        losses: () => `losses + ${playerStatic.losses}`,
+      })
+      .where('id = :id', {
+        id: playerId,
+      })
+      .execute();
+
+    if (!updatePlayer.affected) {
+      return false;
+    }
     return true;
+    //.whereInIds(feedIds)
+    //     .set({ viewCount: () => 'viewCount + :x' })
+    //     .setParameter("x", x)
   }
 }

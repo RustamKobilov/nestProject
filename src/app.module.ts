@@ -134,6 +134,7 @@ import { QuestionsRepository } from './Qustions/questionsRepository';
 import { GameEntity } from './Game/GameEntity';
 import { QuizRepository } from './Game/QuizRepository';
 import { QuizService } from './Game/quizService';
+import { PlayerEntity } from './Game/PlayerEntity';
 
 dotenv.config();
 const useCaseUser = [
@@ -199,7 +200,8 @@ const sqlEntity = [
   CommentEntity,
   ReactionEntity,
   QuestionEntity,
-  /*PlayerEntity*/ GameEntity,
+  PlayerEntity,
+  GameEntity,
 ];
 @Module({
   imports: [

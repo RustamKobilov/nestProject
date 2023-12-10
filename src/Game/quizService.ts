@@ -16,14 +16,13 @@ import {
   GamePairViewModelPendingSecondPlayer,
   StaticViewModel,
 } from './gameDTO';
+import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
 
 @Injectable()
 export class QuizService {
   constructor(private readonly quizRepository: QuizRepository) {}
 
-  private async createGame(
-    player: PlayerInformation,
-  ) /*: Promise<GamePairViewModel> */ {
+  private async createGame(player: PlayerInformation): Promise<GameEntity> {
     const game: GameEntity = {
       id: randomUUID(),
       firstPlayerId: player.playerId,
@@ -71,6 +70,8 @@ export class QuizService {
     if (!game) {
       throw new NotFoundException('gameId not found game /gameService');
     }
+    await this.checkNewPlayer(game[0].firstPlayerId);
+    await this.checkNewPlayer(game[0].secondPlayerId);
     console.log(game);
     const gamesViewModelModel = mapKuiz.mapGamesViewModel(game);
     return gamesViewModelModel[0];
@@ -177,6 +178,9 @@ export class QuizService {
           player.playerId,
         );
         await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
+        const updateStaticPlayer = await this.updatePlayerAfterGame(
+          gameAddPoint,
+        );
         return answerViewModel;
       }
       await this.quizRepository.updateGameAfterAnswerPlayer(game);
@@ -213,6 +217,7 @@ export class QuizService {
         player.playerId,
       );
       await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
+      const updateStaticPlayer = await this.updatePlayerAfterGame(gameAddPoint);
       return answerViewModel;
     }
     await this.quizRepository.updateGameAfterAnswerPlayer(game);
@@ -259,7 +264,106 @@ export class QuizService {
 
   async getStatisticGameUser(
     player: PlayerInformation,
-  ) /*: Promise<StaticViewModel> */ {
-    await this.quizRepository.getStaticGameForStaticViewModel(player.playerId);
+  ): Promise<StaticViewModel> {
+    const playerStatic =
+      await this.quizRepository.getStaticGameForStaticViewModel(
+        player.playerId,
+      );
+    if (!playerStatic) {
+      const staticPlayerNullGame: StaticViewModel = {
+        gamesCount: 0,
+        avgScores: 0,
+        winsCount: 0,
+        drawsCount: 0,
+        lossesCount: 0,
+        sumScore: 0,
+      };
+      return staticPlayerNullGame;
+    }
+    const staticPlayer = this.getStatisticViewModel(playerStatic);
+    return staticPlayer;
+  }
+  private getStatisticViewModel(player: PlayerEntity): StaticViewModel {
+    const avgScoresDouble = player.scores / player.games;
+    const avgScores = Number(avgScoresDouble.toFixed(2));
+    const staticPlayerNullGame: StaticViewModel = {
+      gamesCount: player.games,
+      avgScores: avgScores,
+      winsCount: player.wins,
+      drawsCount: player.draws,
+      lossesCount: player.losses,
+      sumScore: player.scores,
+    };
+    return staticPlayerNullGame;
+  }
+
+  private async checkNewPlayer(playerId: string | null) {
+    if (playerId === null) {
+      throw new BadRequestException(
+        'ne dolgen byt tyt,net vtorogo igroka CreatePlayer/quizService',
+      );
+    }
+    const checkPlayer = await this.quizRepository.getPlayerById(playerId);
+    if (!checkPlayer) {
+      const player: PlayerEntity = {
+        id: playerId,
+        games: 0,
+        scores: 0,
+        draws: 0,
+        wins: 0,
+        losses: 0,
+      };
+      const createPlayer = await this.quizRepository.createPlayer(player);
+    }
+    return;
+  }
+
+  private async updatePlayerAfterGame(game: GameEntity) {
+    if (game.secondPlayerId === null) {
+      throw new BadRequestException(
+        'ne dolgen byt tyt,net vtorogo igroka CreatePlayer/quizService',
+      );
+    }
+    const firstPlayerStatic: updatePlayerStaticAfterGame = {
+      games: 1,
+      scores: game.firstPlayerScore,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+    };
+    const secondPlayerStatic: updatePlayerStaticAfterGame = {
+      games: 1,
+      scores: game.secondPlayerScore,
+      wins: 0,
+      draws: 0,
+      losses: 0,
+    };
+
+    if (game.firstPlayerScore === game.secondPlayerScore) {
+      firstPlayerStatic.draws++;
+      secondPlayerStatic.draws++;
+    }
+    if (game.firstPlayerScore > game.secondPlayerScore) {
+      firstPlayerStatic.wins++;
+      secondPlayerStatic.losses++;
+    } else {
+      secondPlayerStatic.wins++;
+      firstPlayerStatic.losses++;
+    }
+    const updateFirstPlayer = await this.quizRepository.updatePlayerAfterGame(
+      firstPlayerStatic,
+      game.firstPlayerId,
+    );
+    const updateSecondPlayer = await this.quizRepository.updatePlayerAfterGame(
+      secondPlayerStatic,
+      game.secondPlayerId,
+    );
+    console.log(updateFirstPlayer);
+    console.log(updateSecondPlayer);
+    if (!updateFirstPlayer || !updateSecondPlayer) {
+      throw new NotFoundException(
+        'ne obnovilas statistika igroka updatePlayerAfterGame/quizService',
+      );
+    }
   }
 }

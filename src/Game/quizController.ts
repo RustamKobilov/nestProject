@@ -12,8 +12,8 @@ import {
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { Response } from 'express';
 import { QuizService } from './quizService';
-import { PlayerInformation } from './Entitys/GameEntity';
-import { CreateAnswerDTO } from './questionDTO';
+import { PlayerInformation } from './GameEntity';
+import { CreateAnswerDTO } from '../Qustions/questionDTO';
 
 @Injectable()
 @Controller('/pair-game-quiz')
@@ -66,5 +66,17 @@ export class QuizController {
     };
     const game = await this.quizService.getGame(gameId, player);
     return res.status(200).send(game);
+  }
+  @UseGuards(BearerGuard)
+  @Get('/users/my-statistic')
+  async getStaticGameUser(@Res() res: Response, @Req() req) {
+    const player: PlayerInformation = {
+      playerId: req.user.id,
+      playerLogin: req.user.login,
+    };
+    const statisticViewModel = await this.quizService.getStatisticGameUser(
+      player,
+    );
+    return res.status(200).send(statisticViewModel);
   }
 }

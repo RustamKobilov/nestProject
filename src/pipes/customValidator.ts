@@ -8,7 +8,7 @@ import {
 import { UserRepository } from '../User/userRepository';
 import { Inject, Injectable } from '@nestjs/common';
 import { BlogRepository } from '../Blog/blogRepository';
-import { QuestionEntity } from '../Qustions/Entitys/QuestionEntity';
+import { QuestionEntity } from '../Qustions/QuestionEntity';
 
 @ValidatorConstraint({ name: 'IsEmailNoUnique', async: true })
 @Injectable()

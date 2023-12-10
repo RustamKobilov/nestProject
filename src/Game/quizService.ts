@@ -1,9 +1,4 @@
-import {
-  AnswerViewModel,
-  CreateAnswerDTO,
-  GamePairViewModel,
-  GamePairViewModelPendingSecondPlayer,
-} from './questionDTO';
+import { AnswerViewModel, CreateAnswerDTO } from '../Qustions/questionDTO';
 import {
   BadRequestException,
   ForbiddenException,
@@ -11,11 +6,16 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { QuizRepository } from './QuizRepository';
-import { GameEntity, PlayerInformation } from './Entitys/GameEntity';
+import { GameEntity, PlayerInformation } from './GameEntity';
 import { randomUUID } from 'crypto';
-import { answerStatusesEnum, gameStatusesEnum } from './questionEnum';
+import { answerStatusesEnum, gameStatusesEnum } from '../Qustions/questionEnum';
 import { mapKuiz } from './mapKuiz';
 import { isUUID } from 'class-validator';
+import {
+  GamePairViewModel,
+  GamePairViewModelPendingSecondPlayer,
+  StaticViewModel,
+} from './gameDTO';
 
 @Injectable()
 export class QuizService {
@@ -171,17 +171,13 @@ export class QuizService {
         game.firstPlayerAnswers.length === countAnswer &&
         game.secondPlayerAnswers.length === countAnswer
       ) {
-        if (
-          game.firstPlayerScore > 0 &&
-          game.firstPlayerAnswers[countAnswer - 1].addedAt <
-            game.secondPlayerAnswers[countAnswer - 1].addedAt
-        ) {
-          game.firstPlayerScore = game.firstPlayerScore + 1;
-        } else {
-          game.secondPlayerScore = game.secondPlayerScore + 1;
-        }
-        (game.status = gameStatusesEnum.Finished),
-          (game.finishGameDate = new Date().toISOString());
+        const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+          game,
+          countAnswer,
+          player.playerId,
+        );
+        await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
+        return answerViewModel;
       }
       await this.quizRepository.updateGameAfterAnswerPlayer(game);
       return answerViewModel;
@@ -211,6 +207,41 @@ export class QuizService {
       game.firstPlayerAnswers.length === countAnswer &&
       game.secondPlayerAnswers.length === countAnswer
     ) {
+      const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+        game,
+        countAnswer,
+        player.playerId,
+      );
+      await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
+      return answerViewModel;
+    }
+    await this.quizRepository.updateGameAfterAnswerPlayer(game);
+    return answerViewModel;
+  }
+  private addPointForFastAnswerPlayerInEndGame(
+    game: GameEntity,
+    countAnswer: number,
+    playerId: string,
+  ): GameEntity {
+    if (game.firstPlayerId === playerId) {
+      if (
+        game.firstPlayerAnswers.length === countAnswer &&
+        game.secondPlayerAnswers.length === countAnswer
+      ) {
+        if (
+          game.firstPlayerScore > 0 &&
+          game.firstPlayerAnswers[countAnswer - 1].addedAt <
+            game.secondPlayerAnswers[countAnswer - 1].addedAt
+        ) {
+          game.firstPlayerScore = game.firstPlayerScore + 1;
+        } else {
+          game.secondPlayerScore = game.secondPlayerScore + 1;
+        }
+        (game.status = gameStatusesEnum.Finished),
+          (game.finishGameDate = new Date().toISOString());
+      }
+      return game;
+    } else {
       if (
         game.secondPlayerScore > 0 &&
         game.secondPlayerAnswers[countAnswer - 1].addedAt <
@@ -223,7 +254,12 @@ export class QuizService {
       (game.status = gameStatusesEnum.Finished),
         (game.finishGameDate = new Date().toISOString());
     }
-    await this.quizRepository.updateGameAfterAnswerPlayer(game);
-    return answerViewModel;
+    return game;
+  }
+
+  async getStatisticGameUser(
+    player: PlayerInformation,
+  ) /*: Promise<StaticViewModel> */ {
+    await this.quizRepository.getStaticGameForStaticViewModel(player.playerId);
   }
 }

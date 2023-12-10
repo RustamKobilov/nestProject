@@ -12,9 +12,9 @@ import {
 import { Device, DeviceDocument } from './Device/Device';
 import { Reaction, ReactionDocument } from './Like/Reaction';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QuestionEntity } from './Qustions/Entitys/QuestionEntity';
+import { QuestionEntity } from './Qustions/QuestionEntity';
 import { Repository } from 'typeorm';
-import { GameEntity } from './Qustions/Entitys/GameEntity';
+import { GameEntity } from './Game/GameEntity';
 
 export class DataRepository {
   constructor(

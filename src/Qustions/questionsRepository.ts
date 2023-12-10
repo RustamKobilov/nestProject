@@ -1,6 +1,6 @@
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QuestionEntity } from './Entitys/QuestionEntity';
+import { QuestionEntity } from './QuestionEntity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import {
   CreateQuestionDTO,
@@ -11,8 +11,8 @@ import {
 import { helper } from '../helper';
 import { publishedStatusEnum } from './questionEnum';
 import { mapObject } from '../mapObject';
-import { mapKuiz } from './mapKuiz';
-import { GameEntity, QuestionInGameEntityType } from './Entitys/GameEntity';
+import { mapKuiz } from '../Game/mapKuiz';
+import { GameEntity, QuestionInGameEntityType } from '../Game/GameEntity';
 
 @Injectable()
 export class QuestionsRepository {

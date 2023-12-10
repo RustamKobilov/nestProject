@@ -1,10 +1,10 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { GameEntity, PlayerInformation } from './Entitys/GameEntity';
-import { gameStatusesEnum } from './questionEnum';
+import { GameEntity, PlayerInformation } from './GameEntity';
+import { gameStatusesEnum } from '../Qustions/questionEnum';
 import { mapObject } from '../mapObject';
 import { Injectable } from '@nestjs/common';
-import { QuestionsRepository } from './questionsRepository';
+import { QuestionsRepository } from '../Qustions/questionsRepository';
 
 @Injectable()
 export class QuizRepository {
@@ -43,16 +43,6 @@ export class QuizRepository {
           secondPlayerId: player.playerId,
         },
       )
-      // .where(
-      //   'game.firstPlayerId = :firstPlayerId OR game.secondPlayerId = :secondPlayerId',
-      //   {
-      //     firstPlayerId: player.playerId,
-      //     secondPlayerId: player.playerId,
-      //   },
-      // )
-      // .andWhere('NOT status = :status', {
-      //   status: gameStatusesEnum.Finished,
-      // })
       .getRawMany();
     const gamesEntity: GameEntity[] = mapObject.mapRawManyQBOnTableName(
       gameSql,
@@ -85,9 +75,6 @@ export class QuizRepository {
     console.log(questions);
     const qbGame = await this.gameRepositoryTypeOrm.createQueryBuilder('game');
     console.log('update');
-    //const dateNow = new Date().toISOString();
-    //console.log(dateNow);
-    //TODO как он не успевает с датой, убрать консоль лог и он не работает?
     const update = await qbGame
       .update(GameEntity)
       .set({
@@ -143,13 +130,6 @@ export class QuizRepository {
           secondPlayerId: player.playerId,
         },
       )
-      // .where(
-      //   'game.firstPlayerId = :firstPlayerId OR game.secondPlayerId = :secondPlayerId',
-      //   {
-      //     firstPlayerId: player.playerId,
-      //     secondPlayerId: player.playerId,
-      //   },
-      //)
       .getRawMany();
     const gamesEntity: GameEntity[] = mapObject.mapRawManyQBOnTableName(
       gameSql,
@@ -157,5 +137,21 @@ export class QuizRepository {
     );
     console.log(gamesEntity);
     return gamesEntity;
+  }
+
+  async getStaticGameForStaticViewModel(playerId: string) {
+    const qbGame = await this.gameRepositoryTypeOrm.createQueryBuilder('game');
+    const gameSql = await qbGame
+      .where(
+        'game.firstPlayerId = :playerId OR game.secondPlayerId = :playerId ',
+        {
+          playerId: playerId,
+        },
+      )
+      .getMany();
+    //.select('AVG(rating)', 'avg')
+    //       .getRawOne();
+    console.log(gameSql);
+    return true;
   }
 }

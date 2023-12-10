@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
-import { gameStatusesEnum } from '../questionEnum';
-import { AnswerViewModel, QuestionViewModel } from '../questionDTO';
+import { gameStatusesEnum } from '../Qustions/questionEnum';
+import { AnswerViewModel, QuestionViewModel } from '../Qustions/questionDTO';
 
 @Entity()
 export class GameEntity {

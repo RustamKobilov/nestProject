@@ -5,9 +5,9 @@ import {
   QuestionsPaginationDTO,
   SaQuestionViewModel,
 } from './questionDTO';
-import { QuestionEntity } from './Entitys/QuestionEntity';
+import { QuestionEntity } from './QuestionEntity';
 import { randomUUID } from 'crypto';
-import { mapKuiz } from './mapKuiz';
+import { mapKuiz } from '../Game/mapKuiz';
 import { helper } from '../helper';
 import { isUUID } from 'class-validator';
 import { addHours } from 'date-fns';

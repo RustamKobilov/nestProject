@@ -3,25 +3,15 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
-  IsNumber,
   IsOptional,
   IsString,
-  IsUUID,
   Length,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { helper } from '../helper';
 import { PaginationSqlDTO } from '../DTO';
-import {
-  answerStatusesEnum,
-  gameStatusesEnum,
-  publishedStatusEnum,
-} from './questionEnum';
-import { PostEntity } from '../Post/Post.Entity';
-import { NewestLikes } from '../Post/Post';
-import { PostViewModel } from '../viewModelDTO';
-import { QuestionEntity } from './Entitys/QuestionEntity';
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { answerStatusesEnum, publishedStatusEnum } from './questionEnum';
+import { QuestionEntity } from './QuestionEntity';
 
 export class CreateQuestionDTO {
   @IsString()
@@ -71,48 +61,6 @@ export class SaQuestionViewModel {
   published: boolean;
   createdAt: string;
   updatedAt: string | null;
-}
-//TODO убрать приенить entity класс
-export class GamePairViewModel {
-  id: string;
-  firstPlayerProgress: {
-    answers: AnswerViewModel[];
-    player: {
-      id: string;
-      login: string;
-    };
-    score: number;
-  };
-  secondPlayerProgress: {
-    answers: AnswerViewModel[];
-    player: {
-      id: string | null;
-      login: string | null;
-    };
-    score: number;
-  };
-  questions: QuestionViewModel[] = [];
-  status: gameStatusesEnum;
-  pairCreatedDate: string;
-  startGameDate: string | null;
-  finishGameDate: string | null;
-}
-export class GamePairViewModelPendingSecondPlayer {
-  id: string;
-  firstPlayerProgress: {
-    answers: AnswerViewModel[];
-    player: {
-      id: string;
-      login: string;
-    };
-    score: number;
-  };
-  secondPlayerProgress: null;
-  questions: null;
-  status: gameStatusesEnum.PendingSecondPlayer;
-  pairCreatedDate: string;
-  startGameDate: null;
-  finishGameDate: null;
 }
 
 export class AnswerViewModel {

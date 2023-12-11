@@ -5,6 +5,7 @@ import {
   Injectable,
   Param,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -13,7 +14,11 @@ import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { Response } from 'express';
 import { QuizService } from './quizService';
 import { PlayerInformation } from './GameEntity';
-import { CreateAnswerDTO } from '../Qustions/questionDTO';
+import {
+  CreateAnswerDTO,
+  QuestionsPaginationDTO,
+} from '../Qustions/questionDTO';
+import { PaginationSqlDTO } from '../DTO';
 
 @Injectable()
 @Controller('/pair-game-quiz')
@@ -56,6 +61,20 @@ export class QuizController {
     };
     const game = await this.quizService.getGameNotFinished(player);
     return res.status(200).send(game);
+  }
+  @UseGuards(BearerGuard)
+  @Get('/pairs/me')
+  async getGames(
+    @Res() res: Response,
+    @Req() req,
+    @Query() gamesPaginationDTO: PaginationSqlDTO,
+  ) {
+    const player: PlayerInformation = {
+      playerId: req.user.id,
+      playerLogin: req.user.login,
+    };
+    const games = await this.quizService.getGames(player, gamesPaginationDTO);
+    return res.status(200).send(games);
   }
   @UseGuards(BearerGuard)
   @Get('/pairs/:id')

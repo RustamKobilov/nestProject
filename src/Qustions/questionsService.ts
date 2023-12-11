@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 import { mapKuiz } from '../Game/mapKuiz';
 import { helper } from '../helper';
 import { isUUID } from 'class-validator';
-import { addHours } from 'date-fns';
+import { PaginationSqlDTO } from '../DTO';
 
 @Injectable()
 export class QuestionsService {
@@ -84,13 +84,13 @@ export class QuestionsService {
   async updatePublishQuestion(questionId: string, published: boolean) {
     if (isUUID(questionId) === false) {
       throw new NotFoundException(
-        'questionId not found question /questionService/updateQuestion',
+        'questionId not found question /questionService/updatePublishQuestion',
       );
     }
     const question = await this.questionsRepository.getQuestionId(questionId);
     if (question.length < 1) {
       throw new NotFoundException(
-        'questionId not found question /questionService/updateQuestion',
+        'questionId not found question /questionService/updatePublishQuestion',
       );
     }
     const updateQuestion = this.questionsRepository.updatePublishQuestion(

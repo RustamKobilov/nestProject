@@ -7,12 +7,15 @@ import {
   mapQuestion,
   QuestionsPaginationDTO,
   QuestionViewModel,
+  SaQuestionViewModel,
 } from './questionDTO';
 import { helper } from '../helper';
 import { publishedStatusEnum } from './questionEnum';
 import { mapObject } from '../mapObject';
 import { mapKuiz } from '../Game/mapKuiz';
 import { GameEntity, QuestionInGameEntityType } from '../Game/GameEntity';
+import { outputModel } from '../DTO';
+import { GamePairViewModel } from '../Game/gameDTO';
 
 @Injectable()
 export class QuestionsRepository {
@@ -55,7 +58,9 @@ export class QuestionsRepository {
     };
   }
 
-  async getQuestions(pagination: QuestionsPaginationDTO) {
+  async getQuestions(
+    pagination: QuestionsPaginationDTO,
+  ): Promise<outputModel<SaQuestionViewModel>> {
     const qbQuestion = await this.questionRepositoryTypeOrm.createQueryBuilder(
       'q',
     );

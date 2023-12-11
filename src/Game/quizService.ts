@@ -17,6 +17,8 @@ import {
   StaticViewModel,
 } from './gameDTO';
 import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
+import { helper } from '../helper';
+import { outputModel, PaginationSqlDTO } from '../DTO';
 
 @Injectable()
 export class QuizService {
@@ -108,10 +110,9 @@ export class QuizService {
     gameId: string,
     player: PlayerInformation,
   ): Promise<GamePairViewModel | GamePairViewModelPendingSecondPlayer> {
-    //TODO почемутакой тест должен быть так
     if (isUUID(gameId) === false) {
       throw new BadRequestException(
-        'questionId not found question /questionService/deleteQuestion',
+        'gameId not found question /quizService/getGame',
       );
     }
     const games = await this.quizRepository.getGame(gameId);
@@ -365,5 +366,14 @@ export class QuizService {
         'ne obnovilas statistika igroka updatePlayerAfterGame/quizService',
       );
     }
+  }
+
+  async getGames(
+    player: PlayerInformation,
+    gamePaginationDTO: PaginationSqlDTO,
+  ): Promise<outputModel<GamePairViewModel>> {
+    const pagination = helper.getGamesPaginationDTO(gamePaginationDTO);
+    const games = await this.quizRepository.getGames(player, pagination);
+    return games;
   }
 }

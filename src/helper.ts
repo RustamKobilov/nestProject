@@ -76,4 +76,12 @@ export const helper = {
     max = Math.floor(max);
     return Math.floor(Math.random() * (max - min + 1)) + min; //Максимум и минимум включаются
   },
+  getGamesPaginationDTO(query: PaginationSqlDTO): PaginationSqlDTO {
+    return {
+      pageNumber: query.pageNumber || 1,
+      pageSize: query.pageSize || 10,
+      sortBy: query.sortBy || 'pairCreatedDate',
+      sortDirection: query.sortDirection || 'desc',
+    };
+  },
 };

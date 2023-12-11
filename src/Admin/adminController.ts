@@ -187,12 +187,12 @@ export class adminQuestionsController {
   @UseGuards(BasicAuthorizationGuard)
   @Get()
   async getQuestions(
-    @Query() questionPaginationDTO: QuestionsPaginationDTO,
+    @Query() paginationDTO: QuestionsPaginationDTO,
     @Res() res: Response,
   ) {
     res
       .status(200)
-      .send(await this.questionsService.getQuestions(questionPaginationDTO));
+      .send(await this.questionsService.getQuestions(paginationDTO));
   }
   @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')

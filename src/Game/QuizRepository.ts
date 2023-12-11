@@ -1,11 +1,19 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { GameEntity, PlayerInformation } from './GameEntity';
-import { gameStatusesEnum } from '../Qustions/questionEnum';
+import {
+  gameStatusesEnum,
+  publishedStatusEnum,
+} from '../Qustions/questionEnum';
 import { mapObject } from '../mapObject';
 import { Injectable } from '@nestjs/common';
 import { QuestionsRepository } from '../Qustions/questionsRepository';
 import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
+import { outputModel, PaginationSqlDTO } from '../DTO';
+import { UserViewModel } from '../viewModelDTO';
+import { GamePairViewModel } from './gameDTO';
+import { helper } from '../helper';
+import { mapKuiz } from './mapKuiz';
 
 @Injectable()
 export class QuizRepository {
@@ -199,5 +207,50 @@ export class QuizRepository {
     //.whereInIds(feedIds)
     //     .set({ viewCount: () => 'viewCount + :x' })
     //     .setParameter("x", x)
+  }
+
+  async getGames(
+    player: PlayerInformation,
+    pagination: PaginationSqlDTO,
+  ): Promise<outputModel<GamePairViewModel>> {
+    console.log('getGamesttt');
+    const qbGame = await this.gameRepositoryTypeOrm.createQueryBuilder('game');
+
+    const filter = {
+      where:
+        'game.firstPlayerId = :firstPlayerId OR game.secondPlayerId = :secondPlayerId',
+      params: {
+        firstPlayerId: player.playerId,
+        secondPlayerId: player.playerId,
+      },
+    };
+    const countGames = await qbGame
+      .where(filter.where, filter.params)
+      .getCount();
+
+    const sortDirection = pagination.sortDirection == 'asc' ? 'ASC' : 'DESC';
+    const paginationFromHelperForQuestion =
+      helper.getPaginationFunctionSkipSortTotal(
+        pagination.pageNumber,
+        pagination.pageSize,
+        countGames,
+      );
+
+    const zaprosQb = await qbGame
+      .orderBy('game.' + pagination.sortBy, sortDirection)
+      .addOrderBy('game.pairCreatedDate', 'DESC')
+      .limit(pagination.pageSize)
+      .offset(paginationFromHelperForQuestion.skipPage)
+      .getMany();
+    console.log(zaprosQb);
+    const gamesViewModelModel = mapKuiz.mapGamesViewModel(zaprosQb);
+
+    return {
+      pagesCount: paginationFromHelperForQuestion.totalCount,
+      page: pagination.pageNumber,
+      pageSize: pagination.pageSize,
+      totalCount: countGames,
+      items: gamesViewModelModel,
+    };
   }
 }

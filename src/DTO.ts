@@ -195,13 +195,11 @@ export class PaginationSqlDTO {
   @IsOptional()
   @Type((type) => Number)
   @Min(1)
-  //@Transform(({ value }) => helper.toNumber(value,  1,  1))
   @IsNumber()
   pageNumber: number;
   @IsOptional()
   @Type((type) => Number)
   @Min(1)
-  //@Transform(({ value }) => helper.toNumber(value,  1,  10),)
   @IsNumber()
   pageSize: number;
   @IsOptional()
@@ -209,6 +207,5 @@ export class PaginationSqlDTO {
   sortBy: string;
   @IsOptional()
   @Transform(({ value }) => helper.getValueTrim(value))
-  //@Transform(({ value }) => helper.toSortDirection(value,-1))
   sortDirection: 'asc' | 'desc';
 }

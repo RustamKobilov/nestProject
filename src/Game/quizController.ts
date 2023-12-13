@@ -14,10 +14,7 @@ import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { Response } from 'express';
 import { QuizService } from './quizService';
 import { PlayerInformation } from './GameEntity';
-import {
-  CreateAnswerDTO,
-  QuestionsPaginationDTO,
-} from '../Qustions/questionDTO';
+import { CreateAnswerDTO } from '../Qustions/questionDTO';
 import { PaginationSqlDTO } from '../DTO';
 
 @Injectable()
@@ -63,7 +60,7 @@ export class QuizController {
     return res.status(200).send(game);
   }
   @UseGuards(BearerGuard)
-  @Get('/pairs/me')
+  @Get('/pairs/my')
   async getGames(
     @Res() res: Response,
     @Req() req,

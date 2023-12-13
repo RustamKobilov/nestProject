@@ -72,6 +72,7 @@ export class QuizService {
     if (!game) {
       throw new NotFoundException('gameId not found game /gameService');
     }
+    console.log('tyt12');
     await this.checkNewPlayer(game[0].firstPlayerId);
     await this.checkNewPlayer(game[0].secondPlayerId);
     console.log(game);
@@ -178,6 +179,11 @@ export class QuizService {
           countAnswer,
           player.playerId,
         );
+        console.log('kladem tyda');
+        console.log('firstplayerScore');
+        console.log(gameAddPoint.firstPlayerScore);
+        console.log('secondplayerScore');
+        console.log(gameAddPoint.firstPlayerScore);
         await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
         const updateStaticPlayer = await this.updatePlayerAfterGame(
           gameAddPoint,
@@ -218,6 +224,11 @@ export class QuizService {
         player.playerId,
       );
       await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
+      console.log('kladem tyda');
+      console.log('firstplayerScore');
+      console.log(gameAddPoint.firstPlayerScore);
+      console.log('secondplayerScore');
+      console.log(gameAddPoint.firstPlayerScore);
       const updateStaticPlayer = await this.updatePlayerAfterGame(gameAddPoint);
       return answerViewModel;
     }
@@ -231,21 +242,19 @@ export class QuizService {
   ): GameEntity {
     if (game.firstPlayerId === playerId) {
       if (
-        game.firstPlayerAnswers.length === countAnswer &&
-        game.secondPlayerAnswers.length === countAnswer
+        game.firstPlayerScore > 0 &&
+        game.firstPlayerAnswers[countAnswer - 1].addedAt <
+          game.secondPlayerAnswers[countAnswer - 1].addedAt
       ) {
-        if (
-          game.firstPlayerScore > 0 &&
-          game.firstPlayerAnswers[countAnswer - 1].addedAt <
-            game.secondPlayerAnswers[countAnswer - 1].addedAt
-        ) {
-          game.firstPlayerScore = game.firstPlayerScore + 1;
-        } else {
+        game.firstPlayerScore = game.firstPlayerScore + 1;
+      } else {
+        if (game.secondPlayerScore > 0) {
           game.secondPlayerScore = game.secondPlayerScore + 1;
         }
-        (game.status = gameStatusesEnum.Finished),
-          (game.finishGameDate = new Date().toISOString());
       }
+      (game.status = gameStatusesEnum.Finished),
+        (game.finishGameDate = new Date().toISOString());
+
       return game;
     } else {
       if (
@@ -255,7 +264,9 @@ export class QuizService {
       ) {
         game.secondPlayerScore = game.secondPlayerScore + 1;
       } else {
-        game.firstPlayerScore = game.firstPlayerScore + 1;
+        if (game.firstPlayerScore > 0) {
+          game.firstPlayerScore = game.firstPlayerScore + 1;
+        }
       }
       (game.status = gameStatusesEnum.Finished),
         (game.finishGameDate = new Date().toISOString());
@@ -347,7 +358,8 @@ export class QuizService {
     if (game.firstPlayerScore > game.secondPlayerScore) {
       firstPlayerStatic.wins++;
       secondPlayerStatic.losses++;
-    } else {
+    }
+    if (game.firstPlayerScore < game.secondPlayerScore) {
       secondPlayerStatic.wins++;
       firstPlayerStatic.losses++;
     }

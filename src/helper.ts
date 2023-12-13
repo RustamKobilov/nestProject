@@ -9,6 +9,7 @@ import {
   QuestionsPaginationDTO,
 } from './Qustions/questionDTO';
 import { publishedStatusEnum } from './Qustions/questionEnum';
+import { GameEntity } from './Game/GameEntity';
 
 export const helper = {
   getPaginationFunctionSkipSortTotal(

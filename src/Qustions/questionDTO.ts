@@ -3,9 +3,11 @@ import {
   IsArray,
   IsBoolean,
   IsEnum,
+  IsNumber,
   IsOptional,
   IsString,
   Length,
+  Min,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 import { helper } from '../helper';

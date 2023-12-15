@@ -4,6 +4,8 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 export class PlayerEntity {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
+  @Column({ type: 'varchar' })
+  login: string;
   @Column({ type: 'integer' })
   games: number;
   @Column({ type: 'integer' })

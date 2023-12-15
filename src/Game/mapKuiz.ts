@@ -7,7 +7,7 @@ import { gameStatusesEnum } from '../Qustions/questionEnum';
 import { GameEntity, QuestionInGameEntityType } from './GameEntity';
 import {
   GamePairViewModel,
-  GamePairViewModelPendingSecondPlayer,
+  GamePairViewModelPendingSecondPlayerViewModel,
 } from './gameDTO';
 
 export const mapKuiz = {
@@ -27,7 +27,7 @@ export const mapKuiz = {
   },
   mapGamePairViewModelPendingSecondPlayer(
     game: GameEntity,
-  ): GamePairViewModelPendingSecondPlayer {
+  ): GamePairViewModelPendingSecondPlayerViewModel {
     return {
       id: game.id,
       firstPlayerProgress: {

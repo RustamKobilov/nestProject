@@ -10,6 +10,7 @@ import {
 } from './Qustions/questionDTO';
 import { publishedStatusEnum } from './Qustions/questionEnum';
 import { GameEntity } from './Game/GameEntity';
+import { PaginationGetTopDTO } from './Game/gameDTO';
 
 export const helper = {
   getPaginationFunctionSkipSortTotal(
@@ -83,6 +84,15 @@ export const helper = {
       pageSize: query.pageSize || 10,
       sortBy: query.sortBy || 'pairCreatedDate',
       sortDirection: query.sortDirection || 'desc',
+    };
+  },
+  getTopUserPaginationDTO(query: PaginationGetTopDTO): PaginationGetTopDTO {
+    return {
+      pageNumber: query.pageNumber || 1,
+      pageSize: query.pageSize || 10,
+      sort: query.sort
+        ? query.sort.toString()
+        : 'sort=avgScores desc&sort=sumScore desc',
     };
   },
 };

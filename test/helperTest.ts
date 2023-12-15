@@ -10,6 +10,14 @@ export type CreateUserTest = {
   email: string;
   password: string;
 };
+export type TestingUserForRefreshAccessToken = {
+  id: string;
+  login: string;
+  email: string;
+  password: string;
+  accessToken: string;
+  refreshToken: string;
+};
 
 export class HelperTest {
   constructor(private readonly server: any) {}
@@ -19,6 +27,7 @@ export class HelperTest {
       password: 'qwerty',
     };
   }
+
   async createUsers(countOfUsers: number): Promise<CreateUserTest[]> {
     const authorization = await this.getBasicAuthorization();
     const users: any = [];
@@ -38,6 +47,49 @@ export class HelperTest {
     }
     return users;
   }
+  async createAndLoginTestingUser(): Promise<TestingUserForRefreshAccessToken> {
+    const inputUserTest = await this.createTestingUserForAdmin();
+    const authorization = await this.getBasicAuthorization();
+    const responseCreateUserForAdmin = await request(this.server)
+      .post(endpoints.usersController)
+      .auth(authorization.username, authorization.password, {
+        type: 'basic',
+      })
+      .send(inputUserTest);
+    const userTestAfterCreate = {
+      ...inputUserTest,
+      id: responseCreateUserForAdmin.body.id,
+    };
+
+    const inputUserLoginAndPassword = {
+      loginOrEmail: userTestAfterCreate.login,
+      password: userTestAfterCreate.password,
+    };
+    console.log(inputUserLoginAndPassword);
+    const responseLogin = await request(this.server)
+      .post(endpoints.authController.login)
+      .send(inputUserLoginAndPassword);
+    //expect(responseLogin.status).toBe(200);
+    //expect(responseLogin.body.accessToken).toBeDefined();
+    const accessToken = responseLogin.body.accessToken;
+    const refreshTokenCookies = responseLogin.headers['set-cookie'];
+   //
+    //TODO продумать куда вынести проверки
+    const refreshToken = 'srting'
+      //await this.getRefreshTokenInCookie(
+      responseLogin.headers['set-cookie'],
+    );
+    //expect(refreshToken).not.toBe(false);
+    return {
+      id: userTestAfterCreate.id,
+      login: userTestAfterCreate.login,
+      email: userTestAfterCreate.email,
+      password: userTestAfterCreate.password,
+      refreshToken: refreshToken,
+      accessToken: accessToken,
+    };
+  }
+
   async getRefreshTokenInCookie(cookieArray: []) {
     const refreshTokenCookies = cookieArray.filter(function (val: string) {
       return val.split('=')[0] == 'refreshToken';

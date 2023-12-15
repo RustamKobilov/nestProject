@@ -13,7 +13,8 @@ import { mapKuiz } from './mapKuiz';
 import { isUUID } from 'class-validator';
 import {
   GamePairViewModel,
-  GamePairViewModelPendingSecondPlayer,
+  GamePairViewModelPendingSecondPlayerViewModel,
+  PaginationGetTopDTO,
   StaticViewModel,
 } from './gameDTO';
 import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
@@ -44,9 +45,12 @@ export class QuizService {
     await this.quizRepository.createGame(game);
     return game;
   }
+
   async connectionGame(
     player: PlayerInformation,
-  ): Promise<GamePairViewModelPendingSecondPlayer | GamePairViewModel> {
+  ): Promise<
+    GamePairViewModelPendingSecondPlayerViewModel | GamePairViewModel
+  > {
     const activeGamePlayer = await this.checkActiveAndPendingGamePlayer(player);
     if (!activeGamePlayer) {
       console.log('tyt vylitaem');
@@ -58,7 +62,7 @@ export class QuizService {
     if (getGamesAwaitPlayer.length < 1) {
       console.log('CreateGame');
       const game: GameEntity = await this.createGame(player);
-      const gameAwaitPlayer: GamePairViewModelPendingSecondPlayer =
+      const gameAwaitPlayer: GamePairViewModelPendingSecondPlayerViewModel =
         mapKuiz.mapGamePairViewModelPendingSecondPlayer(game);
       return gameAwaitPlayer;
     }
@@ -73,12 +77,16 @@ export class QuizService {
       throw new NotFoundException('gameId not found game /gameService');
     }
     console.log('tyt12');
-    await this.checkNewPlayer(game[0].firstPlayerId);
-    await this.checkNewPlayer(game[0].secondPlayerId);
+    await this.checkNewPlayer(game[0].firstPlayerId, game[0].firstPlayerLogin);
+    await this.checkNewPlayer(
+      game[0].secondPlayerId,
+      game[0].secondPlayerLogin,
+    );
     console.log(game);
     const gamesViewModelModel = mapKuiz.mapGamesViewModel(game);
     return gamesViewModelModel[0];
   }
+
   async checkActiveAndPendingGamePlayer(
     player: PlayerInformation,
   ): Promise<boolean> {
@@ -89,9 +97,12 @@ export class QuizService {
     }
     return false;
   }
+
   async getGameNotFinished(
     player: PlayerInformation,
-  ): Promise<GamePairViewModel | GamePairViewModelPendingSecondPlayer> {
+  ): Promise<
+    GamePairViewModel | GamePairViewModelPendingSecondPlayerViewModel
+  > {
     const games = await this.quizRepository.checkActiveAndPendingGamePlayer(
       player,
     );
@@ -110,7 +121,9 @@ export class QuizService {
   async getGame(
     gameId: string,
     player: PlayerInformation,
-  ): Promise<GamePairViewModel | GamePairViewModelPendingSecondPlayer> {
+  ): Promise<
+    GamePairViewModel | GamePairViewModelPendingSecondPlayerViewModel
+  > {
     if (isUUID(gameId) === false) {
       throw new BadRequestException(
         'gameId not found question /quizService/getGame',
@@ -129,7 +142,7 @@ export class QuizService {
       throw new ForbiddenException('cheshay Game/ getGame/quizService');
     }
     if (games[0].startGameDate === null) {
-      const game: GamePairViewModelPendingSecondPlayer =
+      const game: GamePairViewModelPendingSecondPlayerViewModel =
         mapKuiz.mapGamePairViewModelPendingSecondPlayer(games[0]);
       return game;
     }
@@ -235,6 +248,7 @@ export class QuizService {
     await this.quizRepository.updateGameAfterAnswerPlayer(game);
     return answerViewModel;
   }
+
   private addPointForFastAnswerPlayerInEndGame(
     game: GameEntity,
     countAnswer: number,
@@ -295,6 +309,7 @@ export class QuizService {
     const staticPlayer = this.getStatisticViewModel(playerStatic);
     return staticPlayer;
   }
+
   private getStatisticViewModel(player: PlayerEntity): StaticViewModel {
     const avgScoresDouble = player.scores / player.games;
     const avgScores = Number(avgScoresDouble.toFixed(2));
@@ -309,8 +324,8 @@ export class QuizService {
     return staticPlayerNullGame;
   }
 
-  private async checkNewPlayer(playerId: string | null) {
-    if (playerId === null) {
+  private async checkNewPlayer(playerId: string | null, login: string | null) {
+    if (playerId === null || login === null) {
       throw new BadRequestException(
         'ne dolgen byt tyt,net vtorogo igroka CreatePlayer/quizService',
       );
@@ -319,6 +334,7 @@ export class QuizService {
     if (!checkPlayer) {
       const player: PlayerEntity = {
         id: playerId,
+        login: login,
         games: 0,
         scores: 0,
         draws: 0,
@@ -387,5 +403,50 @@ export class QuizService {
     const pagination = helper.getGamesPaginationDTO(gamePaginationDTO);
     const games = await this.quizRepository.getGames(player, pagination);
     return games;
+  }
+
+  async getTopUsersStatistic(topPaginationDTO: PaginationGetTopDTO) {
+    const pagination = helper.getTopUserPaginationDTO(topPaginationDTO);
+    console.log(pagination);
+    const array: { itemName: string; itemSort: string }[] = [];
+    const keysPlayerStatic = [
+      'sumScore',
+      'avgScores',
+      'gamesCount',
+      'winsCount',
+      'lossesCount',
+      'drawsCount',
+    ];
+    const inputParamsOrder = pagination.sort.split(',');
+    for (const inputParam of inputParamsOrder) {
+      console.log(inputParam.split(' ')[1]);
+      if (
+        inputParam.split(' ')[1] !== 'desc' &&
+        inputParam.split(' ')[1] !== 'asc'
+      ) {
+        {
+          throw new BadRequestException(
+            'ne dolgen byt nichego krome asc/desc getTopUsersStatistic/quizService',
+          );
+        }
+      }
+      if (!keysPlayerStatic.includes(inputParam.split(' ')[0])) {
+        {
+          throw new BadRequestException(
+            'ne dolgen byt nichego krome keysPlayerStatic getTopUsersStatistic/quizService',
+          );
+        }
+      } else {
+        array.push({
+          itemName: inputParam.split(' ')[0],
+          itemSort: inputParam.split(' ')[1],
+        });
+      }
+    }
+
+    const topUserStatistic = await this.quizRepository.getStatisticTopUser(
+      pagination,
+    );
+    return true;
   }
 }

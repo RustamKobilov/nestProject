@@ -16,6 +16,8 @@ import { QuizService } from './quizService';
 import { PlayerInformation } from './GameEntity';
 import { CreateAnswerDTO } from '../Qustions/questionDTO';
 import { PaginationSqlDTO } from '../DTO';
+import { PaginationGetTopDTO } from './gameDTO';
+import { PlayerEntity } from './PlayerEntity';
 
 @Injectable()
 @Controller('/pair-game-quiz')
@@ -94,5 +96,21 @@ export class QuizController {
       player,
     );
     return res.status(200).send(statisticViewModel);
+  }
+
+  @Get('/users/top')
+  async getTop(
+    @Res() res: Response,
+    @Req() req,
+    @Query() topPaginationDTO: PaginationGetTopDTO,
+  ) {
+    //await this.quizService.getTopUsersStatistic(topPaginationDTO);
+    const semen = Object.getOwnPropertyNames(PlayerEntity);
+    console.log(semen);
+    // const sort = topPaginationDTO.sort
+    //   ? topPaginationDTO.sort.toString()
+    //   : 'sort=avgScores desc&sort=sumScore desc';
+    // console.log(sort);
+    return res.status(200).send('Ok');
   }
 }

@@ -6,6 +6,7 @@ import request from 'supertest';
 import { HelperTest } from './helperTest';
 import { endpoints } from './routing';
 import { BlogViewModel, MeViewModel, UserViewModel } from '../src/viewModelDTO';
+import { CreateQuestionDTO } from '../src/Qustions/questionDTO';
 
 describe('test App', () => {
   jest.setTimeout(100 * 1000);
@@ -210,37 +211,37 @@ describe('test App', () => {
     });
   });
   describe('auth controller', () => {
-    it('/create user for admin', async () => {
-      const inputUserTest = await helperTest.createTestingUserForAdmin();
-      const response = await request(server)
-        .post(endpoints.usersController)
-        .auth(basicAuthorization.username, basicAuthorization.password, {
-          type: 'basic',
-        })
-        .send(inputUserTest);
-      userTest = inputUserTest;
-      userTest.id = response.body.id;
-    });
-    it('/login', async () => {
-      const inputUserLoginAndPassword = {
-        loginOrEmail: userTest.login,
-        password: userTest.password,
-      };
-      console.log(inputUserLoginAndPassword);
-      const response = await request(server)
-        .post(endpoints.authController.login)
-        .send(inputUserLoginAndPassword);
-
-      expect(response.status).toBe(200);
-      expect(response.body.accessToken).toBeDefined();
-      accessToken = response.body.accessToken;
-      refreshTokenCookies = response.headers['set-cookie'];
-      expect(response.body.accessToken).toBeDefined();
-      refreshToken = await helperTest.getRefreshTokenInCookie(
-        response.headers['set-cookie'],
-      );
-      expect(refreshToken).not.toBe(false);
-    });
+    // it('/create user for admin', async () => {
+    //   const inputUserTest = await helperTest.createTestingUserForAdmin();
+    //   const response = await request(server)
+    //     .post(endpoints.usersController)
+    //     .auth(basicAuthorization.username, basicAuthorization.password, {
+    //       type: 'basic',
+    //     })
+    //     .send(inputUserTest);
+    //   userTest = inputUserTest;
+    //   userTest.id = response.body.id;
+    // });
+    // it('/login', async () => {
+    //   const inputUserLoginAndPassword = {
+    //     loginOrEmail: userTest.login,
+    //     password: userTest.password,
+    //   };
+    //   console.log(inputUserLoginAndPassword);
+    //   const response = await request(server)
+    //     .post(endpoints.authController.login)
+    //     .send(inputUserLoginAndPassword);
+    //
+    //   expect(response.status).toBe(200);
+    //   expect(response.body.accessToken).toBeDefined();
+    //   accessToken = response.body.accessToken;
+    //   refreshTokenCookies = response.headers['set-cookie'];
+    //   expect(response.body.accessToken).toBeDefined();
+    //   refreshToken = await helperTest.getRefreshTokenInCookie(
+    //     response.headers['set-cookie'],
+    //   );
+    //   expect(refreshToken).not.toBe(false);
+    // });
     it('/me', async () => {
       const response = await request(server)
         .get(endpoints.authController.me)

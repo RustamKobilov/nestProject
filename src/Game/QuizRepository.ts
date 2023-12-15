@@ -1,5 +1,5 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { GameEntity, PlayerInformation } from './GameEntity';
 import {
   gameStatusesEnum,
@@ -11,7 +11,7 @@ import { QuestionsRepository } from '../Qustions/questionsRepository';
 import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
 import { outputModel, PaginationSqlDTO } from '../DTO';
 import { UserViewModel } from '../viewModelDTO';
-import { GamePairViewModel } from './gameDTO';
+import { GamePairViewModel, PaginationGetTopDTO } from './gameDTO';
 import { helper } from '../helper';
 import { mapKuiz } from './mapKuiz';
 
@@ -22,6 +22,7 @@ export class QuizRepository {
     protected gameRepositoryTypeOrm: Repository<GameEntity>,
     @InjectRepository(PlayerEntity)
     protected playerRepositoryTypeOrm: Repository<PlayerEntity>,
+    @InjectDataSource() private dataSource: DataSource,
     private readonly questionsRepository: QuestionsRepository,
   ) {}
 
@@ -251,6 +252,45 @@ export class QuizRepository {
       pageSize: pagination.pageSize,
       totalCount: countGames,
       items: gamesViewModelModel,
+    };
+  }
+  getOrderFilter(pagination: PaginationGetTopDTO) {
+    console.log(pagination.sort);
+    const orderByParams = [];
+    const pag = pagination.sort.split(',');
+    console.log(pag);
+    //console.log(pagination.sort.replace(' '))
+    return;
+  }
+  async getStatisticTopUser(pagination: PaginationGetTopDTO) {
+    const qbPlayer = await this.playerRepositoryTypeOrm.createQueryBuilder(
+      'player',
+    );
+    const orderBy = 'lll';
+    const countPlayers = await qbPlayer.getCount();
+
+    //const sortDirection = pagination.sortDirection == 'asc' ? 'ASC' : 'DESC';
+    const paginationFromHelperForQuestion =
+      helper.getPaginationFunctionSkipSortTotal(
+        pagination.pageNumber,
+        pagination.pageSize,
+        countPlayers,
+      );
+    //как добавлять запрос (цикл отдельно делает строку вставляем в ордер бу)
+    //делаем add по кол-ву возможных полей дуфолтом, если есть то меняем
+    const zaprosQb = await qbPlayer
+      .orderBy('player.games', 'DESC')
+      .addOrderBy('player.scores', 'DESC')
+      .limit(pagination.pageSize)
+      .offset(paginationFromHelperForQuestion.skipPage)
+      .getMany();
+
+    return {
+      pagesCount: paginationFromHelperForQuestion.totalCount,
+      page: pagination.pageNumber,
+      pageSize: pagination.pageSize,
+      totalCount: countPlayers,
+      items: 'playersTop',
     };
   }
 }

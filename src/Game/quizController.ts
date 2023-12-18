@@ -104,13 +104,7 @@ export class QuizController {
     @Req() req,
     @Query() topPaginationDTO: PaginationGetTopDTO,
   ) {
-    //await this.quizService.getTopUsersStatistic(topPaginationDTO);
-    const semen = Object.getOwnPropertyNames(PlayerEntity);
-    console.log(semen);
-    // const sort = topPaginationDTO.sort
-    //   ? topPaginationDTO.sort.toString()
-    //   : 'sort=avgScores desc&sort=sumScore desc';
-    // console.log(sort);
-    return res.status(200).send('Ok');
+    const top = await this.quizService.getTopUsersStatistic(topPaginationDTO);
+    return res.status(200).send(top);
   }
 }

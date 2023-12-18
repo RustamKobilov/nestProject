@@ -16,6 +16,8 @@ export class PlayerEntity {
   draws: number;
   @Column({ type: 'integer' })
   losses: number;
+  @Column({ type: 'integer' })
+  avgScores: number;
 }
 
 export type updatePlayerStaticAfterGame = {

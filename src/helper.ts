@@ -90,9 +90,7 @@ export const helper = {
     return {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
-      sort: query.sort
-        ? query.sort.toString()
-        : 'sort=avgScores desc&sort=sumScore desc',
+      sort: query.sort ? query.sort.toString() : 'avgScores desc,sumScore desc',
     };
   },
 };

@@ -8,7 +8,9 @@ import { GameEntity, QuestionInGameEntityType } from './GameEntity';
 import {
   GamePairViewModel,
   GamePairViewModelPendingSecondPlayerViewModel,
+  TopPlayerViewModel,
 } from './gameDTO';
+import { PlayerEntity } from './PlayerEntity';
 
 export const mapKuiz = {
   mapSaQuestionsViewModel(questions: QuestionEntity[]): SaQuestionViewModel[] {
@@ -126,5 +128,23 @@ export const mapKuiz = {
       questionInGameEntityType.push(questionQuestionInGameEntityType);
     }
     return questionInGameEntityType;
+  },
+  mapTopPlayerViewModel(playerArray: PlayerEntity[]) {
+    const topPlayersViewModel: TopPlayerViewModel[] = [];
+    for (const player of playerArray) {
+      const avgScoresDouble = player.scores / player.games;
+      const avgScores = Number(avgScoresDouble.toFixed(2));
+      const topPlayer: TopPlayerViewModel = {
+        player: { id: player.id, login: player.login },
+        avgScores: avgScores,
+        gamesCount: player.games,
+        winsCount: player.wins,
+        drawsCount: player.draws,
+        lossesCount: player.losses,
+        sumScore: player.scores,
+      };
+      topPlayersViewModel.push(topPlayer);
+    }
+    return topPlayersViewModel;
   },
 };

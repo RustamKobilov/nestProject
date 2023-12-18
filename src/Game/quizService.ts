@@ -311,11 +311,10 @@ export class QuizService {
   }
 
   private getStatisticViewModel(player: PlayerEntity): StaticViewModel {
-    const avgScoresDouble = player.scores / player.games;
-    const avgScores = Number(avgScoresDouble.toFixed(2));
+    console.log(player);
     const staticPlayerNullGame: StaticViewModel = {
       gamesCount: player.games,
-      avgScores: avgScores,
+      avgScores: player.avgScores,
       winsCount: player.wins,
       drawsCount: player.draws,
       lossesCount: player.losses,
@@ -340,6 +339,7 @@ export class QuizService {
         draws: 0,
         wins: 0,
         losses: 0,
+        avgScores: 0,
       };
       const createPlayer = await this.quizRepository.createPlayer(player);
     }
@@ -408,45 +408,9 @@ export class QuizService {
   async getTopUsersStatistic(topPaginationDTO: PaginationGetTopDTO) {
     const pagination = helper.getTopUserPaginationDTO(topPaginationDTO);
     console.log(pagination);
-    const array: { itemName: string; itemSort: string }[] = [];
-    const keysPlayerStatic = [
-      'sumScore',
-      'avgScores',
-      'gamesCount',
-      'winsCount',
-      'lossesCount',
-      'drawsCount',
-    ];
-    const inputParamsOrder = pagination.sort.split(',');
-    for (const inputParam of inputParamsOrder) {
-      console.log(inputParam.split(' ')[1]);
-      if (
-        inputParam.split(' ')[1] !== 'desc' &&
-        inputParam.split(' ')[1] !== 'asc'
-      ) {
-        {
-          throw new BadRequestException(
-            'ne dolgen byt nichego krome asc/desc getTopUsersStatistic/quizService',
-          );
-        }
-      }
-      if (!keysPlayerStatic.includes(inputParam.split(' ')[0])) {
-        {
-          throw new BadRequestException(
-            'ne dolgen byt nichego krome keysPlayerStatic getTopUsersStatistic/quizService',
-          );
-        }
-      } else {
-        array.push({
-          itemName: inputParam.split(' ')[0],
-          itemSort: inputParam.split(' ')[1],
-        });
-      }
-    }
-
     const topUserStatistic = await this.quizRepository.getStatisticTopUser(
       pagination,
     );
-    return true;
+    return topUserStatistic;
   }
 }

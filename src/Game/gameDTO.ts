@@ -1,6 +1,6 @@
 import { gameStatusesEnum } from '../Qustions/questionEnum';
 import { AnswerViewModel, QuestionViewModel } from '../Qustions/questionDTO';
-import { IsArray, IsNumber, IsOptional, Min } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class PaginationGetTopDTO {
@@ -69,7 +69,7 @@ export class StaticViewModel {
   lossesCount: number;
   drawsCount: number;
 }
-export class TopGamePlayerViewModel {
+export class TopPlayerViewModel {
   sumScore: number; //Sum scores of all games
   avgScores: number; //Average score of all games rounded to 2 decimal places
   gamesCount: number; //All played games count

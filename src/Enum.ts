@@ -9,7 +9,7 @@ export enum token {
 }
 
 export enum playerStatic {
-  'sumScore' = 'score',
+  'sumScore' = 'scores',
   'avgScores' = 'avgScores',
   'gamesCount' = 'games',
   'winsCount' = 'wins',

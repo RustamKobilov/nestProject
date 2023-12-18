@@ -12,7 +12,8 @@ export class DataRepositorySql {
         ' reaction_entity,device_entity,' +
         ' user_recovery_password_info_entity,' +
         ' game_entity,' +
-        ' question_entity',
+        ' question_entity,' +
+        ' player_entity',
     );
     return;
   }

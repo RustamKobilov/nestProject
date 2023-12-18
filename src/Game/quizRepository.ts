@@ -189,49 +189,70 @@ export class QuizRepository {
     playerId: string,
   ) {
     console.log('updatePlayerAfterGame');
-    // const qbPlayer = await this.playerRepositoryTypeOrm
-    //   .createQueryBuilder('player')
-    //   .setLock('pessimistic_write');
-
     const queryRunner = await this.dataSource.createQueryRunner();
 
     try {
       await queryRunner.connect();
       await queryRunner.startTransaction();
-      const findPlayer = await queryRunner.manager
+      // const findPlayer = await queryRunner.manager
+      //   .getRepository(PlayerEntity)
+      //   .createQueryBuilder('player')
+      //   .useTransaction(true)
+      //   .setLock('pessimistic_write')
+      //   .where('id = :id', { id: playerId })
+      //   .getOne();
+      // if (!findPlayer) {
+      //   return false;
+      // }
+      // const avgScoresDouble =
+      //   (playerStatic.scores + findPlayer.scores) /
+      //   (playerStatic.games + findPlayer.games);
+      // console.log(avgScoresDouble);
+      // const avgScoresFinish = Number(avgScoresDouble.toFixed(2));
+      // console.log('avgSores');
+      // console.log(avgScoresFinish);
+      //
+      // const updateResult: any = await queryRunner.manager
+      //   .getRepository(PlayerEntity)
+      //   .createQueryBuilder('player')
+      //   .update()
+      //   .set({
+      //     games: () => `games + ${playerStatic.games}`,
+      //     scores: () => `scores + ${playerStatic.scores}`,
+      //     wins: () => `wins + ${playerStatic.wins}`,
+      //     draws: () => `draws + ${playerStatic.draws}`,
+      //     losses: () => `losses + ${playerStatic.losses}`,
+      //     avgScores: avgScoresFinish,
+      //   })
+      //   .where('id = :id', { id: playerId })
+      //   .execute();
+      const player = await queryRunner.manager
         .getRepository(PlayerEntity)
         .createQueryBuilder('player')
         .useTransaction(true)
         .setLock('pessimistic_write')
         .where('id = :id', { id: playerId })
         .getOne();
-      if (!findPlayer) {
+      if (!player) {
         return false;
       }
       const avgScoresDouble =
-        (playerStatic.scores + findPlayer.scores) /
-        (playerStatic.games + findPlayer.games);
+        (playerStatic.scores + player.scores) /
+        (playerStatic.games + player.games);
       console.log(avgScoresDouble);
       const avgScoresFinish = Number(avgScoresDouble.toFixed(2));
       console.log('avgSores');
       console.log(avgScoresFinish);
 
-      const updateResult: any = await queryRunner.manager
-        .getRepository(PlayerEntity)
-        .createQueryBuilder('player')
-        .update()
-        .set({
-          games: () => `games + ${playerStatic.games}`,
-          scores: () => `scores + ${playerStatic.scores}`,
-          wins: () => `wins + ${playerStatic.wins}`,
-          draws: () => `draws + ${playerStatic.draws}`,
-          losses: () => `losses + ${playerStatic.losses}`,
-          avgScores: avgScoresFinish,
-        })
-        .where('id = :id', { id: playerId })
-        .execute();
+      (player.games = player.games + playerStatic.games),
+        (player.scores = player.scores + playerStatic.scores),
+        (player.wins = player.wins + playerStatic.wins),
+        (player.draws = player.draws + playerStatic.draws),
+        (player.losses = player.losses + playerStatic.losses),
+        (player.avgScores = avgScoresFinish),
+        await queryRunner.manager.getRepository(PlayerEntity).save(player);
+
       await queryRunner.commitTransaction();
-      return updateResult;
     } catch (e) {
       ('rollback');
       await queryRunner.rollbackTransaction();

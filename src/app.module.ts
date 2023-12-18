@@ -132,7 +132,7 @@ import { QuizController } from './Game/quizController';
 import { QuestionsService } from './Qustions/questionsService';
 import { QuestionsRepository } from './Qustions/questionsRepository';
 import { GameEntity } from './Game/GameEntity';
-import { QuizRepository } from './Game/QuizRepository';
+import { QuizRepository } from './Game/quizRepository';
 import { QuizService } from './Game/quizService';
 import { PlayerEntity } from './Game/PlayerEntity';
 

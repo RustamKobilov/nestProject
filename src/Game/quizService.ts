@@ -5,7 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { QuizRepository } from './QuizRepository';
+import { QuizRepository } from './quizRepository';
 import { GameEntity, PlayerInformation } from './GameEntity';
 import { randomUUID } from 'crypto';
 import { answerStatusesEnum, gameStatusesEnum } from '../Qustions/questionEnum';

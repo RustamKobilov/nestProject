@@ -244,20 +244,28 @@ export class QuizRepository {
       console.log('avgSores');
       console.log(avgScoresFinish);
 
-      (player.games = player.games + playerStatic.games),
-        (player.scores = player.scores + playerStatic.scores),
-        (player.wins = player.wins + playerStatic.wins),
-        (player.draws = player.draws + playerStatic.draws),
-        (player.losses = player.losses + playerStatic.losses),
-        (player.avgScores = avgScoresFinish),
-        await queryRunner.manager.getRepository(PlayerEntity).save(player);
+      player.games = player.games + playerStatic.games;
+      player.scores = player.scores + playerStatic.scores;
+      player.wins = player.wins + playerStatic.wins;
+      player.draws = player.draws + playerStatic.draws;
+      player.losses = player.losses + playerStatic.losses;
+      player.avgScores = avgScoresFinish;
+      console.log(player.games + 'player.games');
+      console.log(player.scores + 'player.scores');
+      console.log(player.wins + 'player.wins');
+      console.log(player.draws + 'player.draws');
+      console.log(player.losses + 'player.losses');
+      console.log(player.avgScores + 'player.avgScores');
+      console.log(player);
+
+      await queryRunner.manager.getRepository(PlayerEntity).save(player);
 
       await queryRunner.commitTransaction();
     } catch (e) {
-      ('rollback');
+      console.log('rollback');
       await queryRunner.rollbackTransaction();
     } finally {
-      ('realase');
+      console.log('realase');
       await queryRunner.release();
       return true;
     }

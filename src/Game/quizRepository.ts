@@ -250,12 +250,12 @@ export class QuizRepository {
       player.draws = player.draws + playerStatic.draws;
       player.losses = player.losses + playerStatic.losses;
       player.avgScores = avgScoresFinish;
-      console.log(player.games + 'player.games');
-      console.log(player.scores + 'player.scores');
-      console.log(player.wins + 'player.wins');
-      console.log(player.draws + 'player.draws');
-      console.log(player.losses + 'player.losses');
-      console.log(player.avgScores + 'player.avgScores');
+      // console.log(player.games + 'player.games');
+      // console.log(player.scores + 'player.scores');
+      // console.log(player.wins + 'player.wins');
+      // console.log(player.draws + 'player.draws');
+      // console.log(player.losses + 'player.losses');
+      // console.log(player.avgScores + 'player.avgScores');
       console.log(player);
 
       await queryRunner.manager.getRepository(PlayerEntity).save(player);

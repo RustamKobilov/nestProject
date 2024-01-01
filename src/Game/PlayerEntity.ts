@@ -16,7 +16,7 @@ export class PlayerEntity {
   draws: number;
   @Column({ type: 'integer' })
   losses: number;
-  @Column({ type: 'integer' })
+  @Column({ type: 'real' })
   avgScores: number;
 }
 

@@ -2,7 +2,17 @@ import { CreateBlogDTO, CreateUserDto } from '../src/DTO';
 import { faker } from '@faker-js/faker';
 import request from 'supertest';
 import { endpoints } from './routing';
-import { CreateQuestionDTO } from '../src/Qustions/questionDTO';
+import {
+  AnswerViewModel,
+  CreateAnswerDTO,
+  CreateQuestionDTO,
+  QuestionViewModel,
+} from '../src/Qustions/questionDTO';
+import {
+  GamePairViewModel,
+  GamePairViewModelPendingSecondPlayerViewModel,
+} from '../src/Game/gameDTO';
+import { gameStatusesEnum } from '../src/Qustions/questionEnum';
 
 export type CreateUserTest = {
   id: string;
@@ -51,11 +61,12 @@ export class HelperTest {
     const inputUserTest = await this.createTestingUserForAdmin();
     const authorization = await this.getBasicAuthorization();
     const responseCreateUserForAdmin = await request(this.server)
-      .post(endpoints.usersController)
+      .post(endpoints.admin + '/users')
       .auth(authorization.username, authorization.password, {
         type: 'basic',
       })
       .send(inputUserTest);
+
     const userTestAfterCreate = {
       ...inputUserTest,
       id: responseCreateUserForAdmin.body.id,
@@ -65,21 +76,21 @@ export class HelperTest {
       loginOrEmail: userTestAfterCreate.login,
       password: userTestAfterCreate.password,
     };
-    console.log(inputUserLoginAndPassword);
-    const responseLogin = await request(this.server)
+
+    const responseLoginUser = await request(this.server)
       .post(endpoints.authController.login)
       .send(inputUserLoginAndPassword);
-    //expect(responseLogin.status).toBe(200);
-    //expect(responseLogin.body.accessToken).toBeDefined();
-    const accessToken = responseLogin.body.accessToken;
-    const refreshTokenCookies = responseLogin.headers['set-cookie'];
-   //
-    //TODO продумать куда вынести проверки
-    const refreshToken = 'srting'
-      //await this.getRefreshTokenInCookie(
-      responseLogin.headers['set-cookie'],
+
+    expect(responseLoginUser.status).toBe(200);
+    expect(responseLoginUser.body.accessToken).toBeDefined();
+
+    const accessToken = responseLoginUser.body.accessToken;
+    const refreshTokenCookies = responseLoginUser.headers['set-cookie'];
+
+    const refreshToken = await this.getRefreshTokenInCookie(
+      responseLoginUser.headers['set-cookie'],
     );
-    //expect(refreshToken).not.toBe(false);
+    expect(refreshToken).not.toBe('refreshTokenUndefined');
     return {
       id: userTestAfterCreate.id,
       login: userTestAfterCreate.login,
@@ -89,13 +100,127 @@ export class HelperTest {
       accessToken: accessToken,
     };
   }
+  async connectionQuizGameForUser1(
+    refreshTokenUserForCreateGame: string,
+    idUser: string,
+    loginUser: string,
+  ) {
+    const responseConnectionUser1Test = await request(this.server)
+      .post(endpoints.gameQuiz + '/pairs/connection')
+      .set('Authorization', 'Bearer ' + refreshTokenUserForCreateGame);
 
+    expect(responseConnectionUser1Test.status).toBe(200);
+    expect(responseConnectionUser1Test.body).toEqual(<
+      GamePairViewModelPendingSecondPlayerViewModel
+    >{
+      id: expect.any(String),
+      firstPlayerProgress: {
+        answers: expect.any(Array<AnswerViewModel>),
+        player: {
+          id: idUser,
+          login: loginUser,
+        },
+        score: expect.any(Number),
+      },
+      secondPlayerProgress: null,
+      questions: null,
+      status: gameStatusesEnum.PendingSecondPlayer,
+      pairCreatedDate: expect.any(String),
+      startGameDate: null,
+      finishGameDate: null,
+    });
+    return;
+  }
+  async connectionQuizGameForUser2(
+    refreshTokenUserForCreateGame: string,
+    idUser: string,
+    loginUser: string,
+  ): Promise<string> {
+    const responseConnectionUser2Test = await request(this.server)
+      .post(endpoints.gameQuiz + '/pairs/connection')
+      .set('Authorization', 'Bearer ' + refreshTokenUserForCreateGame);
+
+    expect(responseConnectionUser2Test.status).toBe(200);
+    expect(responseConnectionUser2Test.body).toEqual(<GamePairViewModel>{
+      id: expect.any(String),
+      firstPlayerProgress: {
+        answers: expect.any(Array<AnswerViewModel>),
+        player: {
+          id: expect.any(String),
+          login: expect.any(String),
+        },
+        score: expect.any(Number),
+      },
+      secondPlayerProgress: {
+        answers: expect.any(Array<AnswerViewModel>),
+        player: {
+          id: idUser,
+          login: loginUser,
+        },
+        score: expect.any(Number),
+      },
+      questions: expect.any(Array<QuestionViewModel>),
+      status: gameStatusesEnum.Active,
+      pairCreatedDate: expect.any(String),
+      startGameDate: expect.any(String),
+      finishGameDate: null,
+    });
+    const gameId = responseConnectionUser2Test.body.id;
+    return gameId;
+  }
+  async createAnswerInGameFor2User(
+    refreshTokenTheBestFasterUser: string,
+    countCorrectAnswerTheBestFasterUser: number,
+    refreshTokenUser1: string,
+    countCorrectAnswerUser1: number,
+  ) {
+    //userFast
+    for (let x = 0; x < 5; x++) {
+      if (x < countCorrectAnswerTheBestFasterUser) {
+        const responseCreateAnswerUser1Test = await request(this.server)
+          .post(endpoints.gameQuiz + '/pairs/my-current/answers')
+          .set('Authorization', 'Bearer ' + refreshTokenTheBestFasterUser)
+          .send(<CreateAnswerDTO>{
+            answer: 'answer',
+          });
+        expect(responseCreateAnswerUser1Test.status).toBe(200);
+      } else {
+        const responseCreateAnswerUser1Test = await request(this.server)
+          .post(endpoints.gameQuiz + '/pairs/my-current/answers')
+          .set('Authorization', 'Bearer ' + refreshTokenTheBestFasterUser)
+          .send(<CreateAnswerDTO>{
+            answer: 'answer false',
+          });
+        expect(responseCreateAnswerUser1Test.status).toBe(200);
+      }
+    }
+    for (let x = 0; x < 5; x++) {
+      if (x < countCorrectAnswerUser1) {
+        const responseCreateAnswerUser1Test = await request(this.server)
+          .post(endpoints.gameQuiz + '/pairs/my-current/answers')
+          .set('Authorization', 'Bearer ' + refreshTokenUser1)
+          .send(<CreateAnswerDTO>{
+            answer: 'answer',
+          });
+        expect(responseCreateAnswerUser1Test.status).toBe(200);
+      } else {
+        const responseCreateAnswerUser1Test = await request(this.server)
+          .post(endpoints.gameQuiz + '/pairs/my-current/answers')
+          .set('Authorization', 'Bearer ' + refreshTokenUser1)
+          .send(<CreateAnswerDTO>{
+            answer: 'answer false',
+          });
+        expect(responseCreateAnswerUser1Test.status).toBe(200);
+      }
+    }
+    return;
+  }
   async getRefreshTokenInCookie(cookieArray: []) {
     const refreshTokenCookies = cookieArray.filter(function (val: string) {
       return val.split('=')[0] == 'refreshToken';
     });
     if (refreshTokenCookies.length === 0) {
-      return false;
+      return 'refreshTokenUndefined';
     }
     const refreshToken = refreshTokenCookies
       .map(function (val: string) {
@@ -125,6 +250,7 @@ export class HelperTest {
       correctAnswers: [
         faker.lorem.word({ length: { min: 10, max: 20 } }),
         faker.lorem.word({ length: { min: 10, max: 20 } }),
+        'answer',
       ],
       body: faker.lorem.word({ length: { min: 10, max: 500 } }),
     };

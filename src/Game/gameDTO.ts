@@ -15,7 +15,6 @@ export class PaginationGetTopDTO {
   @IsNumber()
   pageSize: number;
   @IsOptional()
-  @IsArray()
   sort: string;
   //Default value : ?sort=avgScores desc&sort=sumScore desc
 }

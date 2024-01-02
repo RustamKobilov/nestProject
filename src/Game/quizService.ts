@@ -168,6 +168,10 @@ export class QuizService {
         throw new ForbiddenException('answerLength / createAnswer/quizService');
       }
       const questionForAnswer = game.questions[game.firstPlayerAnswers.length];
+      console.log('tyt');
+      console.log(questionForAnswer);
+      console.log(createAnswerDTO.answer);
+      console.log('tyt2');
       const answerStatus =
         questionForAnswer.correctAnswers.includes(createAnswerDTO.answer) ===
         true
@@ -192,16 +196,16 @@ export class QuizService {
           countAnswer,
           player.playerId,
         );
-        console.log('kladem tyda');
-        console.log('firstplayerScore');
-        console.log(gameAddPoint.firstPlayerScore);
-        console.log('secondplayerScore');
-        console.log(gameAddPoint.firstPlayerScore);
         await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
         const updateStaticPlayer = await this.updatePlayerAfterGame(
           gameAddPoint,
         );
         return answerViewModel;
+      }
+      if (game.secondPlayerAnswers.length === countAnswer) {
+        setTimeout(async () => {
+          await this.finishGameForSlowPlayer(player);
+        }, 10000);
       }
       await this.quizRepository.updateGameAfterAnswerPlayer(game);
       return answerViewModel;
@@ -213,6 +217,10 @@ export class QuizService {
       );
     }
     const questionForAnswer = game.questions[game.secondPlayerAnswers.length];
+    console.log('tyt');
+    console.log(questionForAnswer);
+    console.log(createAnswerDTO.answer);
+    console.log('tyt2');
     const answerStatus =
       questionForAnswer.correctAnswers.includes(createAnswerDTO.answer) === true
         ? answerStatusesEnum.Correct
@@ -227,6 +235,11 @@ export class QuizService {
       questionId: questionForAnswer.id,
     };
     game.secondPlayerAnswers.push(answerViewModel);
+    if (game.secondPlayerAnswers.length === countAnswer) {
+      setTimeout(async () => {
+        await this.finishGameForSlowPlayer(player);
+      }, 10000);
+    }
     if (
       game.firstPlayerAnswers.length === countAnswer &&
       game.secondPlayerAnswers.length === countAnswer
@@ -237,13 +250,13 @@ export class QuizService {
         player.playerId,
       );
       await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
-      console.log('kladem tyda');
-      console.log('firstplayerScore');
-      console.log(gameAddPoint.firstPlayerScore);
-      console.log('secondplayerScore');
-      console.log(gameAddPoint.firstPlayerScore);
       const updateStaticPlayer = await this.updatePlayerAfterGame(gameAddPoint);
       return answerViewModel;
+    }
+    if (game.secondPlayerAnswers.length === countAnswer) {
+      setTimeout(async () => {
+        await this.finishGameForSlowPlayer(player);
+      }, 10000);
     }
     await this.quizRepository.updateGameAfterAnswerPlayer(game);
     return answerViewModel;
@@ -412,5 +425,48 @@ export class QuizService {
       pagination,
     );
     return topUserStatistic;
+  }
+
+  async finishGameForSlowPlayer(player: PlayerInformation) {
+    const getGames = await this.quizRepository.getActiveGameForPlayer(player);
+    const countAnswer = 5;
+    if (getGames.length < 1) {
+      throw new ForbiddenException(
+        'noActiveGameForUser / createAnswer/quizService',
+      );
+    }
+    const game = getGames[0];
+    const answersPlayer =
+      game.firstPlayerId === player.playerId
+        ? game.secondPlayerAnswers
+        : game.firstPlayerAnswers;
+
+    if (answersPlayer.length < countAnswer) {
+      let i = answersPlayer.length;
+      while (i < countAnswer) {
+        answersPlayer.push({
+          answerStatus: answerStatusesEnum.Incorrect,
+          addedAt: new Date().toISOString(),
+          questionId: game.questions[i].id,
+        });
+        i++;
+      }
+      console.log(game);
+      //await this.quizRepository.updateGameAfterAnswerPlayer(game);
+      const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+        game,
+        countAnswer,
+        player.playerId,
+      );
+      await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
+      const updateStaticPlayer = await this.updatePlayerAfterGame(gameAddPoint);
+
+      console.log('ne yspeli');
+      console.log(answersPlayer);
+      return;
+    }
+    console.log('yspeli');
+    console.log(answersPlayer);
+    return;
   }
 }

@@ -49,6 +49,11 @@ export class QuizController {
       player,
       createAnswerDTO,
     );
+
+    //setTimeout(async () => {
+    // await this.quizService.finishGameForSlowPlayer(player);
+    //}, 5000);
+
     return res.status(200).send(answerViewModel);
   }
   @UseGuards(BearerGuard)
@@ -105,6 +110,7 @@ export class QuizController {
     @Query() topPaginationDTO: PaginationGetTopDTO,
   ) {
     const top = await this.quizService.getTopUsersStatistic(topPaginationDTO);
+
     return res.status(200).send(top);
   }
 }

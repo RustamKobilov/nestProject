@@ -1,16 +1,12 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { GameEntity, PlayerInformation } from './GameEntity';
-import {
-  gameStatusesEnum,
-  publishedStatusEnum,
-} from '../Qustions/questionEnum';
+import { answerStatusesEnum, gameStatusesEnum } from '../Qustions/questionEnum';
 import { mapObject } from '../mapObject';
 import { Injectable } from '@nestjs/common';
 import { QuestionsRepository } from '../Qustions/questionsRepository';
 import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
 import { outputModel, PaginationSqlDTO } from '../DTO';
-import { UserViewModel } from '../viewModelDTO';
 import {
   GamePairViewModel,
   PaginationGetTopDTO,
@@ -19,6 +15,7 @@ import {
 import { helper } from '../helper';
 import { mapKuiz } from './mapKuiz';
 import { playerStatic } from '../Enum';
+import { QuizService } from './quizService';
 
 @Injectable()
 export class QuizRepository {
@@ -338,6 +335,97 @@ export class QuizRepository {
       totalCount: countPlayers,
       items: playersTopViewModel,
     };
+  }
+  async endGameSlowPlayer(gameId: string, playerId: string) {
+    const queryRunner = await this.dataSource.createQueryRunner();
+    const countAnswer = 5;
+    try {
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+
+      const game = await queryRunner.manager
+        .getRepository(GameEntity)
+        .createQueryBuilder('player')
+        .useTransaction(true)
+        .setLock('pessimistic_write')
+        .where('id = :id', { id: gameId })
+        .getOne();
+      if (!game) {
+        return false;
+      }
+      const answersSlowPlayer =
+        game.firstPlayerId === playerId
+          ? game.secondPlayerAnswers
+          : game.firstPlayerAnswers;
+      if (answersSlowPlayer.length === countAnswer) {
+        console.log('yspel dat otvet');
+        return true;
+      }
+      while (answersSlowPlayer.length < countAnswer) {
+        answersSlowPlayer.push({
+          answerStatus: answerStatusesEnum.Incorrect,
+          addedAt: new Date().toISOString(),
+          questionId: game.questions[answersSlowPlayer.length].id,
+        });
+      }
+      const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+        game,
+        countAnswer,
+        playerId,
+      );
+      (gameAddPoint.status = gameStatusesEnum.Finished),
+        (gameAddPoint.finishGameDate = new Date().toISOString());
+      await queryRunner.manager.getRepository(GameEntity).save(gameAddPoint);
+
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      console.log('rollback');
+      console.log(e);
+      console.log('rollback');
+      await queryRunner.rollbackTransaction();
+    } finally {
+      console.log('realase');
+      await queryRunner.release();
+      return true;
+    }
+  }
+  public addPointForFastAnswerPlayerInEndGame(
+    game: GameEntity,
+    countAnswer: number,
+    playerId: string,
+  ): GameEntity {
+    if (game.firstPlayerId === playerId) {
+      if (
+        game.firstPlayerScore > 0 &&
+        game.firstPlayerAnswers[countAnswer - 1].addedAt <
+          game.secondPlayerAnswers[countAnswer - 1].addedAt
+      ) {
+        game.firstPlayerScore = game.firstPlayerScore + 1;
+      } else {
+        if (game.secondPlayerScore > 0) {
+          game.secondPlayerScore = game.secondPlayerScore + 1;
+        }
+      }
+      // (game.status = gameStatusesEnum.Finished),
+      //   (game.finishGameDate = new Date().toISOString());
+
+      return game;
+    } else {
+      if (
+        game.secondPlayerScore > 0 &&
+        game.secondPlayerAnswers[countAnswer - 1].addedAt <
+          game.firstPlayerAnswers[countAnswer - 1].addedAt
+      ) {
+        game.secondPlayerScore = game.secondPlayerScore + 1;
+      } else {
+        if (game.firstPlayerScore > 0) {
+          game.firstPlayerScore = game.firstPlayerScore + 1;
+        }
+      }
+      // (game.status = gameStatusesEnum.Finished),
+      //   (game.finishGameDate = new Date().toISOString());
+    }
+    return game;
   }
 }
 // const findPlayer = await queryRunner.manager

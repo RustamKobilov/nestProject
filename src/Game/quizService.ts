@@ -20,10 +20,14 @@ import {
 import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
 import { helper } from '../helper';
 import { outputModel, PaginationSqlDTO } from '../DTO';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class QuizService {
-  constructor(private readonly quizRepository: QuizRepository) {}
+  constructor(
+    private readonly quizRepository: QuizRepository,
+    private readonly schedulerRegistry: SchedulerRegistry,
+  ) {}
 
   private async createGame(player: PlayerInformation): Promise<GameEntity> {
     const game: GameEntity = {
@@ -187,21 +191,23 @@ export class QuizService {
         game.firstPlayerAnswers.length === countAnswer &&
         game.secondPlayerAnswers.length === countAnswer
       ) {
-        const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
-          game,
-          countAnswer,
-          player.playerId,
-        );
-        console.log('kladem tyda');
-        console.log('firstplayerScore');
-        console.log(gameAddPoint.firstPlayerScore);
-        console.log('secondplayerScore');
-        console.log(gameAddPoint.firstPlayerScore);
+        const gameAddPoint =
+          this.quizRepository.addPointForFastAnswerPlayerInEndGame(
+            game,
+            countAnswer,
+            player.playerId,
+          );
+        (gameAddPoint.status = gameStatusesEnum.Finished),
+          (gameAddPoint.finishGameDate = new Date().toISOString());
         await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
         const updateStaticPlayer = await this.updatePlayerAfterGame(
           gameAddPoint,
         );
         return answerViewModel;
+      }
+      if (game.firstPlayerAnswers.length === countAnswer) {
+        this.endGameForSlowPlayerOverTimeOut(game.id, player.playerId);
+        console.log('endGameForSlowPlayerOverTimeOut tyt');
       }
       await this.quizRepository.updateGameAfterAnswerPlayer(game);
       return answerViewModel;
@@ -227,66 +233,70 @@ export class QuizService {
       questionId: questionForAnswer.id,
     };
     game.secondPlayerAnswers.push(answerViewModel);
+
     if (
       game.firstPlayerAnswers.length === countAnswer &&
       game.secondPlayerAnswers.length === countAnswer
     ) {
-      const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
-        game,
-        countAnswer,
-        player.playerId,
-      );
+      const gameAddPoint =
+        this.quizRepository.addPointForFastAnswerPlayerInEndGame(
+          game,
+          countAnswer,
+          player.playerId,
+        );
+      (gameAddPoint.status = gameStatusesEnum.Finished),
+        (gameAddPoint.finishGameDate = new Date().toISOString());
       await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
-      console.log('kladem tyda');
-      console.log('firstplayerScore');
-      console.log(gameAddPoint.firstPlayerScore);
-      console.log('secondplayerScore');
-      console.log(gameAddPoint.firstPlayerScore);
+
       const updateStaticPlayer = await this.updatePlayerAfterGame(gameAddPoint);
       return answerViewModel;
+    }
+    if (game.secondPlayerAnswers.length === countAnswer) {
+      this.endGameForSlowPlayerOverTimeOut(game.id, player.playerId);
+      console.log('endGameForSlowPlayerOverTimeOut tyt');
     }
     await this.quizRepository.updateGameAfterAnswerPlayer(game);
     return answerViewModel;
   }
 
-  private addPointForFastAnswerPlayerInEndGame(
-    game: GameEntity,
-    countAnswer: number,
-    playerId: string,
-  ): GameEntity {
-    if (game.firstPlayerId === playerId) {
-      if (
-        game.firstPlayerScore > 0 &&
-        game.firstPlayerAnswers[countAnswer - 1].addedAt <
-          game.secondPlayerAnswers[countAnswer - 1].addedAt
-      ) {
-        game.firstPlayerScore = game.firstPlayerScore + 1;
-      } else {
-        if (game.secondPlayerScore > 0) {
-          game.secondPlayerScore = game.secondPlayerScore + 1;
-        }
-      }
-      (game.status = gameStatusesEnum.Finished),
-        (game.finishGameDate = new Date().toISOString());
-
-      return game;
-    } else {
-      if (
-        game.secondPlayerScore > 0 &&
-        game.secondPlayerAnswers[countAnswer - 1].addedAt <
-          game.firstPlayerAnswers[countAnswer - 1].addedAt
-      ) {
-        game.secondPlayerScore = game.secondPlayerScore + 1;
-      } else {
-        if (game.firstPlayerScore > 0) {
-          game.firstPlayerScore = game.firstPlayerScore + 1;
-        }
-      }
-      (game.status = gameStatusesEnum.Finished),
-        (game.finishGameDate = new Date().toISOString());
-    }
-    return game;
-  }
+  // addPointForFastAnswerPlayerInEndGame(
+  //   game: GameEntity,
+  //   countAnswer: number,
+  //   playerId: string,
+  // ): GameEntity {
+  //   if (game.firstPlayerId === playerId) {
+  //     if (
+  //       game.firstPlayerScore > 0 &&
+  //       game.firstPlayerAnswers[countAnswer - 1].addedAt <
+  //         game.secondPlayerAnswers[countAnswer - 1].addedAt
+  //     ) {
+  //       game.firstPlayerScore = game.firstPlayerScore + 1;
+  //     } else {
+  //       if (game.secondPlayerScore > 0) {
+  //         game.secondPlayerScore = game.secondPlayerScore + 1;
+  //       }
+  //     }
+  //     (game.status = gameStatusesEnum.Finished),
+  //       (game.finishGameDate = new Date().toISOString());
+  //
+  //     return game;
+  //   } else {
+  //     if (
+  //       game.secondPlayerScore > 0 &&
+  //       game.secondPlayerAnswers[countAnswer - 1].addedAt <
+  //         game.firstPlayerAnswers[countAnswer - 1].addedAt
+  //     ) {
+  //       game.secondPlayerScore = game.secondPlayerScore + 1;
+  //     } else {
+  //       if (game.firstPlayerScore > 0) {
+  //         game.firstPlayerScore = game.firstPlayerScore + 1;
+  //       }
+  //     }
+  //     (game.status = gameStatusesEnum.Finished),
+  //       (game.finishGameDate = new Date().toISOString());
+  //   }
+  //   return game;
+  // }
 
   async getStatisticGameUser(
     player: PlayerInformation,
@@ -412,5 +422,12 @@ export class QuizService {
       pagination,
     );
     return topUserStatistic;
+  }
+  private endGameForSlowPlayerOverTimeOut(gameId: string, playerId: string) {
+    console.log('endGameForSlowPlayerOverTimeOut start');
+    const timeout = setTimeout(async () => {
+      await this.quizRepository.endGameSlowPlayer(gameId, playerId);
+    }, 9500);
+    this.schedulerRegistry.addTimeout(playerId, timeout);
   }
 }

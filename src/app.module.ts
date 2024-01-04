@@ -135,6 +135,8 @@ import { GameEntity } from './Game/GameEntity';
 import { QuizRepository } from './Game/quizRepository';
 import { QuizService } from './Game/quizService';
 import { PlayerEntity } from './Game/PlayerEntity';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronService } from './cronService';
 
 dotenv.config();
 const useCaseUser = [
@@ -301,6 +303,7 @@ const sqlEntity = [
       },
     }),
     TypeOrmModule.forFeature(sqlEntity),
+    ScheduleModule.forRoot(),
   ],
   controllers: [
     UserController,
@@ -393,6 +396,7 @@ const sqlEntity = [
     ...useCaseAdapters,
     ...useCaseUser,
     ...sqlEntity,
+    CronService,
     // {
     //   provide: APP_GUARD,
     //   useClass: ThrottlerGuard,

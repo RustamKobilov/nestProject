@@ -347,7 +347,6 @@ describe('test App', () => {
         startGameDate: expect.any(String),
         finishGameDate: expect.any(String),
       });
-      //TODO тест топа после двух тестов 2 выше
     });
 
     it('gat statisticGame for User', async () => {

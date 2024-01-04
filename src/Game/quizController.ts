@@ -50,10 +50,6 @@ export class QuizController {
       createAnswerDTO,
     );
 
-    //setTimeout(async () => {
-    // await this.quizService.finishGameForSlowPlayer(player);
-    //}, 5000);
-
     return res.status(200).send(answerViewModel);
   }
   @UseGuards(BearerGuard)

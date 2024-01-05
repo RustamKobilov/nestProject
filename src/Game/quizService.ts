@@ -20,7 +20,7 @@ import {
 import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
 import { helper } from '../helper';
 import { outputModel, PaginationSqlDTO } from '../DTO';
-import { SchedulerRegistry } from '@nestjs/schedule';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class QuizService {
@@ -191,12 +191,11 @@ export class QuizService {
         game.firstPlayerAnswers.length === countAnswer &&
         game.secondPlayerAnswers.length === countAnswer
       ) {
-        const gameAddPoint =
-          this.quizRepository.addPointForFastAnswerPlayerInEndGame(
-            game,
-            countAnswer,
-            player.playerId,
-          );
+        const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+          game,
+          countAnswer,
+          player.playerId,
+        );
         (gameAddPoint.status = gameStatusesEnum.Finished),
           (gameAddPoint.finishGameDate = new Date().toISOString());
         await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
@@ -204,10 +203,6 @@ export class QuizService {
           gameAddPoint,
         );
         return answerViewModel;
-      }
-      if (game.firstPlayerAnswers.length === countAnswer) {
-        this.endGameForSlowPlayerOverTimeOut(game.id, player.playerId);
-        console.log('endGameForSlowPlayerOverTimeOut tyt');
       }
       await this.quizRepository.updateGameAfterAnswerPlayer(game);
       return answerViewModel;
@@ -238,12 +233,11 @@ export class QuizService {
       game.firstPlayerAnswers.length === countAnswer &&
       game.secondPlayerAnswers.length === countAnswer
     ) {
-      const gameAddPoint =
-        this.quizRepository.addPointForFastAnswerPlayerInEndGame(
-          game,
-          countAnswer,
-          player.playerId,
-        );
+      const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+        game,
+        countAnswer,
+        player.playerId,
+      );
       (gameAddPoint.status = gameStatusesEnum.Finished),
         (gameAddPoint.finishGameDate = new Date().toISOString());
       await this.quizRepository.updateGameAfterAnswerPlayer(gameAddPoint);
@@ -251,52 +245,48 @@ export class QuizService {
       const updateStaticPlayer = await this.updatePlayerAfterGame(gameAddPoint);
       return answerViewModel;
     }
-    if (game.secondPlayerAnswers.length === countAnswer) {
-      this.endGameForSlowPlayerOverTimeOut(game.id, player.playerId);
-      console.log('endGameForSlowPlayerOverTimeOut tyt');
-    }
     await this.quizRepository.updateGameAfterAnswerPlayer(game);
     return answerViewModel;
   }
 
-  // addPointForFastAnswerPlayerInEndGame(
-  //   game: GameEntity,
-  //   countAnswer: number,
-  //   playerId: string,
-  // ): GameEntity {
-  //   if (game.firstPlayerId === playerId) {
-  //     if (
-  //       game.firstPlayerScore > 0 &&
-  //       game.firstPlayerAnswers[countAnswer - 1].addedAt <
-  //         game.secondPlayerAnswers[countAnswer - 1].addedAt
-  //     ) {
-  //       game.firstPlayerScore = game.firstPlayerScore + 1;
-  //     } else {
-  //       if (game.secondPlayerScore > 0) {
-  //         game.secondPlayerScore = game.secondPlayerScore + 1;
-  //       }
-  //     }
-  //     (game.status = gameStatusesEnum.Finished),
-  //       (game.finishGameDate = new Date().toISOString());
-  //
-  //     return game;
-  //   } else {
-  //     if (
-  //       game.secondPlayerScore > 0 &&
-  //       game.secondPlayerAnswers[countAnswer - 1].addedAt <
-  //         game.firstPlayerAnswers[countAnswer - 1].addedAt
-  //     ) {
-  //       game.secondPlayerScore = game.secondPlayerScore + 1;
-  //     } else {
-  //       if (game.firstPlayerScore > 0) {
-  //         game.firstPlayerScore = game.firstPlayerScore + 1;
-  //       }
-  //     }
-  //     (game.status = gameStatusesEnum.Finished),
-  //       (game.finishGameDate = new Date().toISOString());
-  //   }
-  //   return game;
-  // }
+  public addPointForFastAnswerPlayerInEndGame(
+    game: GameEntity,
+    countAnswer: number,
+    playerId: string,
+  ): GameEntity {
+    if (game.firstPlayerId === playerId) {
+      if (
+        game.firstPlayerScore > 0 &&
+        game.firstPlayerAnswers[countAnswer - 1].addedAt <
+          game.secondPlayerAnswers[countAnswer - 1].addedAt
+      ) {
+        game.firstPlayerScore = game.firstPlayerScore + 1;
+      } else {
+        if (game.secondPlayerScore > 0) {
+          game.secondPlayerScore = game.secondPlayerScore + 1;
+        }
+      }
+      (game.status = gameStatusesEnum.Finished),
+        (game.finishGameDate = new Date().toISOString());
+
+      return game;
+    } else {
+      if (
+        game.secondPlayerScore > 0 &&
+        game.secondPlayerAnswers[countAnswer - 1].addedAt <
+          game.firstPlayerAnswers[countAnswer - 1].addedAt
+      ) {
+        game.secondPlayerScore = game.secondPlayerScore + 1;
+      } else {
+        if (game.firstPlayerScore > 0) {
+          game.firstPlayerScore = game.firstPlayerScore + 1;
+        }
+      }
+      (game.status = gameStatusesEnum.Finished),
+        (game.finishGameDate = new Date().toISOString());
+    }
+    return game;
+  }
 
   async getStatisticGameUser(
     player: PlayerInformation,
@@ -423,11 +413,42 @@ export class QuizService {
     );
     return topUserStatistic;
   }
-  private endGameForSlowPlayerOverTimeOut(gameId: string, playerId: string) {
+  //@Cron(CronExpression.EVERY_SECOND)
+  async endGameForSlowPlayerOverTimeOut(gameId: string, playerId: string) {
+    const countAnswer = 5;
     console.log('endGameForSlowPlayerOverTimeOut start');
-    const timeout = setTimeout(async () => {
-      await this.quizRepository.endGameSlowPlayer(gameId, playerId);
-    }, 9500);
-    this.schedulerRegistry.addTimeout(playerId, timeout);
+    const games = await this.quizRepository.searchGamesInOnePlayerEndGame();
+    if (!games) {
+      return;
+    }
+    for (const game of games) {
+      if (game.firstPlayerScore === countAnswer) {
+        const addAnswerForSlowPlayer = this.addAnswerTheEndGame(
+          game,
+          game.firstPlayerId,
+        );
+        const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+          addAnswerForSlowPlayer,
+          countAnswer,
+          game.firstPlayerId,
+        );
+        //
+        return;
+      }
+    }
+  }
+  private addAnswerTheEndGame(game: GameEntity, playerId: string) {
+    const answersSlowPlayer =
+      game.firstPlayerId === playerId
+        ? game.firstPlayerAnswers
+        : game.secondPlayerAnswers;
+    while (answersSlowPlayer.length < game.questions.length) {
+      answersSlowPlayer.push({
+        answerStatus: answerStatusesEnum.Incorrect,
+        addedAt: new Date().toISOString(),
+        questionId: game.questions[answersSlowPlayer.length].id,
+      });
+    }
+    return game;
   }
 }

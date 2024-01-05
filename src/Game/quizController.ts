@@ -17,7 +17,6 @@ import { PlayerInformation } from './GameEntity';
 import { CreateAnswerDTO } from '../Qustions/questionDTO';
 import { PaginationSqlDTO } from '../DTO';
 import { PaginationGetTopDTO } from './gameDTO';
-import { PlayerEntity } from './PlayerEntity';
 
 @Injectable()
 @Controller('/pair-game-quiz')

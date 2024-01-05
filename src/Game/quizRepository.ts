@@ -336,97 +336,79 @@ export class QuizRepository {
       items: playersTopViewModel,
     };
   }
-  async endGameSlowPlayer(gameId: string, playerId: string) {
-    const queryRunner = await this.dataSource.createQueryRunner();
-    const countAnswer = 5;
-    try {
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
+  // async endGameSlowPlayer(gameId: string, playerId: string) {
+  //   const queryRunner = await this.dataSource.createQueryRunner();
+  //   const countAnswer = 5;
+  //   try {
+  //     await queryRunner.connect();
+  //     await queryRunner.startTransaction();
+  //
+  //     const game = await queryRunner.manager
+  //       .getRepository(GameEntity)
+  //       .createQueryBuilder('player')
+  //       .useTransaction(true)
+  //       .setLock('pessimistic_write')
+  //       .where('id = :id', { id: gameId })
+  //       .getOne();
+  //     if (!game) {
+  //       return false;
+  //     }
+  //     const answersSlowPlayer =
+  //       game.firstPlayerId === playerId
+  //         ? game.secondPlayerAnswers
+  //         : game.firstPlayerAnswers;
+  //     if (answersSlowPlayer.length === countAnswer) {
+  //       console.log('yspel dat otvet');
+  //       return true;
+  //     }
+  //     while (answersSlowPlayer.length < countAnswer) {
+  //       answersSlowPlayer.push({
+  //         answerStatus: answerStatusesEnum.Incorrect,
+  //         addedAt: new Date().toISOString(),
+  //         questionId: game.questions[answersSlowPlayer.length].id,
+  //       });
+  //     }
+  //     const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+  //       game,
+  //       countAnswer,
+  //       playerId,
+  //     );
+  //     (gameAddPoint.status = gameStatusesEnum.Finished),
+  //       (gameAddPoint.finishGameDate = new Date().toISOString());
+  //     await queryRunner.manager.getRepository(GameEntity).save(gameAddPoint);
+  //
+  //     await queryRunner.commitTransaction();
+  //   } catch (e) {
+  //     console.log('rollback');
+  //     console.log(e);
+  //     console.log('rollback');
+  //     await queryRunner.rollbackTransaction();
+  //   } finally {
+  //     console.log('realase');
+  //     await queryRunner.release();
+  //     return true;
+  //   }
+  // }
 
-      const game = await queryRunner.manager
-        .getRepository(GameEntity)
-        .createQueryBuilder('player')
-        .useTransaction(true)
-        .setLock('pessimistic_write')
-        .where('id = :id', { id: gameId })
-        .getOne();
-      if (!game) {
-        return false;
-      }
-      const answersSlowPlayer =
-        game.firstPlayerId === playerId
-          ? game.secondPlayerAnswers
-          : game.firstPlayerAnswers;
-      if (answersSlowPlayer.length === countAnswer) {
-        console.log('yspel dat otvet');
-        return true;
-      }
-      while (answersSlowPlayer.length < countAnswer) {
-        answersSlowPlayer.push({
-          answerStatus: answerStatusesEnum.Incorrect,
-          addedAt: new Date().toISOString(),
-          questionId: game.questions[answersSlowPlayer.length].id,
-        });
-      }
-      const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
-        game,
-        countAnswer,
-        playerId,
-      );
-      (gameAddPoint.status = gameStatusesEnum.Finished),
-        (gameAddPoint.finishGameDate = new Date().toISOString());
-      await queryRunner.manager.getRepository(GameEntity).save(gameAddPoint);
-
-      await queryRunner.commitTransaction();
-    } catch (e) {
-      console.log('rollback');
-      console.log(e);
-      console.log('rollback');
-      await queryRunner.rollbackTransaction();
-    } finally {
-      console.log('realase');
-      await queryRunner.release();
-      return true;
+  async searchGamesInOnePlayerEndGame(): Promise<GameEntity[] | false> {
+    const answer = 5;
+    const qbGame = await this.gameRepositoryTypeOrm.createQueryBuilder('game');
+    const games = await qbGame
+      .where(
+        'game.status = :status AND (game.firstPlayerScore = :firstPlayerScore OR game.secondPlayerScore = :secondPlayerScore)',
+        {
+          status: gameStatusesEnum.Active,
+          firstPlayerScore: answer,
+          secondPlayerScore: answer,
+        },
+      )
+      .getMany();
+    if (games.length === 0) {
+      return false;
     }
+    return games;
   }
-  public addPointForFastAnswerPlayerInEndGame(
-    game: GameEntity,
-    countAnswer: number,
-    playerId: string,
-  ): GameEntity {
-    if (game.firstPlayerId === playerId) {
-      if (
-        game.firstPlayerScore > 0 &&
-        game.firstPlayerAnswers[countAnswer - 1].addedAt <
-          game.secondPlayerAnswers[countAnswer - 1].addedAt
-      ) {
-        game.firstPlayerScore = game.firstPlayerScore + 1;
-      } else {
-        if (game.secondPlayerScore > 0) {
-          game.secondPlayerScore = game.secondPlayerScore + 1;
-        }
-      }
-      // (game.status = gameStatusesEnum.Finished),
-      //   (game.finishGameDate = new Date().toISOString());
-
-      return game;
-    } else {
-      if (
-        game.secondPlayerScore > 0 &&
-        game.secondPlayerAnswers[countAnswer - 1].addedAt <
-          game.firstPlayerAnswers[countAnswer - 1].addedAt
-      ) {
-        game.secondPlayerScore = game.secondPlayerScore + 1;
-      } else {
-        if (game.firstPlayerScore > 0) {
-          game.firstPlayerScore = game.firstPlayerScore + 1;
-        }
-      }
-      // (game.status = gameStatusesEnum.Finished),
-      //   (game.finishGameDate = new Date().toISOString());
-    }
-    return game;
-  }
+  //todo попробовать addWear прибавить 10 сек к последнему ответу
 }
 // const findPlayer = await queryRunner.manager
 //   .getRepository(PlayerEntity)

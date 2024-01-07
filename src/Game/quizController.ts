@@ -17,6 +17,7 @@ import { PlayerInformation } from './GameEntity';
 import { CreateAnswerDTO } from '../Qustions/questionDTO';
 import { PaginationSqlDTO } from '../DTO';
 import { PaginationGetTopDTO } from './gameDTO';
+import { addSeconds } from 'date-fns';
 
 @Injectable()
 @Controller('/pair-game-quiz')
@@ -107,5 +108,33 @@ export class QuizController {
     const top = await this.quizService.getTopUsersStatistic(topPaginationDTO);
 
     return res.status(200).send(top);
+  }
+  @Get('/users/tops')
+  async getTopz(
+    @Res() res: Response,
+    @Req() req,
+    @Query() topPaginationDTO: PaginationGetTopDTO,
+  ) {
+    const date1 = new Date().toISOString();
+    const dateParse1 = Date.parse(new Date().toISOString());
+    const date2 = new Date().toISOString();
+    const dateParse2 = Date.parse(new Date().toISOString());
+    const dateAddSecond = addSeconds(dateParse2, 10).toISOString();
+    console.log(date1);
+    console.log(dateParse1);
+    console.log(date2);
+    console.log(dateParse2);
+    console.log(dateAddSecond);
+    // console.log(date1);
+    // console.log(new Date().toISOString());
+    //
+    // const date2 = Date.parse(
+    //   new Date(new Date(new Date().getSeconds() + 10)).toISOString(),
+    // );
+    // console.log(date1);
+    // console.log(date2);
+    //const result = date2 - date1;
+
+    return res.status(200).send('result');
   }
 }

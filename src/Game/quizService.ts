@@ -21,6 +21,7 @@ import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
 import { helper } from '../helper';
 import { outputModel, PaginationSqlDTO } from '../DTO';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { addSeconds } from 'date-fns';
 
 @Injectable()
 export class QuizService {
@@ -249,11 +250,13 @@ export class QuizService {
     return answerViewModel;
   }
 
-  public addPointForFastAnswerPlayerInEndGame(
+  private addPointForFastAnswerPlayerInEndGame(
     game: GameEntity,
     countAnswer: number,
     playerId: string,
   ): GameEntity {
+    console.log('gameafterslowanswer');
+    console.log(game);
     if (game.firstPlayerId === playerId) {
       if (
         game.firstPlayerScore > 0 &&
@@ -413,16 +416,26 @@ export class QuizService {
     );
     return topUserStatistic;
   }
-  //@Cron(CronExpression.EVERY_SECOND)
-  async endGameForSlowPlayerOverTimeOut(gameId: string, playerId: string) {
+  @Cron(CronExpression.EVERY_SECOND)
+  async endGameForSlowPlayerOverTimeOut() {
     const countAnswer = 5;
-    console.log('endGameForSlowPlayerOverTimeOut start');
+    const endGameSlowPlayerSecond = 10;
     const games = await this.quizRepository.searchGamesInOnePlayerEndGame();
     if (!games) {
       return;
     }
+    console.log(games);
     for (const game of games) {
-      if (game.firstPlayerScore === countAnswer) {
+      console.log(game.id);
+      if (game.firstPlayerAnswers.length === countAnswer) {
+        if (
+          !this.checkTimeAnswerForStartTimeout(
+            game.firstPlayerAnswers,
+            endGameSlowPlayerSecond,
+          )
+        ) {
+          return;
+        }
         const addAnswerForSlowPlayer = this.addAnswerTheEndGame(
           game,
           game.firstPlayerId,
@@ -432,14 +445,42 @@ export class QuizService {
           countAnswer,
           game.firstPlayerId,
         );
-        //
+        (gameAddPoint.status = gameStatusesEnum.Finished),
+          (gameAddPoint.finishGameDate = new Date().toISOString());
+        await this.quizRepository.endGameSlowPlayer(gameAddPoint);
         return;
+      } else {
+        if (game.secondPlayerId) {
+          //TODO как еще убрать проверку он знает , что там может быть null
+          if (
+            !this.checkTimeAnswerForStartTimeout(
+              game.secondPlayerAnswers,
+              endGameSlowPlayerSecond,
+            )
+          ) {
+            return;
+          }
+          const addAnswerForSlowPlayer = this.addAnswerTheEndGame(
+            game,
+            game.secondPlayerId,
+          );
+          const gameAddPoint = this.addPointForFastAnswerPlayerInEndGame(
+            addAnswerForSlowPlayer,
+            countAnswer,
+            game.secondPlayerId,
+          );
+          (gameAddPoint.status = gameStatusesEnum.Finished),
+            (gameAddPoint.finishGameDate = new Date().toISOString());
+          await this.quizRepository.endGameSlowPlayer(gameAddPoint);
+          return;
+        }
       }
     }
   }
-  private addAnswerTheEndGame(game: GameEntity, playerId: string) {
+
+  private addAnswerTheEndGame(game: GameEntity, playerId: string): GameEntity {
     const answersSlowPlayer =
-      game.firstPlayerId === playerId
+      game.firstPlayerId !== playerId
         ? game.firstPlayerAnswers
         : game.secondPlayerAnswers;
     while (answersSlowPlayer.length < game.questions.length) {
@@ -450,5 +491,23 @@ export class QuizService {
       });
     }
     return game;
+  }
+  private checkTimeAnswerForStartTimeout(
+    answers: AnswerViewModel[],
+    timeoutAwaitForPlayer: number,
+  ): boolean {
+    console.log(answers[answers.length - 1].addedAt);
+    const addSecond = addSeconds(
+      Date.parse(answers[answers.length - 1].addedAt),
+      timeoutAwaitForPlayer - 1,
+    );
+    console.log(addSecond);
+    console.log(addSecond.getTime());
+    console.log(new Date());
+    console.log(new Date().getTime());
+    if (addSecond.getTime() < new Date().getTime()) {
+      return true;
+    }
+    return false;
   }
 }

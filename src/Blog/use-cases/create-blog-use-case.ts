@@ -7,7 +7,7 @@ import { BlogRepository } from '../blogRepository';
 import { CommandHandler } from '@nestjs/cqrs';
 
 export class CreateBlogUseCaseCommand {
-  constructor(public createBlogDto: CreateBlogDTO) {}
+  constructor(public createBlogDto: CreateBlogDTO, public userId: string) {}
 }
 @CommandHandler(CreateBlogUseCaseCommand)
 export class CreateBlogUseCase {
@@ -16,6 +16,7 @@ export class CreateBlogUseCase {
   async execute(command: CreateBlogUseCaseCommand): Promise<BlogViewModel> {
     const blog: Blog = {
       id: randomUUID(),
+      userId: command.userId,
       name: command.createBlogDto.name,
       description: command.createBlogDto.description,
       websiteUrl: command.createBlogDto.websiteUrl,

@@ -5,6 +5,8 @@ import { PostEntity } from '../Post/Post.Entity';
 export class BlogEntity {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
+  @Column({ type: 'uuid' })
+  userId: string;
   @Column({ type: 'varchar', length: 15 })
   name: string;
   @Column({ type: 'varchar', length: 500 })
@@ -20,3 +22,4 @@ export class BlogEntity {
   //@JoinColumn({ name: 'blogId' })
   posts: PostEntity[];
 }
+//TODO может быть userID ADMIN или uuid какой тип в sql

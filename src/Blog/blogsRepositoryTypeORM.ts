@@ -17,6 +17,7 @@ export class BlogsRepositoryTypeORM {
   async createBlog(newBlog: Blog) {
     const queryInsertBlogEntity = await this.blogRepositoryTypeOrm.save({
       id: newBlog.id,
+      userId: newBlog.userId,
       name: newBlog.name,
       description: newBlog.description,
       websiteUrl: newBlog.websiteUrl,
@@ -82,6 +83,52 @@ export class BlogsRepositoryTypeORM {
       items: resultBlogs,
     };
   }
+  //TODO не делал логику, не сделано для мангуса
+  async getBlogsForBlogger(
+    paginationBlog: BlogPaginationDTO,
+    filter: any | null,
+  ): Promise<outputModel<Blog>> {
+    const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
+    const totalCountBlog = await qbBlog
+      .where(filter.where, filter.params)
+      .getCount();
+    console.log(totalCountBlog);
+    const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
+    const paginationFromHelperForBlogs =
+      helper.getPaginationFunctionSkipSortTotal(
+        paginationBlog.pageNumber,
+        paginationBlog.pageSize,
+        totalCountBlog,
+      );
+    console.log(paginationBlog);
+
+    const zaprosQb = await qbBlog
+      .where(filter.where, filter.params)
+      .orderBy('b.' + paginationBlog.sortBy, sortDirection)
+      .limit(paginationBlog.pageSize)
+      .offset(paginationFromHelperForBlogs.skipPage)
+      .getRawMany();
+    console.log('after');
+    console.log(zaprosQb);
+
+    const blogs = mapObject.mapRawManyQBOnTableName(zaprosQb, ['b' + '_']);
+
+    const resultBlogs = await Promise.all(
+      blogs.map(async (blog: Blog) => {
+        const blogView = await mapObject.mapBlogForViewModel(blog);
+        return blogView;
+      }),
+    );
+    //console.log(resultBlogs);
+    return {
+      pagesCount: paginationFromHelperForBlogs.totalCount,
+      page: paginationBlog.pageNumber,
+      pageSize: paginationBlog.pageSize,
+      totalCount: totalCountBlog,
+      items: resultBlogs,
+    };
+  }
+
   async getBlog(blogId: string): Promise<Blog | false> {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
 

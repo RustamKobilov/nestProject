@@ -5,6 +5,7 @@ import { BlogPaginationDTO, CreateBlogDTO, outputModel } from '../DTO';
 import { Blog } from './Blog';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
+import { BlogViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class BlogsRepositorySql {
@@ -88,7 +89,7 @@ export class BlogsRepositorySql {
       items: resultBlogs,
     };
   }
-  async getBlog(blogId: string): Promise<Blog | false> {
+  async getBlog(blogId: string): Promise<BlogViewModel | false> {
     const table = await this.dataSource.query(
       'SELECT  "id", "name", "description", "websiteUrl", "createdAt", "isMembership"' +
         ' FROM blog_entity WHERE "id" = $1',

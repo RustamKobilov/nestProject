@@ -496,15 +496,10 @@ export class QuizService {
     answers: AnswerViewModel[],
     timeoutAwaitForPlayer: number,
   ): boolean {
-    console.log(answers[answers.length - 1].addedAt);
     const addSecond = addSeconds(
       Date.parse(answers[answers.length - 1].addedAt),
       timeoutAwaitForPlayer - 1,
     );
-    console.log(addSecond);
-    console.log(addSecond.getTime());
-    console.log(new Date());
-    console.log(new Date().getTime());
     if (addSecond.getTime() < new Date().getTime()) {
       return true;
     }

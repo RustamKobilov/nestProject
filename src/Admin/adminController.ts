@@ -85,11 +85,13 @@ export class adminBlogsController {
     return this.commandBus.execute(new GetBlogsUseCaseCommand(blogPagination));
   }
 
-  @UseGuards(BasicAuthorizationGuard)
-  @Post()
-  async createBlog(@Body() createBlogDto: CreateBlogDTO) {
-    return this.commandBus.execute(new CreateBlogUseCaseCommand(createBlogDto));
-  }
+  // @UseGuards(BasicAuthorizationGuard)
+  // @Post()
+  // async createBlog(@Body() createBlogDto: CreateBlogDTO) {
+  //   return this.commandBus.execute(
+  //     new CreateBlogUseCaseCommand(createBlogDto),
+  //   );
+  //}
 
   @UseGuards(BasicAuthorizationGuard)
   @Put('/:id')

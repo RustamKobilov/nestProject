@@ -81,21 +81,20 @@ export class adminBlogsController {
   //   );
   //}
 
-  // @UseGuards(BasicAuthorizationGuard)
-  // @Put('/:id/posts/:postId')
-  // async updatePost(
-  //   @Param('postId') postId: string,
-  //   @Param('id') blogId: string,
-  //   @Body() updatePostDto: CreatePostDTO,
-  //   @Res() res: Response,
-  // ) {
-  //   console.log("vhod /:id/posts/:postId'");
-  //   await this.commandBus.execute(
-  //     new UpdatePostUserCaseCommand(postId, updatePostDto, blogId),
-  //   );
-  //
-  //   return res.sendStatus(HttpStatus.NO_CONTENT);
-  // }
+  @UseGuards(BasicAuthorizationGuard)
+  @Put('/:id/bind-with-user/:userId')
+  async bindBlog(
+    @Param('userId') userId: string,
+    @Param('id') blogId: string,
+    @Res() res: Response,
+  ) {
+    console.log('updateZapikan');
+    // await this.commandBus.execute(
+    //   new UpdatePostUserCaseCommand(postId, updatePostDto, blogId),
+    // );
+
+    return res.sendStatus(HttpStatus.NO_CONTENT);
+  }
 }
 
 @Injectable()

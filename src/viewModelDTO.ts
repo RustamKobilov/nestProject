@@ -50,3 +50,15 @@ export class DeviceViewModel {
   lastActiveDate: string;
   deviceId: string;
 }
+export class SaBlogViewModel {
+  id: string;
+  name: string;
+  description: string;
+  websiteUrl: string;
+  createdAt: string;
+  isMembership: boolean;
+  blogOwnerInfo: {
+    userId: string;
+    userLogin: string;
+  };
+}

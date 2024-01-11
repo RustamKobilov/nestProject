@@ -8,6 +8,8 @@ export class BlogEntity {
   @Column({ type: 'uuid' })
   userId: string;
   @Column({ type: 'varchar', length: 15 })
+  userLogin: string;
+  @Column({ type: 'varchar', length: 15 })
   name: string;
   @Column({ type: 'varchar', length: 500 })
   description: string;

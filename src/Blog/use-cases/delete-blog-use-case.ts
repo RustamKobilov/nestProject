@@ -1,9 +1,9 @@
 import { BlogRepository } from '../blogRepository';
-import { NotFoundException } from '@nestjs/common';
+import { ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CommandHandler } from '@nestjs/cqrs';
 
 export class DeleteBlogUseCaseCommand {
-  constructor(public blogId: string) {}
+  constructor(public blogId: string, public userId: string) {}
 }
 @CommandHandler(DeleteBlogUseCaseCommand)
 export class DeleteBlogUseCase {
@@ -13,6 +13,9 @@ export class DeleteBlogUseCase {
     const blog = await this.blogRepository.getBlog(command.blogId);
     if (!blog) {
       throw new NotFoundException('blogId not found for blog /blogService');
+    }
+    if (blog.userId !== command.userId) {
+      throw new ForbiddenException('blog ne User / UpdateBlogUseCase/');
     }
     await this.blogRepository.deleteBlog(command.blogId);
     return;

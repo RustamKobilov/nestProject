@@ -6,6 +6,7 @@ import {
   MeViewModel,
   newestLikeViewModel,
   PostViewModel,
+  SaBlogViewModel,
   UserViewModel,
 } from './viewModelDTO';
 import { Blog } from './Blog/Blog';
@@ -75,6 +76,20 @@ export const mapObject = {
       websiteUrl: blog.websiteUrl,
       createdAt: blog.createdAt,
       isMembership: blog.isMembership,
+    };
+  },
+  mapSaBlogForViewModel(blog: Blog): SaBlogViewModel {
+    return {
+      id: blog.id,
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+      blogOwnerInfo: {
+        userId: blog.userId,
+        userLogin: blog.userLogin,
+      },
     };
   },
   mapPost(post: Post): PostViewModel {

@@ -3,17 +3,17 @@ import { BlogRepository } from '../blogRepository';
 import { CommandHandler } from '@nestjs/cqrs';
 import { BlogPaginationDTO } from '../../DTO';
 
-export class GetBlogsUseCaseCommand {
+export class GetBlogsForSaUseCaseCommand {
   constructor(public blogPagination: BlogPaginationDTO) {}
 }
 
-@CommandHandler(GetBlogsUseCaseCommand)
-export class GetBlogsUseCase {
+@CommandHandler(GetBlogsForSaUseCaseCommand)
+export class GetBlogsForSaUseCase {
   constructor(private blogRepository: BlogRepository) {}
-  async execute(command: GetBlogsUseCaseCommand) {
+  async execute(command: GetBlogsForSaUseCaseCommand) {
     const pagination = helper.getBlogPaginationValues(command.blogPagination);
     const searchNameTermFilter =
       this.blogRepository.getSearchNameTermFilterBlog(command.blogPagination);
-    return this.blogRepository.getBlogs(pagination, searchNameTermFilter);
+    return this.blogRepository.getBlogsForSa(pagination, searchNameTermFilter);
   }
 }

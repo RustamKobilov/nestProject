@@ -13,6 +13,8 @@ import {
   PaginationDTO,
 } from '../DTO';
 import { helper } from '../helper';
+import { mapObject } from '../mapObject';
+import { BlogViewModel, SaBlogViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class BlogRepository {
@@ -23,7 +25,9 @@ export class BlogRepository {
     await createBlog.save();
     return;
   }
-  getFilterBlog(paginationBlog: BlogPaginationDTO): FilterQuery<BlogDocument> {
+  getSearchNameTermFilterBlog(
+    paginationBlog: BlogPaginationDTO,
+  ): FilterQuery<BlogDocument> {
     const searchNameTermFilter =
       paginationBlog.searchNameTerm != null
         ? {
@@ -32,10 +36,15 @@ export class BlogRepository {
         : {};
     return searchNameTermFilter;
   }
-  async getBlogs(
+  async getBlogsForBlogger(
     paginationBlog: BlogPaginationDTO,
-    filter: FilterQuery<BlogDocument>,
-  ): Promise<outputModel<Blog>> {
+    searchNameTermFilter: FilterQuery<BlogDocument>,
+    userId: string,
+  ): Promise<outputModel<BlogViewModel>> {
+    const filter: FilterQuery<BlogDocument> = {
+      userId: userId,
+      ...searchNameTermFilter,
+    };
     const totalCountUser = await this.blogModel.count({ ...filter });
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(
@@ -59,14 +68,22 @@ export class BlogRepository {
       .sort({ [paginationBlog.sortBy]: paginationBlog.sortDirection })
       .skip(paginationFromHelperForUsers.skipPage)
       .limit(paginationBlog.pageSize)
-      .lean();
+      .lean()
+      .exec();
+
+    const resultBlogs = await Promise.all(
+      sortBlog.map(async (blog: Blog) => {
+        const blogView = await mapObject.mapBlogForViewModel(blog);
+        return blogView;
+      }),
+    );
 
     return {
       pagesCount: paginationFromHelperForUsers.totalCount,
       page: paginationBlog.pageNumber,
       pageSize: paginationBlog.pageSize,
       totalCount: totalCountUser,
-      items: sortBlog,
+      items: resultBlogs,
     };
   }
 
@@ -91,5 +108,100 @@ export class BlogRepository {
 
   async deleteBlog(blogId: string) {
     return await this.blogModel.deleteOne({ id: blogId });
+  }
+
+  async getBlogsForSa(
+    paginationBlog: BlogPaginationDTO,
+    searchNameTermFilter,
+  ): Promise<outputModel<SaBlogViewModel>> {
+    const totalCountUser = await this.blogModel.count({
+      ...searchNameTermFilter,
+    });
+    const paginationFromHelperForUsers =
+      helper.getPaginationFunctionSkipSortTotal(
+        paginationBlog.pageNumber,
+        paginationBlog.pageSize,
+        totalCountUser,
+      );
+
+    const sortBlog = await this.blogModel
+      .find(
+        { ...searchNameTermFilter },
+        {
+          _id: 0,
+          __v: 0,
+          hash: 0,
+          salt: 0,
+          password: 0,
+          userConfirmationInfo: 0,
+        },
+      )
+      .sort({ [paginationBlog.sortBy]: paginationBlog.sortDirection })
+      .skip(paginationFromHelperForUsers.skipPage)
+      .limit(paginationBlog.pageSize)
+      .lean()
+      .exec();
+
+    const resultBlogs = await Promise.all(
+      sortBlog.map(async (blog: Blog) => {
+        const saBlogView = await mapObject.mapSaBlogForViewModel(blog);
+        return saBlogView;
+      }),
+    );
+
+    return {
+      pagesCount: paginationFromHelperForUsers.totalCount,
+      page: paginationBlog.pageNumber,
+      pageSize: paginationBlog.pageSize,
+      totalCount: totalCountUser,
+      items: resultBlogs,
+    };
+  }
+  async getBlogs(
+    paginationBlog: BlogPaginationDTO,
+    searchNameTermFilter,
+  ): Promise<outputModel<BlogViewModel>> {
+    const totalCountUser = await this.blogModel.count({
+      ...searchNameTermFilter,
+    });
+    const paginationFromHelperForUsers =
+      helper.getPaginationFunctionSkipSortTotal(
+        paginationBlog.pageNumber,
+        paginationBlog.pageSize,
+        totalCountUser,
+      );
+
+    const sortBlog = await this.blogModel
+      .find(
+        { ...searchNameTermFilter },
+        {
+          _id: 0,
+          __v: 0,
+          hash: 0,
+          salt: 0,
+          password: 0,
+          userConfirmationInfo: 0,
+        },
+      )
+      .sort({ [paginationBlog.sortBy]: paginationBlog.sortDirection })
+      .skip(paginationFromHelperForUsers.skipPage)
+      .limit(paginationBlog.pageSize)
+      .lean()
+      .exec();
+
+    const resultBlogs = await Promise.all(
+      sortBlog.map(async (blog: Blog) => {
+        const blogView = await mapObject.mapBlogForViewModel(blog);
+        return blogView;
+      }),
+    );
+
+    return {
+      pagesCount: paginationFromHelperForUsers.totalCount,
+      page: paginationBlog.pageNumber,
+      pageSize: paginationBlog.pageSize,
+      totalCount: totalCountUser,
+      items: resultBlogs,
+    };
   }
 }

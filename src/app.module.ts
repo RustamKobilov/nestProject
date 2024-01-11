@@ -64,12 +64,11 @@ import {
   IsLoginNoUniqueValidate,
 } from './pipes/customValidator';
 import { CqrsModule } from '@nestjs/cqrs';
-import { GetBlogsUseCase } from './Blog/use-cases/get-blogs-use-case';
 import { CreateBlogUseCase } from './Blog/use-cases/create-blog-use-case';
 import { UpdateBlogUseCase } from './Blog/use-cases/update-blog-use-case';
 import { DeleteBlogUseCase } from './Blog/use-cases/delete-blog-use-case';
-import { GetPostByBlog } from './Blog/use-cases/get-post-by-blog';
-import { CreatePostByBlog } from './Blog/use-cases/create-post-by-blog';
+import { GetPostByBlogForBloggerUseCase } from './Blog/use-cases/get-post-by-blog-for-blogger-use-case';
+import { CreatePostByBlogUseCase } from './Blog/use-cases/create-post-by-blog-use-case';
 import { GetPostByBlogForUser } from './Blog/use-cases/get-post-by-blog-for-user';
 import { GetPostsUseCase } from './Post/use-cases/get-posts-use-case';
 import { GetPostsForUserUseCase } from './Post/use-cases/get-posts-for-user-use-case';
@@ -137,6 +136,11 @@ import { QuizService } from './Game/quizService';
 import { PlayerEntity } from './Game/PlayerEntity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cronService';
+import { BloggerController } from './blogger/bloggerController';
+import { GetBlogsUseForBloggerCase } from './blogger/use-cases/get-blogs-for-blogger-use-case';
+import { GetBlogsForSaUseCase } from './Blog/use-cases/get-blogs-for-sa-use-case';
+import { GetBlogsUseCase } from './Blog/use-cases/get-blogs-use-case';
+import { GetBlogUseCase } from './Blog/use-cases/get-blog-use-case';
 
 dotenv.config();
 const useCaseUser = [
@@ -151,13 +155,16 @@ const useCaseUser = [
   UpdateConfirmationCodeForUser,
   CheckDuplicateLoginAndEmailUseCase,
 ];
+const useCaseBlogger = [GetBlogsUseForBloggerCase];
 const useCaseBlog = [
+  GetBlogUseCase,
   GetBlogsUseCase,
+  GetBlogsForSaUseCase,
   CreateBlogUseCase,
   UpdateBlogUseCase,
   DeleteBlogUseCase,
-  GetPostByBlog,
-  CreatePostByBlog,
+  GetPostByBlogForBloggerUseCase,
+  CreatePostByBlogUseCase,
   GetPostByBlogForUser,
   DeleteCommentUseCase,
 ];
@@ -317,6 +324,7 @@ const sqlEntity = [
     adminBlogsController,
     adminQuestionsController,
     QuizController,
+    BloggerController,
   ],
   providers: [
     {
@@ -390,6 +398,7 @@ const sqlEntity = [
     IsBlogCheckingValidate,
     IsEntityQuestionCheckingValidate,
     ...useCaseBlog,
+    ...useCaseBlogger,
     ...useCasePost,
     ...useCaseComment,
     ...useCaseDevice,

@@ -2,11 +2,11 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BlogEntity } from './Blog.Entity';
 import { Repository } from 'typeorm';
-import { PostEntity } from '../Post/Post.Entity';
 import { Blog } from './Blog';
 import { BlogPaginationDTO, CreateBlogDTO, outputModel } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
+import { BlogViewModel, SaBlogViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class BlogsRepositoryTypeORM {
@@ -15,9 +15,10 @@ export class BlogsRepositoryTypeORM {
     private readonly blogRepositoryTypeOrm: Repository<BlogEntity>,
   ) {}
   async createBlog(newBlog: Blog) {
-    const queryInsertBlogEntity = await this.blogRepositoryTypeOrm.save({
+    const queryInsertBlogEntity = await this.blogRepositoryTypeOrm.save(<Blog>{
       id: newBlog.id,
       userId: newBlog.userId,
+      userLogin: newBlog.userLogin,
       name: newBlog.name,
       description: newBlog.description,
       websiteUrl: newBlog.websiteUrl,
@@ -26,7 +27,7 @@ export class BlogsRepositoryTypeORM {
     });
     return;
   }
-  getFilterBlog(paginationBlog: BlogPaginationDTO): any | null {
+  getSearchNameTermFilterBlog(paginationBlog: BlogPaginationDTO): any | null {
     const searchNameTermFilter =
       paginationBlog.searchNameTerm != null
         ? {
@@ -39,56 +40,22 @@ export class BlogsRepositoryTypeORM {
           };
     return searchNameTermFilter;
   }
-  async getBlogs(
-    paginationBlog: BlogPaginationDTO,
-    filter: any | null,
-  ): Promise<outputModel<Blog>> {
-    const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
-    const totalCountBlog = await qbBlog
-      .where(filter.where, filter.params)
-      .getCount();
-    console.log(totalCountBlog);
-    const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
-    const paginationFromHelperForBlogs =
-      helper.getPaginationFunctionSkipSortTotal(
-        paginationBlog.pageNumber,
-        paginationBlog.pageSize,
-        totalCountBlog,
-      );
-    console.log(paginationBlog);
-
-    const zaprosQb = await qbBlog
-      .where(filter.where, filter.params)
-      .orderBy('b.' + paginationBlog.sortBy, sortDirection)
-      .limit(paginationBlog.pageSize)
-      .offset(paginationFromHelperForBlogs.skipPage)
-      .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
-
-    const blogs = mapObject.mapRawManyQBOnTableName(zaprosQb, ['b' + '_']);
-
-    const resultBlogs = await Promise.all(
-      blogs.map(async (blog: Blog) => {
-        const blogView = await mapObject.mapBlogForViewModel(blog);
-        return blogView;
-      }),
-    );
-    //console.log(resultBlogs);
-    return {
-      pagesCount: paginationFromHelperForBlogs.totalCount,
-      page: paginationBlog.pageNumber,
-      pageSize: paginationBlog.pageSize,
-      totalCount: totalCountBlog,
-      items: resultBlogs,
-    };
-  }
-  //TODO не делал логику, не сделано для мангуса
   async getBlogsForBlogger(
     paginationBlog: BlogPaginationDTO,
-    filter: any | null,
-  ): Promise<outputModel<Blog>> {
+    searchNameTermFilter: any | null,
+    userId: string,
+  ): Promise<outputModel<BlogViewModel>> {
+    //TODO как правильно с фильтром
+    const filter = searchNameTermFilter;
+    if (searchNameTermFilter.where === '') {
+      filter.where = 'b.userId = :userId';
+      filter.params = { userId: userId };
+    } else {
+      filter.where = filter.where + ' AND b.userId =:userId';
+      filter.params = { ...filter.params, userId: userId };
+    }
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
+    console.log(filter);
     const totalCountBlog = await qbBlog
       .where(filter.where, filter.params)
       .getCount();
@@ -119,7 +86,6 @@ export class BlogsRepositoryTypeORM {
         return blogView;
       }),
     );
-    //console.log(resultBlogs);
     return {
       pagesCount: paginationFromHelperForBlogs.totalCount,
       page: paginationBlog.pageNumber,
@@ -128,7 +94,92 @@ export class BlogsRepositoryTypeORM {
       items: resultBlogs,
     };
   }
+  async getBlogsForSa(
+    paginationBlog: BlogPaginationDTO,
+    searchNameTermFilter,
+  ): Promise<outputModel<SaBlogViewModel>> {
+    const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
+    const totalCountBlog = await qbBlog
+      .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .getCount();
+    console.log(totalCountBlog);
+    const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
+    const paginationFromHelperForBlogs =
+      helper.getPaginationFunctionSkipSortTotal(
+        paginationBlog.pageNumber,
+        paginationBlog.pageSize,
+        totalCountBlog,
+      );
+    console.log(paginationBlog);
 
+    const zaprosQb = await qbBlog
+      .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .orderBy('b.' + paginationBlog.sortBy, sortDirection)
+      .limit(paginationBlog.pageSize)
+      .offset(paginationFromHelperForBlogs.skipPage)
+      .getRawMany();
+    console.log('after');
+    console.log(zaprosQb);
+
+    const blogs = mapObject.mapRawManyQBOnTableName(zaprosQb, ['b' + '_']);
+
+    const resultBlogs = await Promise.all(
+      blogs.map(async (blog: Blog) => {
+        const saBlogView = await mapObject.mapSaBlogForViewModel(blog);
+        return saBlogView;
+      }),
+    );
+    return {
+      pagesCount: paginationFromHelperForBlogs.totalCount,
+      page: paginationBlog.pageNumber,
+      pageSize: paginationBlog.pageSize,
+      totalCount: totalCountBlog,
+      items: resultBlogs,
+    };
+  }
+  async getBlogs(
+    paginationBlog: BlogPaginationDTO,
+    searchNameTermFilter,
+  ): Promise<outputModel<SaBlogViewModel>> {
+    const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
+    const totalCountBlog = await qbBlog
+      .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .getCount();
+    console.log(totalCountBlog);
+    const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
+    const paginationFromHelperForBlogs =
+      helper.getPaginationFunctionSkipSortTotal(
+        paginationBlog.pageNumber,
+        paginationBlog.pageSize,
+        totalCountBlog,
+      );
+    console.log(paginationBlog);
+
+    const zaprosQb = await qbBlog
+      .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .orderBy('b.' + paginationBlog.sortBy, sortDirection)
+      .limit(paginationBlog.pageSize)
+      .offset(paginationFromHelperForBlogs.skipPage)
+      .getRawMany();
+    console.log('after');
+    console.log(zaprosQb);
+
+    const blogs = mapObject.mapRawManyQBOnTableName(zaprosQb, ['b' + '_']);
+
+    const resultBlogs = await Promise.all(
+      blogs.map(async (blog: Blog) => {
+        const blogView = await mapObject.mapBlogForViewModel(blog);
+        return blogView;
+      }),
+    );
+    return {
+      pagesCount: paginationFromHelperForBlogs.totalCount,
+      page: paginationBlog.pageNumber,
+      pageSize: paginationBlog.pageSize,
+      totalCount: totalCountBlog,
+      items: resultBlogs,
+    };
+  }
   async getBlog(blogId: string): Promise<Blog | false> {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
 

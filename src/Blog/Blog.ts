@@ -8,9 +8,11 @@ export class Blog {
   @Prop({ type: String, unique: true, required: true })
   id: string;
   @Prop({ type: String, required: true })
-  name: string;
-  @Prop({ type: String, required: true })
   userId: string;
+  @Prop({ type: String, required: true })
+  userLogin: string;
+  @Prop({ type: String, required: true })
+  name: string;
   @Prop({ type: String, required: true })
   description: string;
   @Prop({ type: String, required: true })

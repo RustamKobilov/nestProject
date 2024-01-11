@@ -15,9 +15,12 @@ export class GetBlogsUseForBloggerCase {
   constructor(private blogRepository: BlogRepository) {}
   async execute(command: GetBlogsForBloggerUseCaseCommand) {
     const pagination = helper.getBlogPaginationValues(command.blogPagination);
-    const searchNameTermFilter = this.blogRepository.getFilterBlog(
-      command.blogPagination,
+    const searchNameTermFilter =
+      this.blogRepository.getSearchNameTermFilterBlog(command.blogPagination);
+    return this.blogRepository.getBlogsForBlogger(
+      pagination,
+      searchNameTermFilter,
+      command.userId,
     );
-    return this.blogRepository.getBlogs(pagination, searchNameTermFilter);
   }
 }

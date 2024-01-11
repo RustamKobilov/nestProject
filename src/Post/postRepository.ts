@@ -25,9 +25,6 @@ export class PostRepository {
     if (!post) {
       return false;
     }
-    // post.extendedLikesInfo.newestLikes.sort((x, y) =>
-    //   y.addedAt.localeCompare(x.addedAt),
-    // );
 
     return post;
   }
@@ -39,19 +36,6 @@ export class PostRepository {
         pagination.pageSize,
         totalCountPost,
       );
-
-    // const sortPost = await this.postModel
-    //   .find(
-    //     {},
-    //     {
-    //       _id: 0,
-    //       __v: 0,
-    //     },
-    //   )
-    //   .sort({ [pagination.sortBy]: pagination.sortDirection })
-    //   .skip(paginationFromHelperForUsers.skipPage)
-    //   .limit(pagination.pageSize)
-    //   .lean();
 
     const posts = await this.postModel
       .aggregate([
@@ -68,10 +52,6 @@ export class PostRepository {
     const resulPostsSortDate = await Promise.all(
       posts.map(async (post: Post) => {
         const postUpgrade = await mapObject.mapPost(post);
-
-        // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-        //   y.addedAt.localeCompare(x.addedAt),
-        // );
 
         return postUpgrade;
       }),
@@ -107,10 +87,6 @@ export class PostRepository {
     }
 
     postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
-
-    // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-    //   y.addedAt.localeCompare(x.addedAt),
-    // );
 
     return postUpgrade;
   }
@@ -148,10 +124,6 @@ export class PostRepository {
         }
         postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
 
-        // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-        //   y.addedAt.localeCompare(x.addedAt),
-        // );
-
         return postUpgrade;
       }),
     );
@@ -164,7 +136,7 @@ export class PostRepository {
       items: resulPostsAddLikes,
     };
   }
-  async getPostsForBlog(
+  async getPostsByBlog(
     paginationPost: PaginationDTO,
     blogId: string,
   ): Promise<outputModel<Post>> {
@@ -176,16 +148,6 @@ export class PostRepository {
         paginationPost.pageSize,
         totalCountPost,
       );
-
-    // const sortPost = await this.postModel
-    //   .find(filter, {
-    //     _id: 0,
-    //     __v: 0,
-    //   })
-    //   .sort({ [paginationPost.sortBy]: paginationPost.sortDirection })
-    //   .skip(paginationFromHelperForUsers.skipPage)
-    //   .limit(paginationPost.pageSize)
-    //   .lean();
 
     const postsForBlogs = await this.postModel
       .aggregate([
@@ -202,10 +164,6 @@ export class PostRepository {
     const resulPostsSortDate = await Promise.all(
       postsForBlogs.map(async (post: Post) => {
         const postUpgrade = await mapObject.mapPost(post);
-
-        // postUpgrade.extendedLikesInfo.newestLikes.sort((x, y) =>
-        //   y.addedAt.localeCompare(x.addedAt),
-        // );
 
         return postUpgrade;
       }),

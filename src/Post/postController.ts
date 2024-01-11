@@ -26,7 +26,6 @@ import { GetCommentsForPostUseCaseCommand } from './use-cases/get-comments-for-p
 import { GetPostsForUserUseCaseCommand } from './use-cases/get-posts-for-user-use-case';
 import { GetCommentsForPostForUserUseCaseCommand } from './use-cases/get-comments-for-post-for-user-use-case';
 import { GetPostForUserUseCaseCommand } from './use-cases/get-post-for-user-use-case';
-import { likeStatus } from '../Enum';
 
 @SkipThrottle()
 @Controller('posts')
@@ -34,7 +33,6 @@ export class PostController {
   constructor(
     private commandBus: CommandBus,
     private readonly postService: PostService,
-    private readonly commentService: CommentService,
   ) {}
 
   @Get()

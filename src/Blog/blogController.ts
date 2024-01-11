@@ -1,38 +1,29 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Query,
-  Req,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, Res } from '@nestjs/common';
 import { BlogPaginationDTO, PaginationDTO } from '../DTO';
 import { BlogService } from './blogService';
 import { Response } from 'express';
 import { SkipThrottle } from '@nestjs/throttler';
-import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
 import { CommandBus } from '@nestjs/cqrs';
 import { GetBlogsUseCaseCommand } from './use-cases/get-blogs-use-case';
-import { GetPostByBlogCommand } from './use-cases/get-post-by-blog';
-import { GetPostByBlogForUserCommand } from './use-cases/get-post-by-blog-for-user';
+import { GetPostByBlogCommand } from './use-cases/get-post-by-blog-use-case';
+import { GetBlogUseCaseCommand } from './use-cases/get-blog-use-case';
 
 @SkipThrottle()
 @Controller('blogs')
 export class BlogController {
-  constructor(
-    private commandBus: CommandBus,
-    private readonly blogService: BlogService,
-  ) {}
+  constructor(private commandBus: CommandBus) {}
+
   @Get()
-  async getBlogs(@Query() blogPagination: BlogPaginationDTO) {
-    return this.commandBus.execute(new GetBlogsUseCaseCommand(blogPagination));
+  async getBlogs(
+    @Query() blogPagination: BlogPaginationDTO,
+    @Res() res,
+    @Req() req,
+  ) {
+    const blogs = await this.commandBus.execute(
+      new GetBlogsUseCaseCommand(blogPagination),
+    );
+    res.status(200).send(blogs);
   }
-  @Get('/:id')
-  async getBlog(@Param('id') blogId: string) {
-    return this.blogService.getBlog(blogId);
-  }
-  @UseGuards(IdenteficationUserGuard)
   @Get('/:id/posts')
   async getPostsByBlog(
     @Query() getPagination: PaginationDTO,
@@ -41,20 +32,19 @@ export class BlogController {
     @Res() res: Response,
     @Req() req,
   ) {
-    const blog = await this.blogService.getBlog(blogId);
-    let resultAllPostsByBlog;
-    if (!req.user) {
-      console.log('user no init');
-      resultAllPostsByBlog = await this.commandBus.execute(
-        new GetPostByBlogCommand(blogId, getPagination),
-      );
-      return res.status(200).send(resultAllPostsByBlog);
-    }
-    console.log('user init');
-    console.log(req.user);
-    resultAllPostsByBlog = await this.commandBus.execute(
-      new GetPostByBlogForUserCommand(blogId, getPagination, req.user.id),
+    const blog = await this.commandBus.execute(
+      new GetBlogUseCaseCommand(blogId),
+    );
+    const resultAllPostsByBlog = await this.commandBus.execute(
+      new GetPostByBlogCommand(blogId, getPagination),
     );
     return res.status(200).send(resultAllPostsByBlog);
+  }
+  @Get('/:id')
+  async getBlog(@Param('id') blogId: string, @Res() res: Response, @Req() req) {
+    const blog = await this.commandBus.execute(
+      new GetBlogUseCaseCommand(blogId),
+    );
+    return res.status(200).send(blog);
   }
 }

@@ -7,7 +7,11 @@ import { BlogRepository } from '../blogRepository';
 import { CommandHandler } from '@nestjs/cqrs';
 
 export class CreateBlogUseCaseCommand {
-  constructor(public createBlogDto: CreateBlogDTO, public userId: string) {}
+  constructor(
+    public createBlogDto: CreateBlogDTO,
+    public userId: string,
+    public userLogin: string,
+  ) {}
 }
 @CommandHandler(CreateBlogUseCaseCommand)
 export class CreateBlogUseCase {
@@ -17,6 +21,7 @@ export class CreateBlogUseCase {
     const blog: Blog = {
       id: randomUUID(),
       userId: command.userId,
+      userLogin: command.userLogin,
       name: command.createBlogDto.name,
       description: command.createBlogDto.description,
       websiteUrl: command.createBlogDto.websiteUrl,

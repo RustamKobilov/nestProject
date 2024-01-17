@@ -21,7 +21,7 @@ import { SendEmailForPasswordRecoveryUseCaseCommand } from '../adapters/email-ad
 import { GetUserByLoginOrEmailUseCaseCommand } from '../User/use-cases/get-user-by-login-or-email-use-case';
 import { CreateNewUserForRegistrationUseCaseCommand } from '../User/use-cases/create-new-user-for-registration-use-case';
 import { CheckDublicateLoginAndEmailUseCaseCommand } from '../User/use-cases/check-duplicate-login-and-email-use-case';
-import { UpdateConfirmationCodeForUserCommand } from '../User/use-cases/update-confirmation-code-for-user';
+import { UpdateConfirmationCodeForUserCommand } from '../User/use-cases/update-confirmation-code-for-user-use-case';
 
 dotenv.config();
 

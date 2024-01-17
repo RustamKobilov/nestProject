@@ -16,7 +16,12 @@ import {
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
-import { BlogPaginationDTO, CreateUserDto, UserPaginationDTO } from '../DTO';
+import {
+  BlogPaginationDTO,
+  CreateUserDto,
+  PaginationUpdateBanStatusUserDTO,
+  UserPaginationDTO,
+} from '../DTO';
 import { GetUsersUseCaseCommand } from '../User/use-cases/get-users-use-case';
 import { CreateUserAdminUseCaseCommand } from '../User/use-cases/create-user-admin-use-case';
 import { Response } from 'express';
@@ -28,6 +33,7 @@ import {
   UpdatePublishedQuestionDTO,
 } from '../Qustions/questionDTO';
 import { GetBlogsForSaUseCaseCommand } from '../Blog/use-cases/get-blogs-for-sa-use-case';
+import { UpdateBanStatusForUserCommand } from '../User/use-cases/update-ban-status-user-use-case';
 
 @SkipThrottle()
 @Controller('/sa/users')
@@ -54,6 +60,24 @@ export class adminUserController {
     await this.commandBus.execute(new DeleteUserUseCaseCommand(userId));
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
+
+  @UseGuards(BasicAuthorizationGuard)
+  @Put('/:id/ban')
+  async updateBanStatusUser(
+    @Param('id') userId: string,
+    @Query() updateBanStatusUserDTO: PaginationUpdateBanStatusUserDTO,
+    @Res() res: Response,
+  ) {
+    console.log(updateBanStatusUserDTO);
+    await this.commandBus.execute(
+      new UpdateBanStatusForUserCommand(
+        userId,
+        updateBanStatusUserDTO.isBanned,
+        updateBanStatusUserDTO.banReason,
+      ),
+    );
+    res.sendStatus(HttpStatus.NO_CONTENT);
+  }
 }
 
 @SkipThrottle()
@@ -72,14 +96,6 @@ export class adminBlogsController {
     );
     res.status(200).send(blogs);
   }
-  //TODO не понимаю , суть не было автора ранее , если блог нельзя создать без токена
-  // @UseGuards(BasicAuthorizationGuard)
-  // @Post()
-  // async createBlog(@Body() createBlogDto: CreateBlogDTO) {
-  //   return this.commandBus.execute(
-  //     new CreateBlogUseCaseCommand(createBlogDto),
-  //   );
-  //}
 
   @UseGuards(BasicAuthorizationGuard)
   @Put('/:id/bind-with-user/:userId')
@@ -93,7 +109,7 @@ export class adminBlogsController {
     //   new UpdatePostUserCaseCommand(postId, updatePostDto, blogId),
     // );
 
-    return res.sendStatus(HttpStatus.NO_CONTENT);
+    return res.sendStatus(HttpStatus.BAD_REQUEST);
   }
 }
 

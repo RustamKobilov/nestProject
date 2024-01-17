@@ -11,6 +11,8 @@ import { UpdateWriteOpResult } from 'mongoose';
 import { UserViewModel } from '../viewModelDTO';
 import { helper } from '../helper';
 import any = jasmine.any;
+import { UserBanListEntity } from './UserBannedEntity';
+import { fa } from '@faker-js/faker';
 
 @Injectable()
 export class UsersRepositoryTypeORM {
@@ -21,6 +23,8 @@ export class UsersRepositoryTypeORM {
     private userConfirmationRepository: Repository<UserConfirmationInfoEntity>,
     @InjectRepository(UserRecoveryPasswordInfoEntity)
     private userRecoveryPasswordInfoRepository: Repository<UserRecoveryPasswordInfoEntity>,
+    @InjectRepository(UserBanListEntity)
+    private userBanListRepository: Repository<UserBanListEntity>,
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
@@ -66,6 +70,7 @@ export class UsersRepositoryTypeORM {
     console.log(newUser);
     return;
   }
+
   async deleteUser(userId: string) {
     const qbUserConfirmation =
       await this.userConfirmationRepository.createQueryBuilder('uCI');
@@ -97,6 +102,7 @@ export class UsersRepositoryTypeORM {
     }
     return;
   }
+
   async getUser(userId: string): Promise<User | false> {
     const qbUser = await this.userRepository.createQueryBuilder('u');
 
@@ -121,6 +127,7 @@ export class UsersRepositoryTypeORM {
     //console.log(user[0]);
     return user[0];
   }
+
   async getUserByLoginOrEmail(loginOrEmail: string): Promise<User | false> {
     const qbUser = await this.userRepository.createQueryBuilder('u');
 
@@ -235,6 +242,7 @@ export class UsersRepositoryTypeORM {
     //console.log(user[0]);
     return user[0];
   }
+
   async getCodeConfirmationByUserId(code: string): Promise<User | false> {
     const qbUser = await this.userRepository.createQueryBuilder('u');
     const take = await qbUser
@@ -260,6 +268,7 @@ export class UsersRepositoryTypeORM {
     //console.log(user[0]);
     return user[0];
   }
+
   async updateUserConformationCode(
     userId: string,
     newCode: string,
@@ -278,6 +287,7 @@ export class UsersRepositoryTypeORM {
     }
     return true;
   }
+
   async updateConfirmationUserId(userId: string): Promise<boolean> {
     const qbUserConfirmation =
       await this.userConfirmationRepository.createQueryBuilder('uCI');
@@ -292,6 +302,7 @@ export class UsersRepositoryTypeORM {
     }
     return true;
   }
+
   async deleteUserByConfirmationCode(
     userConfirmationCode: string,
   ): Promise<boolean> {
@@ -326,6 +337,7 @@ export class UsersRepositoryTypeORM {
     }
     return true;
   }
+
   async recoveryPassword(
     userId: string,
     recoveryCode: string,
@@ -344,6 +356,7 @@ export class UsersRepositoryTypeORM {
     }
     return true;
   }
+
   async updatePasswordUserByRecoveryCode(recoveryCode: string, hash: string) {
     const qbUserRecoveryPassword =
       await this.userRecoveryPasswordInfoRepository.createQueryBuilder('uRPI');
@@ -388,6 +401,7 @@ export class UsersRepositoryTypeORM {
     }
     return true;
   }
+
   getFilterGetUsers(paginationUser: UserPaginationDTO): any | null {
     console.log(paginationUser);
     if (
@@ -423,6 +437,7 @@ export class UsersRepositoryTypeORM {
       params: {},
     };
   }
+
   async getUsers(
     paginationUser: UserPaginationDTO,
     filter: any | null,
@@ -476,5 +491,31 @@ export class UsersRepositoryTypeORM {
       totalCount: totalCountUser,
       items: resultUsers,
     };
+  }
+
+  async deleteUserForBanList(userId: string): Promise<boolean> {
+    const qbUserBanList = await this.userBanListRepository.createQueryBuilder(
+      'uBL',
+    );
+    const deleteOperationUCI = await qbUserBanList
+      .delete()
+      .where('userId = :userId', { userId: userId })
+      .execute();
+    if (deleteOperationUCI.affected !== 1) {
+      return false;
+    }
+    return true;
+  }
+
+  async createUserForBanList(userId: string, banReason: string) {
+    const createUserForBanList = await this.userBanListRepository.save(<
+      UserBanListEntity
+    >{
+      userId: userId,
+      banReason: banReason,
+    });
+    console.log('sozadali ego');
+    console.log();
+    return;
   }
 }

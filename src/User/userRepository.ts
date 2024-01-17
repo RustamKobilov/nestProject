@@ -236,6 +236,12 @@ export class UserRepository {
 
     return user.matchedCount === 1;
   }
+
+  async deleteUserForBanList(userId: string): Promise<boolean> {
+    return true;
+  }
+
+  async createUserForBanList(userId: string, banReason: string) {}
 }
 
 //export class UserRepository implements OnModuleInit

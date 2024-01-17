@@ -19,26 +19,26 @@ import { CreateUserAdminUseCaseCommand } from './use-cases/create-user-admin-use
 import { GetUsersUseCaseCommand } from './use-cases/get-users-use-case';
 import { DeleteUserUseCaseCommand } from './use-cases/delete-user-use-case';
 
-@SkipThrottle()
-@Controller('sa/users')
-export class UserController {
-  constructor(private commandBus: CommandBus) {}
-  @UseGuards(BasicAuthorizationGuard)
-  @Get()
-  getUsers(@Query() userPagination: UserPaginationDTO) {
-    return this.commandBus.execute(new GetUsersUseCaseCommand(userPagination));
-  }
-  @UseGuards(BasicAuthorizationGuard)
-  @Post()
-  createUser(@Body() createUserDto: CreateUserDto) {
-    return this.commandBus.execute(
-      new CreateUserAdminUseCaseCommand(createUserDto),
-    );
-  }
-  @UseGuards(BasicAuthorizationGuard)
-  @Delete('/:id')
-  async deleteUser(@Param('id') userId: string, @Res() res: Response) {
-    await this.commandBus.execute(new DeleteUserUseCaseCommand(userId));
-    return res.sendStatus(HttpStatus.NO_CONTENT);
-  }
-}
+// @SkipThrottle()
+// @Controller('sa/users')
+// export class UserController {
+//   constructor(private commandBus: CommandBus) {}
+//   @UseGuards(BasicAuthorizationGuard)
+//   @Get()
+//   getUsers(@Query() userPagination: UserPaginationDTO) {
+//     return this.commandBus.execute(new GetUsersUseCaseCommand(userPagination));
+//   }
+//   @UseGuards(BasicAuthorizationGuard)
+//   @Post()
+//   createUser(@Body() createUserDto: CreateUserDto) {
+//     return this.commandBus.execute(
+//       new CreateUserAdminUseCaseCommand(createUserDto),
+//     );
+//   }
+//   @UseGuards(BasicAuthorizationGuard)
+//   @Delete('/:id')
+//   async deleteUser(@Param('id') userId: string, @Res() res: Response) {
+//     await this.commandBus.execute(new DeleteUserUseCaseCommand(userId));
+//     return res.sendStatus(HttpStatus.NO_CONTENT);
+//   }
+// }

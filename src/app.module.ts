@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './User/userController';
 import { UserService } from './User/userService';
 import { UserRepository } from './User/userRepository';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -101,7 +100,7 @@ import { GetConfirmationCodeForUser } from './User/use-cases/get-confirmation-co
 import { CreateNewUserForRegistrationUseCase } from './User/use-cases/create-new-user-for-registration-use-case';
 import { GetUserInformationUseCase } from './User/use-cases/get-user-information-use-case';
 import { UpdatePasswordUserUseCase } from './User/use-cases/update-password-user-use-case';
-import { UpdateConfirmationCodeForUser } from './User/use-cases/update-confirmation-code-for-user';
+import { UpdateConfirmationCodeForUserUseCase } from './User/use-cases/update-confirmation-code-for-user-use-case';
 import { CheckDuplicateLoginAndEmailUseCase } from './User/use-cases/check-duplicate-login-and-email-use-case';
 import { GetDeviceUseCase } from './Device/use-case/get-device-use-case';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -141,6 +140,11 @@ import { GetBlogsUseForBloggerCase } from './blogger/use-cases/get-blogs-for-blo
 import { GetBlogsForSaUseCase } from './Blog/use-cases/get-blogs-for-sa-use-case';
 import { GetBlogsUseCase } from './Blog/use-cases/get-blogs-use-case';
 import { GetBlogUseCase } from './Blog/use-cases/get-blog-use-case';
+import {
+  UpdateBanStatusForUserUseCase,
+  UpdateBanStatusForUserCommand,
+} from './User/use-cases/update-ban-status-user-use-case';
+import { UserBanListEntity } from './User/UserBannedEntity';
 
 dotenv.config();
 const useCaseUser = [
@@ -152,8 +156,9 @@ const useCaseUser = [
   GetConfirmationCodeForUser,
   GetUserInformationUseCase,
   UpdatePasswordUserUseCase,
-  UpdateConfirmationCodeForUser,
+  UpdateConfirmationCodeForUserUseCase,
   CheckDuplicateLoginAndEmailUseCase,
+  UpdateBanStatusForUserUseCase,
 ];
 const useCaseBlogger = [GetBlogsUseForBloggerCase];
 const useCaseBlog = [
@@ -211,6 +216,7 @@ const sqlEntity = [
   QuestionEntity,
   PlayerEntity,
   GameEntity,
+  UserBanListEntity,
 ];
 @Module({
   imports: [
@@ -313,7 +319,6 @@ const sqlEntity = [
     ScheduleModule.forRoot(),
   ],
   controllers: [
-    UserController,
     DeleteBase,
     BlogController,
     PostController,

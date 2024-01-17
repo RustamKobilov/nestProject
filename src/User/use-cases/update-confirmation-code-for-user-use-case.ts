@@ -8,7 +8,7 @@ export class UpdateConfirmationCodeForUserCommand {
   constructor(public id: string) {}
 }
 @CommandHandler(UpdateConfirmationCodeForUserCommand)
-export class UpdateConfirmationCodeForUser {
+export class UpdateConfirmationCodeForUserUseCase {
   constructor(private userRepository: UserRepository) {}
 
   async execute(command: UpdateConfirmationCodeForUserCommand) {

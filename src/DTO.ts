@@ -1,4 +1,5 @@
 import {
+  IsBoolean,
   IsEmpty,
   IsEnum,
   IsNotEmpty,
@@ -209,3 +210,14 @@ export class PaginationSqlDTO {
   @Transform(({ value }) => helper.getValueTrim(value))
   sortDirection: 'asc' | 'desc';
 }
+export class PaginationUpdateBanStatusUserDTO {
+  @Type((type) => String)
+  @Length(1)
+  @IsString()
+  banReason: string;
+  //@Type((type) => Boolean)
+  @Transform(({ value }) => value === 'true')
+  @IsBoolean()
+  isBanned: boolean;
+}
+//TODO как работает проверка boolean

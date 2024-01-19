@@ -165,4 +165,14 @@ export class DeviceRepositoryTypeORM {
       .execute();
     return true;
   }
+  async deleteDevicesForUser(userId: string) {
+    const qbDevice = await this.deviceRepositoryTypeOrm.createQueryBuilder('d');
+    const deleteOperation = await qbDevice
+      .delete()
+      .where('userId = :userId', {
+        userId: userId,
+      })
+      .execute();
+    return true;
+  }
 }

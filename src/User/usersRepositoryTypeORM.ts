@@ -7,12 +7,8 @@ import { User } from './User';
 import { UserConfirmationInfoEntity } from './UserConfirmationInfo.Entity';
 import { UserRecoveryPasswordInfoEntity } from './UserRecoveryPasswordInfo.Entity';
 import { mapObject } from '../mapObject';
-import { UpdateWriteOpResult } from 'mongoose';
 import { UserViewModel } from '../viewModelDTO';
 import { helper } from '../helper';
-import any = jasmine.any;
-import { UserBanListEntity } from './UserBannedEntity';
-import { fa } from '@faker-js/faker';
 
 @Injectable()
 export class UsersRepositoryTypeORM {
@@ -23,8 +19,6 @@ export class UsersRepositoryTypeORM {
     private userConfirmationRepository: Repository<UserConfirmationInfoEntity>,
     @InjectRepository(UserRecoveryPasswordInfoEntity)
     private userRecoveryPasswordInfoRepository: Repository<UserRecoveryPasswordInfoEntity>,
-    @InjectRepository(UserBanListEntity)
-    private userBanListRepository: Repository<UserBanListEntity>,
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
@@ -44,13 +38,15 @@ export class UsersRepositoryTypeORM {
   }
 
   async createUser(newUser: User) {
-    const user = await this.userRepository.save({
+    const user = await this.userRepository.save(<UserEntity>{
       id: newUser.id,
       login: newUser.login,
       email: newUser.email,
       createdAt: newUser.createdAt,
       salt: newUser.salt,
       password: newUser.password,
+      banField: newUser.banField,
+      banReason: newUser.banReason,
     });
 
     const userConfirmationInfo = await this.userConfirmationRepository.save({
@@ -493,29 +489,16 @@ export class UsersRepositoryTypeORM {
     };
   }
 
-  async deleteUserForBanList(userId: string): Promise<boolean> {
-    const qbUserBanList = await this.userBanListRepository.createQueryBuilder(
-      'uBL',
-    );
-    const deleteOperationUCI = await qbUserBanList
-      .delete()
-      .where('userId = :userId', { userId: userId })
-      .execute();
-    if (deleteOperationUCI.affected !== 1) {
-      return false;
-    }
-    return true;
-  }
-
-  async createUserForBanList(userId: string, banReason: string) {
-    const createUserForBanList = await this.userBanListRepository.save(<
-      UserBanListEntity
-    >{
-      userId: userId,
-      banReason: banReason,
-    });
-    console.log('sozadali ego');
-    console.log();
-    return;
-  }
+  // async updateUserBanStatus(userId: string, banReason: string) {
+  //   const qbUser = await this.userRepository.createQueryBuilder('u');
+  //   const update = await qbUser
+  //     .update(UserEntity)
+  //     .set({ password: hash })
+  //     .where('id = :ownerId', { ownerId: ownerId })
+  //     .execute();
+  //
+  //   if (!update.affected) {
+  //     return false;
+  //   }
+  //   return true;
 }

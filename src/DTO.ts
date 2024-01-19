@@ -215,9 +215,8 @@ export class PaginationUpdateBanStatusUserDTO {
   @Length(1)
   @IsString()
   banReason: string;
-  //@Type((type) => Boolean)
-  @Transform(({ value }) => value === 'true')
+
+  @Transform(({ value }) => helper.getBoolean(value))
   @IsBoolean()
   isBanned: boolean;
 }
-//TODO как работает проверка boolean

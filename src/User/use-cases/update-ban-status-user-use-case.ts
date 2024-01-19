@@ -2,7 +2,7 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../userRepository';
 import { NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
-import { fa } from '@faker-js/faker';
+import { DeviceRepository } from '../../Device/deviceRepository';
 
 export class UpdateBanStatusForUserCommand {
   constructor(
@@ -13,7 +13,10 @@ export class UpdateBanStatusForUserCommand {
 }
 @CommandHandler(UpdateBanStatusForUserCommand)
 export class UpdateBanStatusForUserUseCase {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private deviceRepository: DeviceRepository,
+  ) {}
 
   async execute(command: UpdateBanStatusForUserCommand) {
     if (isUUID(command.userId) === false) {
@@ -31,7 +34,7 @@ export class UpdateBanStatusForUserUseCase {
     if (!command.banResult) {
       console.log('false');
       const deleteUserForBanList =
-        await this.userRepository.deleteUserForBanList(command.userId);
+        await this.userRepository.deleteUserForBanList(user.id);
       if (!deleteUserForBanList) {
         throw new NotFoundException(
           `userId not found,from banListRepo /userService`,
@@ -40,9 +43,10 @@ export class UpdateBanStatusForUserUseCase {
     } else {
       console.log('true');
       const addUserForBanList = await this.userRepository.createUserForBanList(
-        command.userId,
+        user.id,
         command.banReason,
       );
+      await this.deviceRepository.deleteDevicesForUser(user.id);
     }
     return true;
   }

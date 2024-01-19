@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
+import { Column } from 'typeorm';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -40,6 +41,11 @@ export class User {
   createdAt: string;
   @Prop({ required: true, type: String })
   salt: string;
+  @Prop({ required: true, type: Boolean })
+  banField: boolean;
+  @Prop({ required: true, type: String })
+  banReason: string;
+
   @Prop({ required: true, type: UserConfirmationInfoSchema })
   userConfirmationInfo: UserConfirmationInfo;
   @Prop({ required: true, type: UserRecoveryPasswordInfoSchema })

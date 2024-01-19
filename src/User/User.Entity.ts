@@ -16,6 +16,10 @@ export class UserEntity {
   createdAt: string;
   @Column({ type: 'varchar', length: 30 })
   salt: string;
+  @Column({ type: 'boolean' })
+  banField: boolean;
+  @Column({ type: 'varchar', length: 100 })
+  banReason: string;
 
   @OneToOne(
     () => UserConfirmationInfoEntity,

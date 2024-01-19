@@ -121,6 +121,11 @@ export class DeviceRepository {
       deviceId: { $ne: deviceId },
     });
   }
+  async deleteDevicesForUser(userId: string) {
+    await this.deviceModel.deleteMany({
+      userId: userId,
+    });
+  }
   //_____________________________________________
   async deleteDevicesAdmin() {
     console.log('delete all device');

@@ -144,7 +144,6 @@ import {
   UpdateBanStatusForUserUseCase,
   UpdateBanStatusForUserCommand,
 } from './User/use-cases/update-ban-status-user-use-case';
-import { UserBanListEntity } from './User/UserBannedEntity';
 
 dotenv.config();
 const useCaseUser = [
@@ -216,7 +215,6 @@ const sqlEntity = [
   QuestionEntity,
   PlayerEntity,
   GameEntity,
-  UserBanListEntity,
 ];
 @Module({
   imports: [

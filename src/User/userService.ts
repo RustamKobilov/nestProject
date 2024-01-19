@@ -41,6 +41,8 @@ export class UserService {
         recoveryCode: 'registration password',
         diesAtDate: 'registration password',
       },
+      banField: false,
+      banReason: 'no ban',
     };
     if (adminCreate === true) {
       user.userConfirmationInfo.userConformation = true;

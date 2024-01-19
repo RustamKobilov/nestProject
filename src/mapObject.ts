@@ -46,6 +46,8 @@ export const mapObject = {
         createdAt: sqlUser.createdAt,
         salt: sqlUser.salt,
         password: sqlUser.password,
+        banField: sqlUser.banField,
+        banReason: sqlUser.banReason,
         recoveryPasswordInfo: {
           recoveryCode: sqlUser.recoveryCode,
           diesAtDate: sqlUser.diesAtDate,

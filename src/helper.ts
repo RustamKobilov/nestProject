@@ -93,4 +93,13 @@ export const helper = {
       sort: query.sort ? query.sort.toString() : 'avgScores desc,sumScore desc',
     };
   },
+  getBoolean(value: any) {
+    if (value === 'true') {
+      return true;
+    }
+    if (value === 'false') {
+      return false;
+    }
+    return value;
+  },
 };

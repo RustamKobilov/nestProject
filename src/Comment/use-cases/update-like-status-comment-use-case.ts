@@ -3,7 +3,7 @@ import { CommentRepository } from '../commentRepository';
 import { NotFoundException } from '@nestjs/common';
 import { User } from '../../User/User';
 import { likeStatus } from '../../Enum';
-import { ReactionRepository } from '../../Like/reactionRepository';
+import { ReactionRepository } from '../../Reaction/reactionRepository';
 
 export class UpdateLikeStatusCommentUseCaseCommand {
   constructor(

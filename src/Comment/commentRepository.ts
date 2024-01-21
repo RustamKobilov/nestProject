@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, UpdateQuery } from 'mongoose';
 import { Comment, CommentDocument } from './Comment';
 import { PaginationDTO } from '../DTO';
-import { ReactionRepository } from '../Like/reactionRepository';
+import { ReactionRepository } from '../Reaction/reactionRepository';
 import { mapObject } from '../mapObject';
 import { helper } from '../helper';
 import { CommentViewModel } from '../viewModelDTO';
@@ -176,5 +176,8 @@ export class CommentRepository {
       totalCount: countCommentsForPost,
       items: resultCommentsAddLikes,
     };
+  }
+  async updateCommentVision(userId: string, visionStatus: boolean) {
+    return true;
   }
 }

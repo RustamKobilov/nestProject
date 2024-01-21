@@ -52,8 +52,8 @@ import {
 import { CommentController } from './Comment/commentController';
 import { CommentService } from './Comment/commentService';
 import { CommentRepository } from './Comment/commentRepository';
-import { ReactionRepository } from './Like/reactionRepository';
-import { Reaction, ReactionSchema } from './Like/Reaction';
+import { ReactionRepository } from './Reaction/reactionRepository';
+import { Reaction, ReactionSchema } from './Reaction/Reaction';
 import { SecurityController } from './Device/securityController';
 import { JwtServices } from './application/jwtService';
 import {
@@ -107,7 +107,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { UserEntity } from './User/User.Entity';
 import { BlogEntity } from './Blog/Blog.Entity';
 import { CommentEntity } from './Comment/Comment.Entity';
-import { ReactionEntity } from './Like/Reaction.Entity';
+import { ReactionEntity } from './Reaction/Reaction.Entity';
 import { DeviceEntity } from './Device/Device.Entity';
 import { PostEntity } from './Post/Post.Entity';
 import { DataRepository } from './dataRepository';
@@ -124,15 +124,15 @@ import { BlogsRepositoryTypeORM } from './Blog/blogsRepositoryTypeORM';
 import { PostsRepositoryTypeORM } from './Post/postsRepositoryTypeORM';
 import { CommentRepositoryTypeORM } from './Comment/commentRepositoryTypeORM';
 import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
-import { ReactionRepositoryTypeORM } from './Like/reactionRepositoryTypeORM';
-import { QuestionEntity } from './Qustions/QuestionEntity';
+import { ReactionRepositoryTypeORM } from './Reaction/reactionRepositoryTypeORM';
+import { QuestionEntity } from './Qustions/Question.Entity';
 import { QuizController } from './Game/quizController';
 import { QuestionsService } from './Qustions/questionsService';
 import { QuestionsRepository } from './Qustions/questionsRepository';
-import { GameEntity } from './Game/GameEntity';
+import { GameEntity } from './Game/Game.Entity';
 import { QuizRepository } from './Game/quizRepository';
 import { QuizService } from './Game/quizService';
-import { PlayerEntity } from './Game/PlayerEntity';
+import { PlayerEntity } from './Game/Player.Entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cronService';
 import { BloggerController } from './blogger/bloggerController';
@@ -140,10 +140,9 @@ import { GetBlogsUseForBloggerCase } from './blogger/use-cases/get-blogs-for-blo
 import { GetBlogsForSaUseCase } from './Blog/use-cases/get-blogs-for-sa-use-case';
 import { GetBlogsUseCase } from './Blog/use-cases/get-blogs-use-case';
 import { GetBlogUseCase } from './Blog/use-cases/get-blog-use-case';
-import {
-  UpdateBanStatusForUserUseCase,
-  UpdateBanStatusForUserCommand,
-} from './User/use-cases/update-ban-status-user-use-case';
+import { UpdateBanStatusForUserUseCase } from './User/use-cases/update-ban-status-user-use-case';
+import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
+import { UserBanListRepositoryTypeORM } from './UserBanList/userBanListRepositoryTypeORM';
 
 dotenv.config();
 const useCaseUser = [
@@ -215,6 +214,7 @@ const sqlEntity = [
   QuestionEntity,
   PlayerEntity,
   GameEntity,
+  UserBanListEntity,
 ];
 @Module({
   imports: [
@@ -394,6 +394,7 @@ const sqlEntity = [
     QuestionsRepository,
     QuestionsService,
     QuizRepository,
+    UserBanListRepositoryTypeORM,
     QuizService,
     JwtServices,
     isEmailNoUniqueValidate,

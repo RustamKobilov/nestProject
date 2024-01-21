@@ -1,6 +1,7 @@
 import { CommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../userRepository';
 import { UnauthorizedException } from '@nestjs/common';
+import { User } from '../User';
 
 export class GetUserByLoginOrEmailUseCaseCommand {
   constructor(public login: string) {}
@@ -9,7 +10,7 @@ export class GetUserByLoginOrEmailUseCaseCommand {
 export class GetUserByLoginOrEmailUseCase {
   constructor(private userRepository: UserRepository) {}
 
-  async execute(command: GetUserByLoginOrEmailUseCaseCommand) {
+  async execute(command: GetUserByLoginOrEmailUseCaseCommand): Promise<User> {
     const user = await this.userRepository.getUserByLoginOrEmail(command.login);
     if (!user) {
       throw new UnauthorizedException(

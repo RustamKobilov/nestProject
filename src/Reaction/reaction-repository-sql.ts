@@ -19,6 +19,7 @@ export class ReactionRepositorySql {
       userLogin,
       status,
       createdAt: new Date().toISOString(),
+      vision: true,
     };
   }
   async getReactionUserForParent(

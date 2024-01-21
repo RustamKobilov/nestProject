@@ -1,5 +1,5 @@
 import { Comment } from './Comment';
-import { ReactionRepository } from '../Like/reactionRepository';
+import { ReactionRepository } from '../Reaction/reactionRepository';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { CommentViewModel } from '../viewModelDTO';

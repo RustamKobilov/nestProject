@@ -10,12 +10,12 @@ import {
   LikesInfoDocument,
 } from './Comment/Comment';
 import { Device, DeviceDocument } from './Device/Device';
-import { Reaction, ReactionDocument } from './Like/Reaction';
+import { Reaction, ReactionDocument } from './Reaction/Reaction';
 import { InjectRepository } from '@nestjs/typeorm';
-import { QuestionEntity } from './Qustions/QuestionEntity';
+import { QuestionEntity } from './Qustions/Question.Entity';
 import { Repository } from 'typeorm';
-import { GameEntity } from './Game/GameEntity';
-import { PlayerEntity } from './Game/PlayerEntity';
+import { GameEntity } from './Game/Game.Entity';
+import { PlayerEntity } from './Game/Player.Entity';
 
 export class DataRepository {
   constructor(

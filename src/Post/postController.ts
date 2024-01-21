@@ -14,7 +14,6 @@ import {
 import { CreateCommentDto, PaginationDTO, UpdateLikeStatusDto } from '../DTO';
 import { Response } from 'express';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
-import { CommentService } from '../Comment/commentService';
 import { SkipThrottle } from '@nestjs/throttler';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
 import { CommandBus } from '@nestjs/cqrs';

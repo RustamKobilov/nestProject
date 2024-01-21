@@ -1,16 +1,16 @@
-import { QuestionEntity } from '../Qustions/QuestionEntity';
+import { QuestionEntity } from '../Qustions/Question.Entity';
 import {
   QuestionViewModel,
   SaQuestionViewModel,
 } from '../Qustions/questionDTO';
 import { gameStatusesEnum } from '../Qustions/questionEnum';
-import { GameEntity, QuestionInGameEntityType } from './GameEntity';
+import { GameEntity, QuestionInGameEntityType } from './Game.Entity';
 import {
   GamePairViewModel,
   GamePairViewModelPendingSecondPlayerViewModel,
   TopPlayerViewModel,
 } from './gameDTO';
-import { PlayerEntity } from './PlayerEntity';
+import { PlayerEntity } from './Player.Entity';
 
 export const mapKuiz = {
   mapSaQuestionsViewModel(questions: QuestionEntity[]): SaQuestionViewModel[] {

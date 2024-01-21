@@ -1,7 +1,7 @@
 import { UserRepository } from './userRepository';
 import { CreateUserDto } from '../DTO';
 import { User } from './User';
-import { bcriptService } from '../bcryptService';
+import { argonService } from '../bcryptService';
 import { addHours } from 'date-fns';
 import { randomUUID } from 'crypto';
 import {
@@ -24,7 +24,7 @@ export class UserService {
     if (!checkDublicateUser) {
       throw new UnauthorizedException(`login and email dublicate /userService`);
     }
-    const hash = await bcriptService.getHashPassword(createUserDto.password);
+    const hash = await argonService.getHashPassword(createUserDto.password);
     const user: User = {
       id: randomUUID(),
       login: createUserDto.login,
@@ -41,8 +41,6 @@ export class UserService {
         recoveryCode: 'registration password',
         diesAtDate: 'registration password',
       },
-      banField: false,
-      banReason: 'no ban',
     };
     if (adminCreate === true) {
       user.userConfirmationInfo.userConformation = true;

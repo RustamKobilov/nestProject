@@ -1,5 +1,5 @@
 import * as argon from 'argon2';
-export const bcriptService = {
+export const argonService = {
   async getHashPassword(password: string): Promise<string> {
     return argon.hash(password);
   },

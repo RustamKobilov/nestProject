@@ -13,7 +13,7 @@ import { Transform, Type } from 'class-transformer';
 import { helper } from '../helper';
 import { PaginationSqlDTO } from '../DTO';
 import { answerStatusesEnum, publishedStatusEnum } from './questionEnum';
-import { QuestionEntity } from './QuestionEntity';
+import { QuestionEntity } from './Question.Entity';
 
 export class CreateQuestionDTO {
   @IsString()

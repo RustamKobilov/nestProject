@@ -12,4 +12,6 @@ export class ReactionEntity {
   status: likeStatus;
   @Column({ type: 'varchar', length: 30 })
   createdAt: string;
+  @Column({ type: 'boolean' })
+  vision: boolean;
 }

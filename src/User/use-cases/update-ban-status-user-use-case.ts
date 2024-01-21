@@ -1,8 +1,9 @@
 import { CommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../userRepository';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { isUUID } from 'class-validator';
 import { DeviceRepository } from '../../Device/deviceRepository';
+import { UserBanListRepositoryTypeORM } from '../../UserBanList/userBanListRepositoryTypeORM';
 
 export class UpdateBanStatusForUserCommand {
   constructor(
@@ -15,39 +16,52 @@ export class UpdateBanStatusForUserCommand {
 export class UpdateBanStatusForUserUseCase {
   constructor(
     private userRepository: UserRepository,
+    private userBanListRepository: UserBanListRepositoryTypeORM,
     private deviceRepository: DeviceRepository,
   ) {}
 
   async execute(command: UpdateBanStatusForUserCommand) {
     if (isUUID(command.userId) === false) {
-      throw new NotFoundException(
-        'userId not found,from banListRepo not uuid /userService',
+      throw new BadRequestException(
+        'userId not found,from banListRepo not uuid /UpdateBanStatusForUserUseCase',
       );
     }
     const user = await this.userRepository.getUser(command.userId);
     console.log(user);
     if (!user) {
-      return;
-      throw new NotFoundException(`userId not found /userService`);
+      throw new BadRequestException(
+        `userId not found User /UpdateBanStatusForUserUseCase`,
+      );
     }
     console.log(command.banResult);
     if (!command.banResult) {
       console.log('false');
       const deleteUserForBanList =
-        await this.userRepository.deleteUserForBanList(user.id);
+        await this.userBanListRepository.deleteUserInBanList(user.id, true);
       if (!deleteUserForBanList) {
-        throw new NotFoundException(
-          `userId not found,from banListRepo /userService`,
+        throw new BadRequestException(
+          `userId not found,from banListRepo /UpdateBanStatusForUserUseCase`,
         );
       }
+      await this.userBanListRepository.updateVisionStatusForParentByUserId(
+        user.id,
+        false,
+      );
     } else {
       console.log('true');
-      const addUserForBanList = await this.userRepository.createUserForBanList(
-        user.id,
-        command.banReason,
-      );
+      const addUserForBanList =
+        await this.userBanListRepository.addUserInBanList(
+          user.id,
+          command.banReason,
+          true,
+        );
       await this.deviceRepository.deleteDevicesForUser(user.id);
+      await this.userBanListRepository.updateVisionStatusForParentByUserId(
+        user.id,
+        true,
+      );
     }
     return true;
   }
 }
+//TODO менять утешен юзера

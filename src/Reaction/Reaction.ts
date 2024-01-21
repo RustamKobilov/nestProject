@@ -15,5 +15,7 @@ export class Reaction {
   status: likeStatus;
   @Prop({ type: String, required: true })
   createdAt: string;
+  @Prop({ type: Boolean, required: true })
+  vision: boolean;
 }
 export const ReactionSchema = SchemaFactory.createForClass(Reaction);

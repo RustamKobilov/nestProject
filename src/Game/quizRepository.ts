@@ -1,11 +1,11 @@
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
-import { GameEntity, PlayerInformation } from './GameEntity';
+import { GameEntity, PlayerInformation } from './Game.Entity';
 import { answerStatusesEnum, gameStatusesEnum } from '../Qustions/questionEnum';
 import { mapObject } from '../mapObject';
 import { Injectable } from '@nestjs/common';
 import { QuestionsRepository } from '../Qustions/questionsRepository';
-import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
+import { PlayerEntity, updatePlayerStaticAfterGame } from './Player.Entity';
 import { outputModel, PaginationSqlDTO } from '../DTO';
 import {
   GamePairViewModel,

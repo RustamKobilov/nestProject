@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryColumn } from 'typeorm';
 import { likeStatus } from '../Enum';
 import { PostEntity } from '../Post/Post.Entity';
 
@@ -25,6 +25,8 @@ export class CommentEntity {
     enum: [likeStatus.None, likeStatus.Like, likeStatus.Dislike],
   })
   myStatus: likeStatus;
+  @Column({ type: 'boolean' })
+  vision: boolean;
 
   @ManyToOne(() => PostEntity, (post) => post.comments)
   //@JoinColumn({ name: 'postId' })

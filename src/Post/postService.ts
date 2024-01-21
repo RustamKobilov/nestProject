@@ -29,6 +29,7 @@ export class PostService {
     }
     const post: Post = {
       id: randomUUID(),
+      userId: blog.userId,
       title: createPostDto.title,
       shortDescription: createPostDto.shortDescription,
       content: createPostDto.content,
@@ -41,6 +42,7 @@ export class PostService {
         myStatus: likeStatus.None,
         newestLikes: [],
       },
+      vision: true,
     };
     await this.postRepository.createPost(post);
     const outputPostModel = mapObject.mapPost(post);

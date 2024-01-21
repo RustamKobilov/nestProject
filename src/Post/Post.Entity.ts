@@ -14,6 +14,8 @@ import { CommentEntity } from '../Comment/Comment.Entity';
 export class PostEntity {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
+  @Column({ type: 'uuid' })
+  userId: string;
   @Column({ type: 'varchar', length: 30 })
   title: string;
   @Column({ type: 'varchar', length: 100 })
@@ -35,6 +37,8 @@ export class PostEntity {
     enum: [likeStatus.None, likeStatus.Like, likeStatus.Dislike],
   })
   myStatus: likeStatus;
+  @Column({ type: 'boolean' })
+  vision: boolean;
 
   @ManyToOne(() => BlogEntity, (blog) => blog.posts)
   //@JoinColumn({ name: 'blogId' })

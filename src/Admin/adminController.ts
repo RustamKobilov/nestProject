@@ -34,11 +34,34 @@ import {
 } from '../Qustions/questionDTO';
 import { GetBlogsForSaUseCaseCommand } from '../Blog/use-cases/get-blogs-for-sa-use-case';
 import { UpdateBanStatusForUserCommand } from '../User/use-cases/update-ban-status-user-use-case';
+import { ReactionRepository } from '../Reaction/reactionRepository';
+import { BearerGuard } from '../auth/Guard/bearerGuard';
+import { UserBanListRepositoryTypeORM } from '../UserBanList/userBanListRepositoryTypeORM';
+import { UserRepository } from '../User/userRepository';
+import { helper } from '../helper';
 
 @SkipThrottle()
 @Controller('/sa/users')
 export class adminUserController {
-  constructor(private commandBus: CommandBus) {}
+  constructor(
+    private commandBus: CommandBus,
+    private reactionRepository: ReactionRepository,
+    private userRepository: UserRepository,
+    private userBan: UserBanListRepositoryTypeORM,
+  ) {}
+  @UseGuards(BasicAuthorizationGuard)
+  @Get('/check')
+  async getChecks(@Query() userPagination: UserPaginationDTO) {
+    //await this.reactionRepository.getAllParentInAddReactionBanUser(req.user.id);
+    const pagination = helper.getUserPaginationValues(userPagination);
+    const createFilter = this.userRepository.getFilterGetUsers(pagination);
+    const users = await this.userRepository.getUsersForAdmin(
+      pagination,
+      createFilter,
+    );
+    console.log(users);
+    return 'check';
+  }
 
   @UseGuards(BasicAuthorizationGuard)
   @Get()

@@ -3,7 +3,7 @@ import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { NewestLikes, Post } from './Post';
 import { mapObject } from '../mapObject';
-import { ReactionRepository } from '../Like/reactionRepository';
+import { ReactionRepository } from '../Reaction/reactionRepository';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
 import { PostViewModel } from '../viewModelDTO';
@@ -98,7 +98,7 @@ export class PostRepositorySql {
     console.log(zapros);
     const table = await this.dataSource.query(zapros);
     //console.log(table);
-    const resultPosts: Post[] = [];
+    const resultPosts: PostViewModel[] = [];
     if (table.length > 0) {
       for (const postSql of table) {
         const limitLike = 3;
@@ -116,7 +116,7 @@ export class PostRepositorySql {
         const tableNewestLike = await this.dataSource.query(
           zaprosForNewestLike,
         );
-        const post = mapObject.mapPostFromSql(
+        const post = mapObject.mapPostFromSqlFromViewModel(
           postSql,
           mapObject.mapNewestLikesFromSql(tableNewestLike),
         );
@@ -163,7 +163,7 @@ export class PostRepositorySql {
       ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
     const tableNewestLike = await this.dataSource.query(zaprosForNewestLike);
 
-    const postUpgrade = mapObject.mapPostFromSql(
+    const postUpgrade = mapObject.mapPostFromSqlFromViewModel(
       table[0],
       mapObject.mapNewestLikesFromSql(tableNewestLike),
     );
@@ -229,7 +229,7 @@ export class PostRepositorySql {
     console.log(zapros);
     const table = await this.dataSource.query(zapros);
     //console.log(table);
-    const resultPosts: Post[] = [];
+    const resultPosts: PostViewModel[] = [];
     if (table.length > 0) {
       for (const postSql of table) {
         const limitLike = 3;
@@ -247,7 +247,7 @@ export class PostRepositorySql {
         const tableNewestLike = await this.dataSource.query(
           zaprosForNewestLike,
         );
-        const post = mapObject.mapPostFromSql(
+        const post = mapObject.mapPostFromSqlFromViewModel(
           postSql,
           mapObject.mapNewestLikesFromSql(tableNewestLike),
         );
@@ -277,7 +277,7 @@ export class PostRepositorySql {
   async getPostsForBlog(
     paginationPost: PaginationDTO,
     blogId: string,
-  ): Promise<outputModel<Post>> {
+  ): Promise<outputModel<PostViewModel>> {
     console.log(blogId);
     const filterCount =
       'SELECT COUNT (*) FROM post_entity WHERE "blogId" = ' +
@@ -319,7 +319,7 @@ export class PostRepositorySql {
     console.log(zapros);
     const table = await this.dataSource.query(zapros);
     //console.log(table);
-    const resultPosts: Post[] = [];
+    const resultPosts: PostViewModel[] = [];
     if (table.length > 0) {
       for (const postSql of table) {
         const limitLike = 3;
@@ -337,7 +337,7 @@ export class PostRepositorySql {
         const tableNewestLike = await this.dataSource.query(
           zaprosForNewestLike,
         );
-        const post = mapObject.mapPostFromSql(
+        const post = mapObject.mapPostFromSqlFromViewModel(
           postSql,
           mapObject.mapNewestLikesFromSql(tableNewestLike),
         );

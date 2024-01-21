@@ -1,6 +1,6 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ReactionEntity } from '../Like/Reaction.Entity';
+import { ReactionEntity } from '../Reaction/Reaction.Entity';
 import { CommentEntity } from './Comment.Entity';
 import { Comment } from './Comment';
 import { CommentViewModel } from '../viewModelDTO';
@@ -8,7 +8,8 @@ import { mapObject } from '../mapObject';
 import { NotFoundException } from '@nestjs/common';
 import { PaginationDTO } from '../DTO';
 import { helper } from '../helper';
-import { ReactionRepository } from '../Like/reactionRepository';
+import { ReactionRepository } from '../Reaction/reactionRepository';
+import { PostEntity } from '../Post/Post.Entity';
 
 export class CommentRepositoryTypeORM {
   constructor(
@@ -20,7 +21,7 @@ export class CommentRepositoryTypeORM {
   ) {}
   async createCommentForPost(newComment: Comment) {
     console.log(newComment.commentatorInfo.userId);
-    const qbComment = await this.commentRepositoryTypeOrm.save({
+    const qbComment = await this.commentRepositoryTypeOrm.save(<CommentEntity>{
       id: newComment.id,
       postId: newComment.postId,
       content: newComment.content,
@@ -30,6 +31,7 @@ export class CommentRepositoryTypeORM {
       likesCount: newComment.likesInfo.likesCount,
       dislikesCount: newComment.likesInfo.dislikesCount,
       myStatus: newComment.likesInfo.myStatus,
+      vision: true,
     });
     return;
   }
@@ -68,10 +70,14 @@ export class CommentRepositoryTypeORM {
     );
     const limitLike = 3;
     const tableNewestLike = await qbReaction
-      .where('r.parentId = :parentId AND r.userId = :userId', {
-        parentId: commentViewModels.id,
-        userId: userId,
-      })
+      .where(
+        'r.parentId = :parentId AND r.userId = :userId AND r.vision = :vision',
+        {
+          parentId: commentViewModels.id,
+          userId: userId,
+          vision: true,
+        },
+      )
       .orderBy('r.' + 'createdAt', 'DESC')
       .limit(limitLike)
       .getRawMany();
@@ -168,6 +174,7 @@ export class CommentRepositoryTypeORM {
       );
     const zaprosQb = await qbComment
       .where(whereFilter.where, whereFilter.params)
+      .andWhere('c.vision = :vision', { vision: true })
       .orderBy('c.' + pagination.sortBy, sortDirection)
       .limit(pagination.pageSize)
       .offset(paginationFromHelperForComments.skipPage)
@@ -206,6 +213,7 @@ export class CommentRepositoryTypeORM {
     );
     const countCommentsForPost = await qbComment
       .where(whereFilter.where, whereFilter.params)
+      .andWhere('c.vision = :vision', { vision: true })
       .getCount();
     console.log('count comment' + countCommentsForPost);
     const paginationFromHelperForComments =
@@ -217,6 +225,7 @@ export class CommentRepositoryTypeORM {
 
     const zaprosQb = await qbComment
       .where(whereFilter.where, whereFilter.params)
+      .andWhere('c.vision = :vision', { vision: true })
       .orderBy('c.' + pagination.sortBy, sortDirection)
       .limit(pagination.pageSize)
       .offset(paginationFromHelperForComments.skipPage)
@@ -244,5 +253,22 @@ export class CommentRepositoryTypeORM {
       totalCount: countCommentsForPost,
       items: commentsViewModel,
     };
+  }
+  async updateCommentVision(userId: string, visionStatus: boolean) {
+    const qbComment = await this.commentRepositoryTypeOrm.createQueryBuilder(
+      'c',
+    );
+    const update = await qbComment
+      .update(CommentEntity)
+      .set({
+        vision: visionStatus,
+      })
+      .where('userId = :userId', { userId: userId })
+      .execute();
+
+    if (!update.affected) {
+      return false;
+    }
+    return true;
   }
 }

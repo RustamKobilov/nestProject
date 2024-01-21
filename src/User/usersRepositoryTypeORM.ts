@@ -9,6 +9,7 @@ import { UserRecoveryPasswordInfoEntity } from './UserRecoveryPasswordInfo.Entit
 import { mapObject } from '../mapObject';
 import { UserViewModel } from '../viewModelDTO';
 import { helper } from '../helper';
+import { UserBanListEntity } from '../UserBanList/UserBanList.Entity';
 
 @Injectable()
 export class UsersRepositoryTypeORM {
@@ -19,6 +20,8 @@ export class UsersRepositoryTypeORM {
     private userConfirmationRepository: Repository<UserConfirmationInfoEntity>,
     @InjectRepository(UserRecoveryPasswordInfoEntity)
     private userRecoveryPasswordInfoRepository: Repository<UserRecoveryPasswordInfoEntity>,
+    @InjectRepository(UserBanListEntity)
+    private userBanListRepository: Repository<UserBanListEntity>,
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
@@ -45,8 +48,6 @@ export class UsersRepositoryTypeORM {
       createdAt: newUser.createdAt,
       salt: newUser.salt,
       password: newUser.password,
-      banField: newUser.banField,
-      banReason: newUser.banReason,
     });
 
     const userConfirmationInfo = await this.userConfirmationRepository.save({
@@ -62,12 +63,33 @@ export class UsersRepositoryTypeORM {
         recoveryCode: newUser.recoveryPasswordInfo.recoveryCode,
         diesAtDate: newUser.recoveryPasswordInfo.diesAtDate,
       });
+
+    const userBanList = await this.userBanListRepository.save(<
+      UserBanListEntity
+    >{
+      id: user.id,
+      isBanned: false,
+      dateBan: null,
+      banReason: null,
+    });
+
     console.log('sozadali ego');
     console.log(newUser);
     return;
   }
 
   async deleteUser(userId: string) {
+    const qbUserBanList = await this.userBanListRepository.createQueryBuilder(
+      'uBL',
+    );
+    const deleteOperationUBL = await qbUserBanList
+      .delete()
+      .where('id = :id', { id: userId })
+      .execute();
+    if (deleteOperationUBL.affected !== 1) {
+      throw new NotFoundException('0 item delete /userRepositorySql');
+    }
+    //uBL
     const qbUserConfirmation =
       await this.userConfirmationRepository.createQueryBuilder('uCI');
     const deleteOperationUCI = await qbUserConfirmation
@@ -411,7 +433,7 @@ export class UsersRepositoryTypeORM {
         params: { loginTerm: `%${loginTerm}%`, emailTerm: `%${emailTerm}%` },
       };
       //params: {loginTerm: `%${loginTerm}%`, emailTerm: `%${emailTerm}%`}
-      //return 'WHERE LOWER("login")' + ' LIKE ' + "'%" + loginTerm + "%'" + ' OR LOWER("email")' + ' Like ' + "'%" + emailTerm + "%'",
+      //return 'WHERE LOWER("login")' + ' LIKE ' + "'%" + loginTerm + "%'" + ' OR LOWER("email")' + ' Reaction ' + "'%" + emailTerm + "%'",
     }
     if (paginationUser.searchLoginTerm != null) {
       const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
@@ -488,17 +510,55 @@ export class UsersRepositoryTypeORM {
       items: resultUsers,
     };
   }
+  async getUsersForAdmin(
+    paginationUser: UserPaginationDTO,
+    filter: any | null,
+  ): Promise<outputModel<UserViewModel>> {
+    console.log('filter');
+    console.log(filter);
+    const qbUser = await this.userRepository.createQueryBuilder('u');
+    const totalCountUser = await qbUser
+      .where(filter.where, filter.params)
+      .getCount();
+    console.log(totalCountUser);
+    const sortDirection = paginationUser.sortDirection === 1 ? 'ASC' : 'DESC';
+    //console.log(totalCountUser);
+    const paginationFromHelperForUsers =
+      helper.getPaginationFunctionSkipSortTotal(
+        paginationUser.pageNumber,
+        paginationUser.pageSize,
+        totalCountUser,
+      );
+    const zaprosQb = await qbUser
+      .leftJoinAndSelect('u.userConfirmationInfo', 'uCI')
+      .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
+      .leftJoinAndSelect('u.userBanList', 'uBL')
+      .where(filter.where, filter.params)
+      .orderBy('u.' + paginationUser.sortBy, sortDirection)
+      .limit(paginationUser.pageSize)
+      .offset(paginationFromHelperForUsers.skipPage)
+      .getRawMany();
 
-  // async updateUserBanStatus(userId: string, banReason: string) {
-  //   const qbUser = await this.userRepository.createQueryBuilder('u');
-  //   const update = await qbUser
-  //     .update(UserEntity)
-  //     .set({ password: hash })
-  //     .where('id = :ownerId', { ownerId: ownerId })
-  //     .execute();
-  //
-  //   if (!update.affected) {
-  //     return false;
-  //   }
-  //   return true;
+    console.log('after');
+    console.log(zaprosQb);
+
+    const sqlUsers = mapObject.mapRawManyQBOnTableName(zaprosQb, [
+      'u' + '_',
+      'uCI' + '_',
+      'uRPI' + '_',
+      'uBL' + '_',
+    ]); //второй массив алиасы
+    console.log('sqlUsersForAdmin');
+    console.log(sqlUsers);
+    //const users = mapObject.mapUsersFromSql(sqlUsers);
+    const resultUsers = mapObject.mapSaUserForViewModel(sqlUsers);
+
+    return {
+      pagesCount: paginationFromHelperForUsers.totalCount,
+      page: paginationUser.pageNumber,
+      pageSize: paginationUser.pageSize,
+      totalCount: totalCountUser,
+      items: resultUsers,
+    };
+  }
 }

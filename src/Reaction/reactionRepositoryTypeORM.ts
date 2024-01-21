@@ -5,6 +5,7 @@ import { likeStatus } from '../Enum';
 import { Reaction } from './Reaction';
 import { mapObject } from '../mapObject';
 import { User } from '../User/User';
+import { PostViewModel } from '../viewModelDTO';
 
 export class ReactionRepositoryTypeORM {
   constructor(
@@ -24,6 +25,7 @@ export class ReactionRepositoryTypeORM {
       userLogin,
       status,
       createdAt: new Date().toISOString(),
+      vision: true,
     };
   }
 
@@ -35,10 +37,14 @@ export class ReactionRepositoryTypeORM {
       'r',
     );
     const take = await qbReaction
-      .where('r.userId = :userId AND r.parentId = :parentId', {
-        userId: userId,
-        parentId: parentId,
-      })
+      .where(
+        'r.userId = :userId AND r.parentId = :parentId AND r.vision = :vision',
+        {
+          userId: userId,
+          parentId: parentId,
+          vision: true,
+        },
+      )
       .getRawMany();
 
     if (take.length < 1) {
@@ -66,26 +72,32 @@ export class ReactionRepositoryTypeORM {
       'r',
     );
     const take = await qbReaction
-      .where('r.userId = :userId AND r.parentId = :parentId', {
-        userId: newReaction.userId,
-        parentId: parentId,
-      })
+      .where(
+        'r.userId = :userId AND r.parentId = :parentId AND r.vision = :vision',
+        {
+          userId: newReaction.userId,
+          parentId: parentId,
+          vision: true,
+        },
+      )
       .getRawMany();
     console.log('take search');
     console.log(take);
 
     if (take.length < 1) {
       console.log('novyi');
-      const reactionCreate = await this.reactionRepositoryTypeOrm.save({
+      const reactionCreate = await this.reactionRepositoryTypeOrm.save(<
+        ReactionEntity
+      >{
         parentId: parentId,
         userId: newReaction.userId,
         userLogin: newReaction.userLogin,
         status: newReaction.status,
         createdAt: newReaction.createdAt,
+        vision: true,
       });
     } else {
       console.log('staryi');
-
       const update = await qbReaction
         .update(ReactionEntity)
         .set({
@@ -101,31 +113,51 @@ export class ReactionRepositoryTypeORM {
       console.log('affected');
       console.log(update.affected);
     }
-    //TODO почему qb старый считает неправильно
+    const countLikeAndLastLikeStatus =
+      await this.getCountReactionAndLastLikeStatusUser(parentId);
+    return {
+      likesCount: countLikeAndLastLikeStatus.likesCount,
+      dislikesCount: countLikeAndLastLikeStatus.dislikesCount,
+      lastLikeUser: countLikeAndLastLikeStatus.lastLikeUser,
+    };
+  }
+  async getCountReactionAndLastLikeStatusUser(parentId: string) {
     const qbReaction1 = await this.reactionRepositoryTypeOrm.createQueryBuilder(
       'r',
     );
 
     const likesCount = await qbReaction1
-      .where('r.status = :status AND r.parentId = :parentId', {
-        status: likeStatus.Like,
-        parentId: parentId,
-      })
+      .where(
+        'r.status = :status AND r.parentId = :parentId AND r.vision = :vision',
+        {
+          status: likeStatus.Like,
+          parentId: parentId,
+          vision: true,
+        },
+      )
       .getCount();
 
     const dislikesCount = await qbReaction1
-      .where('r.status = :status AND r.parentId = :parentId', {
-        status: likeStatus.Dislike,
-        parentId: parentId,
-      })
+      .where(
+        'r.status = :status AND r.parentId = :parentId AND r.vision = :vision',
+        {
+          status: likeStatus.Dislike,
+          parentId: parentId,
+          vision: true,
+        },
+      )
       .getCount();
 
     const limitLike = 3;
     const tableNewestLike = await qbReaction1
-      .where('r.parentId = :parentId AND r.status = :status', {
-        parentId: parentId,
-        status: likeStatus.Like,
-      })
+      .where(
+        'r.parentId = :parentId AND r.status = :status AND r.vision = :vision',
+        {
+          parentId: parentId,
+          status: likeStatus.Like,
+          vision: true,
+        },
+      )
       .orderBy('r.createdAt', 'DESC')
       .limit(limitLike)
       .getRawMany();
@@ -135,13 +167,44 @@ export class ReactionRepositoryTypeORM {
     ]);
 
     const lastLikeUser = mapObject.mapNewestLikesFromSql(newestLike);
-    console.log('imenno tyt');
-    console.log(likesCount);
-    console.log(dislikesCount);
+
     return {
       likesCount: likesCount,
       dislikesCount: dislikesCount,
       lastLikeUser: lastLikeUser,
     };
+  }
+  async updateReactionVision(userId: string, visionStatus: boolean) {
+    const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
+      'r',
+    );
+    const update = await qbReaction
+      .update(ReactionEntity)
+      .set({
+        vision: visionStatus,
+      })
+      .where('userId = :userId', {
+        userId: userId,
+      })
+      .execute();
+    return;
+  }
+  async getAllParentInAddReactionBanUser(userId: string) {
+    const parentIdArray: string[] = [];
+    const qbReaction1 = await this.reactionRepositoryTypeOrm.createQueryBuilder(
+      'r',
+    );
+    const selectParentIdArray = await qbReaction1
+      .select('r.parentId')
+      .where('r.userId = :userId', {
+        userId: userId,
+      })
+      .getMany();
+    console.log(selectParentIdArray);
+    for (const parentIdSelect of selectParentIdArray) {
+      console.log(parentIdSelect.parentId);
+      parentIdArray.push(parentIdSelect.parentId);
+    }
+    return parentIdArray;
   }
 }

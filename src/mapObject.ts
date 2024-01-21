@@ -7,11 +7,12 @@ import {
   newestLikeViewModel,
   PostViewModel,
   SaBlogViewModel,
+  SaUserViewModel,
   UserViewModel,
 } from './viewModelDTO';
 import { Blog } from './Blog/Blog';
 import { NewestLikes, Post } from './Post/Post';
-import { Reaction } from './Like/Reaction';
+import { Reaction } from './Reaction/Reaction';
 import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
@@ -46,8 +47,6 @@ export const mapObject = {
         createdAt: sqlUser.createdAt,
         salt: sqlUser.salt,
         password: sqlUser.password,
-        banField: sqlUser.banField,
-        banReason: sqlUser.banReason,
         recoveryPasswordInfo: {
           recoveryCode: sqlUser.recoveryCode,
           diesAtDate: sqlUser.diesAtDate,
@@ -69,6 +68,24 @@ export const mapObject = {
       email: user.email,
       createdAt: user.createdAt,
     };
+  },
+  mapSaUserForViewModel(sqlArray: any[any]): SaUserViewModel[] {
+    const users: SaUserViewModel[] = [];
+    for (const sqlUser of sqlArray) {
+      const saUser: SaUserViewModel = {
+        id: sqlUser.id,
+        login: sqlUser.login,
+        email: sqlUser.email,
+        createdAt: sqlUser.createdAt,
+        banInfo: {
+          isBanned: sqlUser.isBanned,
+          banDate: sqlUser.banDate,
+          banReason: sqlUser.banReason,
+        },
+      };
+      users.push(saUser);
+    }
+    return users;
   },
   mapBlogForViewModel(blog: Blog): BlogViewModel {
     return {
@@ -106,7 +123,26 @@ export const mapObject = {
       extendedLikesInfo: post.extendedLikesInfo,
     };
   },
-  mapPostFromSql(
+  mapPostFromSql(post: PostEntity, newestLikes: NewestLikes[] = []): Post {
+    return {
+      id: post.id,
+      userId: post.userId,
+      title: post.title,
+      shortDescription: post.shortDescription,
+      content: post.content,
+      blogId: post.blogId,
+      blogName: post.blogName,
+      createdAt: post.createdAt,
+      extendedLikesInfo: {
+        likesCount: post.likesCount,
+        dislikesCount: post.dislikesCount,
+        myStatus: post.myStatus,
+        newestLikes: newestLikes,
+      },
+      vision: post.vision,
+    };
+  },
+  mapPostFromSqlFromViewModel(
     post: PostEntity,
     newestLikes: NewestLikes[] = [],
   ): PostViewModel {
@@ -184,6 +220,7 @@ export const mapObject = {
         status: reactionSql.status,
         parentId: reactionSql.parentId,
         createdAt: reactionSql.createdAt,
+        vision: reactionSql.vision,
       };
       reactions.push(reaction);
     }

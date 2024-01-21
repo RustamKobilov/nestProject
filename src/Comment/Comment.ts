@@ -41,6 +41,8 @@ export class Comment {
   createdAt: string;
   @Prop({ type: LikesInfoSchema, required: true })
   likesInfo: LikesInfo;
+  @Prop({ type: Boolean, required: true })
+  vision: boolean;
 }
 
 export const CommentSchema = SchemaFactory.createForClass(Comment);

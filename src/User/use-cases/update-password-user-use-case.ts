@@ -1,7 +1,7 @@
 import { UpdatePasswordDTO } from '../../DTO';
 import { CommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../userRepository';
-import { bcriptService } from '../../bcryptService';
+import { argonService } from '../../bcryptService';
 import { NotFoundException } from '@nestjs/common';
 
 export class UpdatePasswordUserUseCaseCommand {
@@ -12,7 +12,7 @@ export class UpdatePasswordUserUseCase {
   constructor(private userRepository: UserRepository) {}
 
   async execute(command: UpdatePasswordUserUseCaseCommand) {
-    const hash = await bcriptService.getHashPassword(
+    const hash = await argonService.getHashPassword(
       command.newPasswordBody.newPassword,
     );
     const resultUpdate =

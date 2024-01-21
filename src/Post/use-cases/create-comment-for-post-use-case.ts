@@ -35,6 +35,7 @@ export class CreateCommentForPostUseCase {
       commentatorInfo: commentatorInfoNewComment,
       createdAt: new Date().toISOString(),
       likesInfo: commentLikesInfo,
+      vision: true,
     };
     console.log(newComment);
     await this.commentRepository.createCommentForPost(newComment);

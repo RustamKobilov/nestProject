@@ -5,7 +5,7 @@ import {
   QuestionsPaginationDTO,
   SaQuestionViewModel,
 } from './questionDTO';
-import { QuestionEntity } from './QuestionEntity';
+import { QuestionEntity } from './Question.Entity';
 import { randomUUID } from 'crypto';
 import { mapKuiz } from '../Game/mapKuiz';
 import { helper } from '../helper';

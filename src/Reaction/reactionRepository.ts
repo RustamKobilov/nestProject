@@ -25,6 +25,7 @@ export class ReactionRepository {
       userLogin,
       status,
       createdAt: new Date().toISOString(),
+      vision: true,
     };
   }
   async getReactionUserForParent(
@@ -86,5 +87,25 @@ export class ReactionRepository {
       dislikesCount: dislikesCount,
       lastLikeUser: lastlikeUser,
     };
+  }
+  async getCountReactionAndLastLikeStatusUser(parentId: string) {
+    return {
+      likesCount: 1,
+      dislikesCount: 1,
+      lastLikeUser: [
+        {
+          addedAt: 'sqlReaction.createdAt',
+          userId: 'sqlReaction.userId',
+          login: 'sqlReaction.userLogin',
+        },
+      ],
+    };
+  }
+  async getAllParentInAddReactionBanUser(userId: string) {
+    return ['getAllParentInAddReactionBanUser'];
+  }
+
+  async updateReactionVision(userId: string, visionStatus: boolean) {
+    return;
   }
 }

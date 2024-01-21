@@ -6,7 +6,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { QuizRepository } from './quizRepository';
-import { GameEntity, PlayerInformation } from './GameEntity';
+import { GameEntity, PlayerInformation } from './Game.Entity';
 import { randomUUID } from 'crypto';
 import { answerStatusesEnum, gameStatusesEnum } from '../Qustions/questionEnum';
 import { mapKuiz } from './mapKuiz';
@@ -17,7 +17,7 @@ import {
   PaginationGetTopDTO,
   StaticViewModel,
 } from './gameDTO';
-import { PlayerEntity, updatePlayerStaticAfterGame } from './PlayerEntity';
+import { PlayerEntity, updatePlayerStaticAfterGame } from './Player.Entity';
 import { helper } from '../helper';
 import { outputModel, PaginationSqlDTO } from '../DTO';
 import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';

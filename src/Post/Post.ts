@@ -32,6 +32,8 @@ export class Post {
   @Prop({ type: String, unique: true, required: true })
   id: string;
   @Prop({ type: String, required: true })
+  userId: string;
+  @Prop({ type: String, required: true })
   title: string;
   @Prop({ type: String, required: true })
   shortDescription: string;
@@ -45,6 +47,8 @@ export class Post {
   createdAt: string;
   @Prop({ type: ExtendedLikesInfoSchema, required: true })
   extendedLikesInfo: ExtendedLikesInfo;
+  @Prop({ type: Boolean, required: true })
+  vision: boolean;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

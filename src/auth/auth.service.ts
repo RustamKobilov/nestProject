@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UserService } from '../User/userService';
-import { bcriptService } from '../bcryptService';
+import { argonService } from '../bcryptService';
 import { CreateUserDto, UpdatePasswordDTO } from '../DTO';
 import * as dotenv from 'dotenv';
 import { randomUUID } from 'crypto';
@@ -38,7 +38,10 @@ export class AuthService {
     const user = await this.commandBus.execute(
       new GetUserByLoginOrEmailUseCaseCommand(login),
     );
-    const resultCompare = await bcriptService.comparePassword(
+    if (user.banField === true) {
+      throw new UnauthorizedException('banned');
+    }
+    const resultCompare = await argonService.comparePassword(
       password,
       user.password,
     );

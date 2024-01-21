@@ -5,8 +5,9 @@ import { Injectable } from '@nestjs/common';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
-import { ReactionRepository } from '../Like/reactionRepository';
+import { ReactionRepository } from '../Reaction/reactionRepository';
 import { PostViewModel } from '../viewModelDTO';
+import { PostEntity } from './Post.Entity';
 
 @Injectable()
 export class PostRepository {
@@ -25,7 +26,6 @@ export class PostRepository {
     if (!post) {
       return false;
     }
-
     return post;
   }
   async getPosts(pagination: PaginationDTO) {
@@ -218,4 +218,21 @@ export class PostRepository {
   async deletePost(postId: string) {
     return await this.postModel.deleteOne({ id: postId });
   }
+  async updatePostVision(userId: string, visionStatus: boolean) {
+    return true;
+  }
+  //   const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
+  //   const update = await qbPost
+  //     .update(PostEntity)
+  //     .set({
+  //       vision: visionStatus,
+  //     })
+  //     .where('userId = :userId', { userId: userId })
+  //     .execute();
+  //
+  //   if (!update.affected) {
+  //     return false;
+  //   }
+  //   return true;
+  // }
 }

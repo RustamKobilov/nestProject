@@ -5,7 +5,7 @@ import { FilterQuery, Model, UpdateWriteOpResult } from 'mongoose';
 import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
-import { UserViewModel } from '../viewModelDTO';
+import { SaUserViewModel, UserViewModel } from '../viewModelDTO';
 
 @Injectable()
 export class UserRepository {
@@ -64,6 +64,7 @@ export class UserRepository {
     paginationUser: UserPaginationDTO,
     filter: FilterQuery<UserDocument>[],
   ): Promise<outputModel<UserViewModel>> {
+    //filter.push({ banField: false }); //checkBan
     const totalCountUser = await this.userModel.count({ $or: filter });
     console.log(totalCountUser);
     const paginationFromHelperForUsers =
@@ -237,11 +238,35 @@ export class UserRepository {
     return user.matchedCount === 1;
   }
 
-  async deleteUserForBanList(userId: string): Promise<boolean> {
+  async deleteUserInBanList(userId: string): Promise<boolean> {
     return true;
   }
 
-  async createUserForBanList(userId: string, banReason: string) {}
+  async addUserInBanList(userId: string, banReason: string) {}
+  async getUsersForAdmin(
+    paginationUser: UserPaginationDTO,
+    filter: any | null,
+  ): Promise<outputModel<UserViewModel>> {
+    return {
+      pagesCount: 1,
+      page: 1,
+      pageSize: 1,
+      totalCount: 1,
+      items: [
+        <SaUserViewModel>{
+          id: 'id',
+          email: 'email',
+          createdAt: 'createdAt',
+          login: 'login',
+          banInfo: {
+            isBanned: true,
+            banDate: 'banDate',
+            banReason: 'banReason',
+          },
+        },
+      ],
+    };
+  }
 }
 
 //export class UserRepository implements OnModuleInit

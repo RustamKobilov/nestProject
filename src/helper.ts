@@ -9,7 +9,7 @@ import {
   QuestionsPaginationDTO,
 } from './Qustions/questionDTO';
 import { publishedStatusEnum } from './Qustions/questionEnum';
-import { GameEntity } from './Game/GameEntity';
+import { GameEntity } from './Game/Game.Entity';
 import { PaginationGetTopDTO } from './Game/gameDTO';
 
 export const helper = {

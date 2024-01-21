@@ -284,7 +284,7 @@ export class UsersRepositorySql {
         loginTerm +
         "%'" +
         ' OR LOWER("email")' +
-        ' Like ' +
+        ' Reaction ' +
         "'%" +
         emailTerm +
         "%'"

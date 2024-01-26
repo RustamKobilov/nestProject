@@ -14,7 +14,7 @@ import {
 import { Transform, Type } from 'class-transformer';
 import { helper } from './helper';
 import { CommentatorInfo, LikesInfo } from './Comment/Comment';
-import { likeStatus } from './Enum';
+import { BanStatusForAdminPagination, likeStatus } from './Enum';
 import {
   IsBlogChecking,
   IsEmailNoUnique,
@@ -137,7 +137,13 @@ export class UserPaginationDTO extends PaginationDTO {
   @Transform(({ value }) => helper.getValueTrim(value))
   searchEmailTerm: string | null;
 }
-
+//banStatus
+export class UserAdminPaginationDTO extends UserPaginationDTO {
+  @IsOptional()
+  @IsString()
+  @IsEnum(BanStatusForAdminPagination)
+  isBanned: BanStatusForAdminPagination;
+}
 export class BlogPaginationDTO extends PaginationDTO {
   @IsOptional()
   @Transform(({ value }) => helper.getValueTrim(value))
@@ -210,9 +216,9 @@ export class PaginationSqlDTO {
   @Transform(({ value }) => helper.getValueTrim(value))
   sortDirection: 'asc' | 'desc';
 }
-export class PaginationUpdateBanStatusUserDTO {
+export class UpdateBanStatusUserDTO {
   @Type((type) => String)
-  @Length(1)
+  @Length(1, 100)
   @IsString()
   banReason: string;
 

@@ -143,6 +143,7 @@ import { GetBlogUseCase } from './Blog/use-cases/get-blog-use-case';
 import { UpdateBanStatusForUserUseCase } from './User/use-cases/update-ban-status-user-use-case';
 import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
 import { UserBanListRepositoryTypeORM } from './UserBanList/userBanListRepositoryTypeORM';
+import { GetUsersAdminUseCase } from './User/use-cases/get-users-admin-use-case';
 
 dotenv.config();
 const useCaseUser = [
@@ -157,6 +158,7 @@ const useCaseUser = [
   UpdateConfirmationCodeForUserUseCase,
   CheckDuplicateLoginAndEmailUseCase,
   UpdateBanStatusForUserUseCase,
+  GetUsersAdminUseCase,
 ];
 const useCaseBlogger = [GetBlogsUseForBloggerCase];
 const useCaseBlog = [

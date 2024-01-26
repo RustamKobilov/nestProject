@@ -25,7 +25,7 @@ export class RefreshTokenGuard implements CanActivate {
       throw new UnauthorizedException('verify failed /refreshGuard');
     const user = await this.userRepository.getUser(payload.userId);
     if (!user) throw new UnauthorizedException('user not found /refreshGuard');
-    console.log(payload);
+    //console.log(payload);
     request.refreshTokenPayload = payload;
     return true;
   }

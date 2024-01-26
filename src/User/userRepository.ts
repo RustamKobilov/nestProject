@@ -246,7 +246,7 @@ export class UserRepository {
   async getUsersForAdmin(
     paginationUser: UserPaginationDTO,
     filter: any | null,
-  ): Promise<outputModel<UserViewModel>> {
+  ): Promise<outputModel<SaUserViewModel>> {
     return {
       pagesCount: 1,
       page: 1,

@@ -78,7 +78,9 @@ export class BlogsRepositoryTypeORM {
     console.log('after');
     console.log(zaprosQb);
 
-    const blogs = mapObject.mapRawManyQBOnTableName(zaprosQb, ['b' + '_']);
+    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'b' + '_',
+    ]);
 
     const resultBlogs = await Promise.all(
       blogs.map(async (blog: Blog) => {
@@ -121,7 +123,9 @@ export class BlogsRepositoryTypeORM {
     console.log('after');
     console.log(zaprosQb);
 
-    const blogs = mapObject.mapRawManyQBOnTableName(zaprosQb, ['b' + '_']);
+    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'b' + '_',
+    ]);
 
     const resultBlogs = await Promise.all(
       blogs.map(async (blog: Blog) => {
@@ -164,7 +168,9 @@ export class BlogsRepositoryTypeORM {
     console.log('after');
     console.log(zaprosQb);
 
-    const blogs = mapObject.mapRawManyQBOnTableName(zaprosQb, ['b' + '_']);
+    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'b' + '_',
+    ]);
 
     const resultBlogs = await Promise.all(
       blogs.map(async (blog: Blog) => {
@@ -188,7 +194,7 @@ export class BlogsRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const blogs = mapObject.mapRawManyQBOnTableName(take, ['b' + '_']);
+    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(take, ['b' + '_']);
     return blogs[0];
   }
   async updateBlog(blogId: string, updateBlogDto: CreateBlogDTO) {

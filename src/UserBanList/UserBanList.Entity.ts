@@ -5,12 +5,10 @@ import { UserEntity } from '../User/User.Entity';
 export class UserBanListEntity {
   @PrimaryColumn({ type: 'uuid' })
   id: string;
-  @Column({ type: 'boolean' })
-  isBanned: boolean;
   @Column({ type: 'varchar', length: 100, nullable: true })
-  dateBan: string | null;
+  banDate: string;
   @Column({ type: 'varchar', length: 100, nullable: true })
-  banReason: string | null;
+  banReason: string;
 
   @OneToOne(() => UserEntity, (user) => user.userBanList)
   @JoinColumn({ name: 'id' })

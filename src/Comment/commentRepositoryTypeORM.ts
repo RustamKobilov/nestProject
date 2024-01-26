@@ -44,7 +44,9 @@ export class CommentRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const comments = mapObject.mapRawManyQBOnTableName(take, ['c' + '_']);
+    const comments = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'c' + '_',
+    ]);
     const commentViewModels = mapObject.mapCommentFromSql(comments);
     return commentViewModels[0];
   }
@@ -62,7 +64,9 @@ export class CommentRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const comments = mapObject.mapRawManyQBOnTableName(take, ['c' + '_']);
+    const comments = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'c' + '_',
+    ]);
     const commentViewModels = mapObject.mapCommentFromSql(comments)[0];
 
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
@@ -84,9 +88,10 @@ export class CommentRepositoryTypeORM {
     if (tableNewestLike.length < 1) {
       return commentViewModels;
     }
-    const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-      'r' + '_',
-    ]);
+    const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+      tableNewestLike,
+      ['r' + '_'],
+    );
     commentViewModels.likesInfo.myStatus = newestLike[0].status;
 
     return commentViewModels;
@@ -181,7 +186,9 @@ export class CommentRepositoryTypeORM {
       .getRawMany();
     console.log('after');
 
-    const comments = mapObject.mapRawManyQBOnTableName(zaprosQb, ['c' + '_']);
+    const comments = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'c' + '_',
+    ]);
     const commentsViewModel = mapObject.mapCommentFromSql(comments);
 
     return {
@@ -232,7 +239,9 @@ export class CommentRepositoryTypeORM {
       .getRawMany();
     console.log('after');
 
-    const comments = mapObject.mapRawManyQBOnTableName(zaprosQb, ['c' + '_']);
+    const comments = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'c' + '_',
+    ]);
 
     const commentsViewModel = mapObject.mapCommentFromSql(comments);
     for (const comment of commentsViewModel) {

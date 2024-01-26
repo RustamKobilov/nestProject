@@ -16,3 +16,9 @@ export enum playerStatic {
   'lossesCount' = 'losses',
   'drawsCount' = 'draws',
 }
+
+export enum BanStatusForAdminPagination {
+  'all' = 'all',
+  'banned' = 'banned',
+  'notBanned' = 'notBanned',
+}

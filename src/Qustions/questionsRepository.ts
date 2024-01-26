@@ -91,7 +91,7 @@ export class QuestionsRepository {
       .offset(paginationFromHelperForQuestion.skipPage)
       .getRawMany();
     //console.log(zaprosQb);
-    const questionsSql = mapObject.mapRawManyQBOnTableName(zaprosQb, [
+    const questionsSql = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
       'q' + '_',
     ]);
     const questions = mapQuestion.mapQuestionFromSql(questionsSql);
@@ -156,7 +156,7 @@ export class QuestionsRepository {
     const questionSql = await qbQuestion
       .where('id = :id', { id: questionId })
       .getRawMany();
-    const question = mapObject.mapRawManyQBOnTableName(questionSql, [
+    const question = mapObject.mapRawManyQBOnTableNameIsNotNull(questionSql, [
       'q' + '_',
     ]);
     const questionViewModel = mapKuiz.mapSaQuestionsViewModel(question);

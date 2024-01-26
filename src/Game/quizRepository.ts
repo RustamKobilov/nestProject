@@ -35,10 +35,8 @@ export class QuizRepository {
         status: gameStatusesEnum.PendingSecondPlayer,
       })
       .getRawMany();
-    const gamesEntity: GameEntity[] = mapObject.mapRawManyQBOnTableName(
-      gameSql,
-      ['game' + '_'],
-    );
+    const gamesEntity: GameEntity[] =
+      mapObject.mapRawManyQBOnTableNameIsNotNull(gameSql, ['game' + '_']);
     console.log(gamesEntity);
     return gamesEntity;
   }
@@ -58,10 +56,8 @@ export class QuizRepository {
         },
       )
       .getRawMany();
-    const gamesEntity: GameEntity[] = mapObject.mapRawManyQBOnTableName(
-      gameSql,
-      ['game' + '_'],
-    );
+    const gamesEntity: GameEntity[] =
+      mapObject.mapRawManyQBOnTableNameIsNotNull(gameSql, ['game' + '_']);
     console.log(gamesEntity);
     return gamesEntity;
   }
@@ -72,10 +68,8 @@ export class QuizRepository {
         id: gameId,
       })
       .getRawMany();
-    const gamesEntity: GameEntity[] = mapObject.mapRawManyQBOnTableName(
-      gameSql,
-      ['game' + '_'],
-    );
+    const gamesEntity: GameEntity[] =
+      mapObject.mapRawManyQBOnTableNameIsNotNull(gameSql, ['game' + '_']);
     console.log(gamesEntity);
     return gamesEntity;
   }
@@ -145,10 +139,8 @@ export class QuizRepository {
         },
       )
       .getRawMany();
-    const gamesEntity: GameEntity[] = mapObject.mapRawManyQBOnTableName(
-      gameSql,
-      ['game' + '_'],
-    );
+    const gamesEntity: GameEntity[] =
+      mapObject.mapRawManyQBOnTableNameIsNotNull(gameSql, ['game' + '_']);
     console.log(gamesEntity);
     return gamesEntity;
   }

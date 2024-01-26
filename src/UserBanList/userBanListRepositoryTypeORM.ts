@@ -15,19 +15,29 @@ export class UserBanListRepositoryTypeORM {
     private postRepository: PostRepository,
     private reactionRepository: ReactionRepository,
   ) {}
-  async addUserInBanList(userId: string, banReason: string, isBanned: boolean) {
+  async addUserInBanList(userId: string, banReason: string) {
     const userAddBanList = await this.userBanListRepository.save(<
       UserBanListEntity
     >{
-      dateBan: new Date().toISOString(),
+      banDate: new Date().toISOString(),
       id: userId,
       banReason: banReason,
     });
-    await this.updateVisionStatusForParentByUserId(userId, isBanned);
     return;
   }
-  //TODO в обоих случаях теперь должен быть set, првоерить логику . еще раз после того, как обязательно создаем лист
-  async deleteUserInBanList(userId: string, isBanned: boolean) {
+  async findUserInBanList(userId: string) {
+    const userBanList = await this.userBanListRepository.find({
+      where: {
+        id: userId,
+      },
+    });
+    if (userBanList.length < 1) {
+      return false;
+    }
+    return true;
+  }
+
+  async deleteUserInBanList(userId: string) {
     const qbUserBanList = await this.userBanListRepository.createQueryBuilder(
       'uBL',
     );
@@ -38,10 +48,9 @@ export class UserBanListRepositoryTypeORM {
     if (deleteOperation.affected !== 1) {
       return false;
     }
-    await this.updateVisionStatusForParentByUserId(userId, isBanned);
     return true;
   }
-  public async updateVisionStatusForParentByUserId(
+  async updateVisionStatusForParentByUserId(
     userId: string,
     visionStatus: boolean,
   ) {

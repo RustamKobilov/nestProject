@@ -44,7 +44,9 @@ export class PostsRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const post = mapObject.mapRawManyQBOnTableName(take, ['p' + '_'])[0];
+    const post = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'p' + '_',
+    ])[0];
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
       'r',
     );
@@ -61,9 +63,10 @@ export class PostsRepositoryTypeORM {
       .orderBy('r.' + 'createdAt', 'DESC')
       .take(limitLike)
       .getRawMany();
-    const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-      'r' + '_',
-    ]);
+    const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+      tableNewestLike,
+      ['r' + '_'],
+    );
     const postViewModel = mapObject.mapPostFromSql(
       post,
       mapObject.mapNewestLikesFromSql(tableNewestLike),
@@ -92,7 +95,9 @@ export class PostsRepositoryTypeORM {
       .getRawMany();
     console.log('after');
     console.log(zaprosQb);
-    const posts = mapObject.mapRawManyQBOnTableName(zaprosQb, ['p' + '_']);
+    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'p' + '_',
+    ]);
     //console.log(table);
     const resultPosts: PostViewModel[] = [];
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
@@ -114,9 +119,10 @@ export class PostsRepositoryTypeORM {
           .orderBy('r.' + 'createdAt', sortDirection)
           .limit(limitLike)
           .getRawMany();
-        const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-          'r' + '_',
-        ]);
+        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+          tableNewestLike,
+          ['r' + '_'],
+        );
 
         const postViewModel = mapObject.mapPostFromSqlFromViewModel(
           post,
@@ -146,7 +152,9 @@ export class PostsRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const post = mapObject.mapRawManyQBOnTableName(take, ['p' + '_'])[0];
+    const post = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'p' + '_',
+    ])[0];
 
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
       'r',
@@ -164,9 +172,10 @@ export class PostsRepositoryTypeORM {
       .orderBy('r.' + 'createdAt', 'DESC')
       .limit(limitLike)
       .getRawMany();
-    const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-      'r' + '_',
-    ]);
+    const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+      tableNewestLike,
+      ['r' + '_'],
+    );
     console.log(newestLike);
     const postViewModel = mapObject.mapPostFromSqlFromViewModel(
       post,
@@ -222,7 +231,9 @@ export class PostsRepositoryTypeORM {
       .getRawMany();
     console.log('after');
     console.log(zaprosQb);
-    const posts = mapObject.mapRawManyQBOnTableName(zaprosQb, ['p' + '_']);
+    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'p' + '_',
+    ]);
     //console.log(table);
     const resultPosts: PostViewModel[] = [];
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
@@ -244,9 +255,10 @@ export class PostsRepositoryTypeORM {
           .orderBy('r.' + 'createdAt', sortDirection)
           .limit(limitLike)
           .getRawMany();
-        const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-          'r' + '_',
-        ]);
+        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+          tableNewestLike,
+          ['r' + '_'],
+        );
         const postViewModel = mapObject.mapPostFromSqlFromViewModel(
           post,
           mapObject.mapNewestLikesFromSql(newestLike),
@@ -303,7 +315,9 @@ export class PostsRepositoryTypeORM {
       .getRawMany();
     console.log('after');
     console.log(zaprosQb);
-    const posts = mapObject.mapRawManyQBOnTableName(zaprosQb, ['p' + '_']);
+    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'p' + '_',
+    ]);
     //console.log(table);
     const resultPosts: PostViewModel[] = [];
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
@@ -325,9 +339,10 @@ export class PostsRepositoryTypeORM {
           .orderBy('r.' + 'createdAt', sortDirection)
           .limit(limitLike)
           .getRawMany();
-        const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-          'r' + '_',
-        ]);
+        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+          tableNewestLike,
+          ['r' + '_'],
+        );
         const postViewModel = mapObject.mapPostFromSqlFromViewModel(
           post,
           mapObject.mapNewestLikesFromSql(newestLike),

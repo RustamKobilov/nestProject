@@ -41,7 +41,9 @@ export class DeviceRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const devices = mapObject.mapRawManyQBOnTableName(take, ['d' + '_']);
+    const devices = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'd' + '_',
+    ]);
 
     const devicesViewModel = mapObject.mapDeviceFromSql(devices);
     return devicesViewModel[0];
@@ -138,7 +140,9 @@ export class DeviceRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const devices = mapObject.mapRawManyQBOnTableName(take, ['d' + '_']);
+    const devices = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'd' + '_',
+    ]);
     const deviceViewModel = mapObject.mapDeviceFromSql(devices);
     return deviceViewModel[0];
   }
@@ -150,7 +154,9 @@ export class DeviceRepositoryTypeORM {
       })
       .getRawMany();
 
-    const devicesSQL = mapObject.mapRawManyQBOnTableName(take, ['d' + '_']);
+    const devicesSQL = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'd' + '_',
+    ]);
     const deviceViewModel = mapObject.mapDevicesFromSql(devicesSQL);
     return deviceViewModel;
   }

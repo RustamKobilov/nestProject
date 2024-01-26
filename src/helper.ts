@@ -2,6 +2,7 @@ import {
   BlogPaginationDTO,
   PaginationDTO,
   PaginationSqlDTO,
+  UserAdminPaginationDTO,
   UserPaginationDTO,
 } from './DTO';
 import {
@@ -11,6 +12,7 @@ import {
 import { publishedStatusEnum } from './Qustions/questionEnum';
 import { GameEntity } from './Game/Game.Entity';
 import { PaginationGetTopDTO } from './Game/gameDTO';
+import { BanStatusForAdminPagination } from './Enum';
 
 export const helper = {
   getPaginationFunctionSkipSortTotal(
@@ -31,6 +33,17 @@ export const helper = {
       sortDirection: query.sortDirection === 'asc' ? 1 : -1,
       searchLoginTerm: query.searchLoginTerm,
       searchEmailTerm: query.searchEmailTerm,
+    };
+  },
+  getUserAdminPaginationValues(query: any): UserAdminPaginationDTO {
+    return {
+      pageNumber: query.pageNumber || 1,
+      pageSize: query.pageSize || 10,
+      sortBy: query.sortBy || 'createdAt',
+      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
+      searchLoginTerm: query.searchLoginTerm,
+      searchEmailTerm: query.searchEmailTerm,
+      isBanned: query.isBanned || BanStatusForAdminPagination.all,
     };
   },
   getBlogPaginationValues(query: any): BlogPaginationDTO {

@@ -50,7 +50,9 @@ export class ReactionRepositoryTypeORM {
     if (take.length < 1) {
       return false;
     }
-    const reactionsRaw = mapObject.mapRawManyQBOnTableName(take, ['r' + '_']);
+    const reactionsRaw = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
+      'r' + '_',
+    ]);
     const reactions = mapObject.mapReactionFromSql(reactionsRaw);
     console.log(reactions);
     return reactions[0];
@@ -162,9 +164,10 @@ export class ReactionRepositoryTypeORM {
       .limit(limitLike)
       .getRawMany();
 
-    const newestLike = mapObject.mapRawManyQBOnTableName(tableNewestLike, [
-      'r' + '_',
-    ]);
+    const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+      tableNewestLike,
+      ['r' + '_'],
+    );
 
     const lastLikeUser = mapObject.mapNewestLikesFromSql(newestLike);
 

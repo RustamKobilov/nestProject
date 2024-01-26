@@ -16,9 +16,11 @@ import { Reaction } from './Reaction/Reaction';
 import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
+import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
+import { BanStatusForAdminPagination } from './Enum';
 
 export const mapObject = {
-  mapRawManyQBOnTableName(rawArray: any[], nameTable: any[]): any {
+  mapRawManyQBOnTableNameIsNotNull(rawArray: any[], nameTable: any[]): any {
     for (const name of nameTable) {
       console.log(name);
       for (const user of rawArray) {
@@ -35,6 +37,30 @@ export const mapObject = {
     }
     console.log('rawArray');
     console.log(rawArray);
+    return rawArray;
+  },
+  mapRawManyQBOnTableNameIsNullIdUserBan(
+    rawArray: any[],
+    nameTable: any[],
+  ): any {
+    for (const name of nameTable) {
+      //console.log(name);
+      for (const user of rawArray) {
+        // console.log('before');
+        // console.log(user);
+        Object.keys(user).forEach((key) => {
+          const newKey = key.replace(name, '');
+          const valueKey = user[key];
+          //console.log(newKey + ' newKey');
+          delete user[key];
+          if (key !== 'uBL_id') {
+            user[newKey] = valueKey;
+          }
+        });
+      }
+    }
+    console.log('rawArray');
+    // console.log(rawArray);
     return rawArray;
   },
   mapUsersFromSql(sqlArray: any[any]): User[] {
@@ -268,5 +294,23 @@ export const mapObject = {
       lastActiveDate: device.lastActiveDate,
       deviceId: device.deviceId,
     };
+  },
+  mapSaUser(sqlArray: [any]): SaUserViewModel[] {
+    const resultUsers: SaUserViewModel[] = [];
+    for (const user of sqlArray) {
+      const userSaViewModel: SaUserViewModel = {
+        id: user.id,
+        login: user.login,
+        email: user.email,
+        createdAt: user.createdAt,
+        banInfo: {
+          isBanned: user.banDate === null ? false : true,
+          banDate: user.banDate,
+          banReason: user.banReason,
+        },
+      };
+      resultUsers.push(userSaViewModel);
+    }
+    return resultUsers;
   },
 };

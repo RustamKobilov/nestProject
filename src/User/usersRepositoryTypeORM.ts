@@ -1,15 +1,21 @@
 import { DataSource, Repository } from 'typeorm';
 import { UserEntity } from './User.Entity';
-import { CreateUserDto, outputModel, UserPaginationDTO } from '../DTO';
+import {
+  CreateUserDto,
+  outputModel,
+  UserAdminPaginationDTO,
+  UserPaginationDTO,
+} from '../DTO';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from './User';
 import { UserConfirmationInfoEntity } from './UserConfirmationInfo.Entity';
 import { UserRecoveryPasswordInfoEntity } from './UserRecoveryPasswordInfo.Entity';
 import { mapObject } from '../mapObject';
-import { UserViewModel } from '../viewModelDTO';
+import { SaUserViewModel, UserViewModel } from '../viewModelDTO';
 import { helper } from '../helper';
 import { UserBanListEntity } from '../UserBanList/UserBanList.Entity';
+import { BanStatusForAdminPagination } from '../Enum';
 
 @Injectable()
 export class UsersRepositoryTypeORM {
@@ -64,32 +70,21 @@ export class UsersRepositoryTypeORM {
         diesAtDate: newUser.recoveryPasswordInfo.diesAtDate,
       });
 
-    const userBanList = await this.userBanListRepository.save(<
-      UserBanListEntity
-    >{
-      id: user.id,
-      isBanned: false,
-      dateBan: null,
-      banReason: null,
-    });
+    // const userBanList = await this.userBanListRepository.save(<
+    //   UserBanListEntity
+    // >{
+    //   id: user.id,
+    //   isBanned: false,
+    //   dateBan: null,
+    //   banReason: null,
+    // });
 
-    console.log('sozadali ego');
-    console.log(newUser);
+    //console.log('sozadali ego');
+    //console.log(newUser);
     return;
   }
 
   async deleteUser(userId: string) {
-    const qbUserBanList = await this.userBanListRepository.createQueryBuilder(
-      'uBL',
-    );
-    const deleteOperationUBL = await qbUserBanList
-      .delete()
-      .where('id = :id', { id: userId })
-      .execute();
-    if (deleteOperationUBL.affected !== 1) {
-      throw new NotFoundException('0 item delete /userRepositorySql');
-    }
-    //uBL
     const qbUserConfirmation =
       await this.userConfirmationRepository.createQueryBuilder('uCI');
     const deleteOperationUCI = await qbUserConfirmation
@@ -134,7 +129,7 @@ export class UsersRepositoryTypeORM {
       return false;
     }
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(take, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -162,7 +157,7 @@ export class UsersRepositoryTypeORM {
       return false;
     }
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(take, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -189,7 +184,7 @@ export class UsersRepositoryTypeORM {
       return null;
     }
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(take, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -217,7 +212,7 @@ export class UsersRepositoryTypeORM {
       return null;
     }
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(take, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -249,7 +244,7 @@ export class UsersRepositoryTypeORM {
       return null;
     }
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(take, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -275,7 +270,7 @@ export class UsersRepositoryTypeORM {
       return false;
     }
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(take, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -337,7 +332,7 @@ export class UsersRepositoryTypeORM {
       return false;
     }
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(take, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -429,7 +424,7 @@ export class UsersRepositoryTypeORM {
       const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
       const emailTerm = paginationUser.searchEmailTerm.toLowerCase();
       return {
-        where: 'u.login ilike :loginTerm OR u.email ilike :emailTerm',
+        where: '(u.login ilike :loginTerm OR u.email ilike :emailTerm)',
         params: { loginTerm: `%${loginTerm}%`, emailTerm: `%${emailTerm}%` },
       };
       //params: {loginTerm: `%${loginTerm}%`, emailTerm: `%${emailTerm}%`}
@@ -487,7 +482,7 @@ export class UsersRepositoryTypeORM {
     console.log('after');
     console.log(zaprosQb);
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(zaprosQb, [
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
@@ -511,47 +506,63 @@ export class UsersRepositoryTypeORM {
     };
   }
   async getUsersForAdmin(
-    paginationUser: UserPaginationDTO,
+    paginationUser: UserAdminPaginationDTO,
     filter: any | null,
-  ): Promise<outputModel<UserViewModel>> {
-    console.log('filter');
-    console.log(filter);
+  ): Promise<outputModel<SaUserViewModel>> {
+    let isBannedFilter = '';
+    if (paginationUser.isBanned === BanStatusForAdminPagination.notBanned) {
+      isBannedFilter = ' AND uBL.id IS NULL';
+    }
+    if (paginationUser.isBanned === BanStatusForAdminPagination.banned) {
+      isBannedFilter = ' AND uBL.id IS NOT NULL';
+    }
+
+    console.log('isBannedFilter');
+    console.log(isBannedFilter);
+    console.log(filter + ' do bulo');
+    filter.where = filter.where + isBannedFilter;
+    // console.log(filter);
     const qbUser = await this.userRepository.createQueryBuilder('u');
     const totalCountUser = await qbUser
+      .leftJoinAndSelect('u.userConfirmationInfo', 'uCI')
+      .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
+      .leftJoinAndSelect('u.userBanList', 'uBL')
       .where(filter.where, filter.params)
+      //.andWhere(isBannedFilter)
       .getCount();
-    console.log(totalCountUser);
-    const sortDirection = paginationUser.sortDirection === 1 ? 'ASC' : 'DESC';
     //console.log(totalCountUser);
+
+    const sortDirection = paginationUser.sortDirection === 1 ? 'ASC' : 'DESC';
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(
         paginationUser.pageNumber,
         paginationUser.pageSize,
         totalCountUser,
       );
-    const zaprosQb = await qbUser
+
+    const qbUser1 = await this.userRepository.createQueryBuilder('u');
+    const zaprosQb = await qbUser1
       .leftJoinAndSelect('u.userConfirmationInfo', 'uCI')
       .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
       .leftJoinAndSelect('u.userBanList', 'uBL')
       .where(filter.where, filter.params)
+      //.andWhere(isBannedFilter)
       .orderBy('u.' + paginationUser.sortBy, sortDirection)
       .limit(paginationUser.pageSize)
       .offset(paginationFromHelperForUsers.skipPage)
       .getRawMany();
 
-    console.log('after');
+    //console.log()
+    //uBL.id IS NULL
+    // console.log('after');
     console.log(zaprosQb);
+    //console.log(zaprosQb.length);
 
-    const sqlUsers = mapObject.mapRawManyQBOnTableName(zaprosQb, [
-      'u' + '_',
-      'uCI' + '_',
-      'uRPI' + '_',
-      'uBL' + '_',
-    ]); //второй массив алиасы
-    console.log('sqlUsersForAdmin');
-    console.log(sqlUsers);
-    //const users = mapObject.mapUsersFromSql(sqlUsers);
-    const resultUsers = mapObject.mapSaUserForViewModel(sqlUsers);
+    const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNullIdUserBan(
+      zaprosQb,
+      ['u' + '_', 'uCI' + '_', 'uRPI' + '_', 'uBL' + '_'],
+    ); //второй массив алиасы
+    const resultUsers = mapObject.mapSaUser(sqlUsers);
 
     return {
       pagesCount: paginationFromHelperForUsers.totalCount,

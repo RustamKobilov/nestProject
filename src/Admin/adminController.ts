@@ -19,7 +19,8 @@ import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
 import {
   BlogPaginationDTO,
   CreateUserDto,
-  PaginationUpdateBanStatusUserDTO,
+  UpdateBanStatusUserDTO,
+  UserAdminPaginationDTO,
   UserPaginationDTO,
 } from '../DTO';
 import { GetUsersUseCaseCommand } from '../User/use-cases/get-users-use-case';
@@ -39,6 +40,7 @@ import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { UserBanListRepositoryTypeORM } from '../UserBanList/userBanListRepositoryTypeORM';
 import { UserRepository } from '../User/userRepository';
 import { helper } from '../helper';
+import { GetUsersAdminUseCaseCommand } from '../User/use-cases/get-users-admin-use-case';
 
 @SkipThrottle()
 @Controller('/sa/users')
@@ -49,24 +51,21 @@ export class adminUserController {
     private userRepository: UserRepository,
     private userBan: UserBanListRepositoryTypeORM,
   ) {}
-  @UseGuards(BasicAuthorizationGuard)
-  @Get('/check')
-  async getChecks(@Query() userPagination: UserPaginationDTO) {
-    //await this.reactionRepository.getAllParentInAddReactionBanUser(req.user.id);
-    const pagination = helper.getUserPaginationValues(userPagination);
-    const createFilter = this.userRepository.getFilterGetUsers(pagination);
-    const users = await this.userRepository.getUsersForAdmin(
-      pagination,
-      createFilter,
-    );
-    console.log(users);
-    return 'check';
-  }
+  // @UseGuards(BasicAuthorizationGuard)
+  // @Get('/check')
+  // async getChecks(@Query() userPagination: UserPaginationDTO) {
+  //   //await this.reactionRepository.getAllParentInAddReactionBanUser(req.user.id);
+  //   return this.commandBus.execute(
+  //     new GetUsersAdminUseCaseCommand(userPagination),
+  //   );
+  // }
 
   @UseGuards(BasicAuthorizationGuard)
   @Get()
-  getUsers(@Query() userPagination: UserPaginationDTO) {
-    return this.commandBus.execute(new GetUsersUseCaseCommand(userPagination));
+  getUsers(@Query() userPagination: UserAdminPaginationDTO) {
+    return this.commandBus.execute(
+      new GetUsersAdminUseCaseCommand(userPagination),
+    );
   }
 
   @UseGuards(BasicAuthorizationGuard)
@@ -88,10 +87,11 @@ export class adminUserController {
   @Put('/:id/ban')
   async updateBanStatusUser(
     @Param('id') userId: string,
-    @Query() updateBanStatusUserDTO: PaginationUpdateBanStatusUserDTO,
+    @Query() userAdminPaginationDTO: UserAdminPaginationDTO,
+    @Body() updateBanStatusUserDTO: UpdateBanStatusUserDTO,
     @Res() res: Response,
+    @Req() req,
   ) {
-    console.log(updateBanStatusUserDTO);
     await this.commandBus.execute(
       new UpdateBanStatusForUserCommand(
         userId,

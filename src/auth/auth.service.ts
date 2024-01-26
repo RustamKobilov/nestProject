@@ -22,6 +22,10 @@ import { GetUserByLoginOrEmailUseCaseCommand } from '../User/use-cases/get-user-
 import { CreateNewUserForRegistrationUseCaseCommand } from '../User/use-cases/create-new-user-for-registration-use-case';
 import { CheckDublicateLoginAndEmailUseCaseCommand } from '../User/use-cases/check-duplicate-login-and-email-use-case';
 import { UpdateConfirmationCodeForUserCommand } from '../User/use-cases/update-confirmation-code-for-user-use-case';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserBanListEntity } from '../UserBanList/UserBanList.Entity';
+import { Repository } from 'typeorm';
+import { UserBanListRepositoryTypeORM } from '../UserBanList/userBanListRepositoryTypeORM';
 
 dotenv.config();
 
@@ -32,13 +36,18 @@ export class AuthService {
     private jwtService: JwtServices,
     private deviceService: DeviceService,
     private commandBus: CommandBus,
+
+    private userBanListRepositoryTypeORM: UserBanListRepositoryTypeORM,
   ) {}
 
   async signIn(login, password, ip, title) {
     const user = await this.commandBus.execute(
       new GetUserByLoginOrEmailUseCaseCommand(login),
     );
-    if (user.banField === true) {
+    const userBan = await this.userBanListRepositoryTypeORM.findUserInBanList(
+      user.id,
+    );
+    if (userBan) {
       throw new UnauthorizedException('banned');
     }
     const resultCompare = await argonService.comparePassword(

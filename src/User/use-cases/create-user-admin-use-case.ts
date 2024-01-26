@@ -1,6 +1,6 @@
 import { CreateUserDto } from '../../DTO';
 import { CommandHandler } from '@nestjs/cqrs';
-import { UserViewModel } from '../../viewModelDTO';
+import { SaUserViewModel, UserViewModel } from '../../viewModelDTO';
 import { mapObject } from '../../mapObject';
 import { UserService } from '../userService';
 
@@ -13,12 +13,22 @@ export class CreateUserAdminUseCase {
 
   async execute(
     command: CreateUserAdminUseCaseCommand,
-  ): Promise<UserViewModel> {
+  ): Promise<SaUserViewModel> {
     const user = await this.userService.createNewUser(
       command.createUserDto,
       true,
     );
-    const outputUserModel = mapObject.mapUserForViewModel(user);
-    return outputUserModel;
+    const userSaViewModel: SaUserViewModel = {
+      id: user.id,
+      login: user.login,
+      email: user.email,
+      createdAt: user.createdAt,
+      banInfo: {
+        banReason: null,
+        isBanned: false,
+        banDate: null,
+      },
+    };
+    return userSaViewModel;
   }
 }

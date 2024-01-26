@@ -83,7 +83,7 @@ export class AuthController {
       req.headers['user-agent'] || 'userAgentNull',
     );
 
-    console.log(tokens);
+    //console.log(tokens);
     res.cookie([token.refreshToken], tokens.refreshToken, {
       expires: new Date(Date.now() + 60000),
       httpOnly: true,
@@ -124,14 +124,14 @@ export class AuthController {
   async logout(@Res() res, @Req() req) {
     const refreshToken = req.cookies.refreshToken;
     const refreshTokenPayload = req.refreshTokenPayload;
-    console.log(refreshToken);
+    //console.log(refreshToken);
     const checkTokenForUser = await this.authService.checkRefreshTokenForUser(
       refreshToken,
       refreshTokenPayload.userId,
       refreshTokenPayload.deviceId,
     );
-    console.log('prishlo');
-    console.log(refreshTokenPayload.deviceId);
+    //console.log('prishlo');
+    //console.log(refreshTokenPayload.deviceId);
     const deleteDeviceUser = await this.authService.deleteDeviceInLogout(
       refreshTokenPayload.deviceId,
     );

@@ -16,6 +16,7 @@ import { QuestionEntity } from './Qustions/Question.Entity';
 import { Repository } from 'typeorm';
 import { GameEntity } from './Game/Game.Entity';
 import { PlayerEntity } from './Game/Player.Entity';
+import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
 
 export class DataRepository {
   constructor(
@@ -35,8 +36,11 @@ export class DataRepository {
     protected gameRepositoryTypeOrm: Repository<GameEntity>,
     @InjectRepository(PlayerEntity)
     protected playerRepositoryTypeOrm: Repository<PlayerEntity>,
+    @InjectRepository(UserBanListEntity)
+    private userBanListRepository: Repository<UserBanListEntity>,
   ) {}
   async deleteBase() {
+    await this.userBanListRepository.delete({});
     await this.userModel.deleteMany({});
     await this.blogModel.deleteMany({});
     await this.postModel.deleteMany({});

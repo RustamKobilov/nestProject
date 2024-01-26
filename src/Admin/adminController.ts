@@ -19,11 +19,11 @@ import { BasicAuthorizationGuard } from '../auth/Guard/basicAuthorizationGuard';
 import {
   BlogPaginationDTO,
   CreateUserDto,
+  PaginationSqlDTO,
   UpdateBanStatusUserDTO,
   UserAdminPaginationDTO,
   UserPaginationDTO,
 } from '../DTO';
-import { GetUsersUseCaseCommand } from '../User/use-cases/get-users-use-case';
 import { CreateUserAdminUseCaseCommand } from '../User/use-cases/create-user-admin-use-case';
 import { Response } from 'express';
 import { DeleteUserUseCaseCommand } from '../User/use-cases/delete-user-use-case';
@@ -87,11 +87,12 @@ export class adminUserController {
   @Put('/:id/ban')
   async updateBanStatusUser(
     @Param('id') userId: string,
-    @Query() userAdminPaginationDTO: UserAdminPaginationDTO,
+    @Query() userAdminPaginationDTO: PaginationSqlDTO,
     @Body() updateBanStatusUserDTO: UpdateBanStatusUserDTO,
     @Res() res: Response,
     @Req() req,
   ) {
+    console.log(updateBanStatusUserDTO);
     await this.commandBus.execute(
       new UpdateBanStatusForUserCommand(
         userId,

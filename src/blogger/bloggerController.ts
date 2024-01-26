@@ -44,9 +44,11 @@ export class BloggerController {
     @Res() res,
     @Req() req,
   ) {
+    console.log('create blog');
     const blog = await this.commandBus.execute(
       new CreateBlogUseCaseCommand(createBlogDto, req.user.id, req.user.login),
     );
+    console.log(blog, 'send');
     res.status(201).send(blog);
   }
 

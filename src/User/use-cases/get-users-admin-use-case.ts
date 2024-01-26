@@ -1,11 +1,16 @@
-import { outputModel, UserPaginationDTO } from '../../DTO';
+import {
+  outputModel,
+  UserAdminPaginationDTO,
+  UserPaginationDTO,
+} from '../../DTO';
 import { CommandHandler } from '@nestjs/cqrs';
 import { UserRepository } from '../userRepository';
 import { UserViewModel } from '../../viewModelDTO';
 import { helper } from '../../helper';
+import { BanStatusForAdminPagination } from '../../Enum';
 
 export class GetUsersAdminUseCaseCommand {
-  constructor(public userPagination: UserPaginationDTO) {}
+  constructor(public userPagination: UserAdminPaginationDTO) {}
 }
 @CommandHandler(GetUsersAdminUseCaseCommand)
 export class GetUsersAdminUseCase {
@@ -22,7 +27,6 @@ export class GetUsersAdminUseCase {
       pagination,
       createFilter,
     );
-    console.log(users);
     return users;
   }
 }

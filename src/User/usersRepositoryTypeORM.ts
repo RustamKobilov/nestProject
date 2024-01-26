@@ -509,26 +509,37 @@ export class UsersRepositoryTypeORM {
     paginationUser: UserAdminPaginationDTO,
     filter: any | null,
   ): Promise<outputModel<SaUserViewModel>> {
-    let isBannedFilter = '';
-    if (paginationUser.isBanned === BanStatusForAdminPagination.notBanned) {
-      isBannedFilter = ' AND uBL.id IS NULL';
+    let isBannedFilter = {};
+    if (paginationUser.banStatus === BanStatusForAdminPagination.notBanned) {
+      isBannedFilter = 'uBL.id IS NULL';
     }
-    if (paginationUser.isBanned === BanStatusForAdminPagination.banned) {
-      isBannedFilter = ' AND uBL.id IS NOT NULL';
+    if (paginationUser.banStatus === BanStatusForAdminPagination.banned) {
+      isBannedFilter = 'uBL.id IS NOT NULL';
     }
 
     console.log('isBannedFilter');
     console.log(isBannedFilter);
-    console.log(filter + ' do bulo');
-    filter.where = filter.where + isBannedFilter;
+    console.log(filter, ' do bulo');
+    // filter.where = filter.where + isBannedFilter;
     // console.log(filter);
+
+    // const qbUser2 = await this.userRepository.createQueryBuilder('u');
+    // const zaprosQb2 = await qbUser2
+    //   .leftJoinAndSelect('u.userConfirmationInfo', 'uCI')
+    //   .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
+    //   .leftJoinAndSelect('u.userBanList', 'uBL')
+    //   .where(filter.where, filter.params)
+    //   .andWhere(isBannedFilter)
+    //   .getSql();
+    // console.log(zaprosQb2);
+
     const qbUser = await this.userRepository.createQueryBuilder('u');
     const totalCountUser = await qbUser
       .leftJoinAndSelect('u.userConfirmationInfo', 'uCI')
       .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
       .leftJoinAndSelect('u.userBanList', 'uBL')
       .where(filter.where, filter.params)
-      //.andWhere(isBannedFilter)
+      .andWhere(isBannedFilter)
       .getCount();
     //console.log(totalCountUser);
 
@@ -546,17 +557,11 @@ export class UsersRepositoryTypeORM {
       .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
       .leftJoinAndSelect('u.userBanList', 'uBL')
       .where(filter.where, filter.params)
-      //.andWhere(isBannedFilter)
+      .andWhere(isBannedFilter)
       .orderBy('u.' + paginationUser.sortBy, sortDirection)
       .limit(paginationUser.pageSize)
       .offset(paginationFromHelperForUsers.skipPage)
       .getRawMany();
-
-    //console.log()
-    //uBL.id IS NULL
-    // console.log('after');
-    console.log(zaprosQb);
-    //console.log(zaprosQb.length);
 
     const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNullIdUserBan(
       zaprosQb,

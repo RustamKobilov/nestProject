@@ -36,6 +36,7 @@ export const helper = {
     };
   },
   getUserAdminPaginationValues(query: any): UserAdminPaginationDTO {
+    console.log(query.isBanned);
     return {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
@@ -43,7 +44,7 @@ export const helper = {
       sortDirection: query.sortDirection === 'asc' ? 1 : -1,
       searchLoginTerm: query.searchLoginTerm,
       searchEmailTerm: query.searchEmailTerm,
-      isBanned: query.isBanned || BanStatusForAdminPagination.all,
+      banStatus: query.banStatus || BanStatusForAdminPagination.all,
     };
   },
   getBlogPaginationValues(query: any): BlogPaginationDTO {

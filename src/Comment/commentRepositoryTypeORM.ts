@@ -39,7 +39,10 @@ export class CommentRepositoryTypeORM {
     const qbComment = await this.commentRepositoryTypeOrm.createQueryBuilder(
       'c',
     );
-    const take = await qbComment.where('id = :id', { id: id }).getRawMany();
+    const take = await qbComment
+      .where('id = :id', { id: id })
+      .andWhere('c.vision = :vision', { vision: true })
+      .getRawMany();
 
     if (take.length < 1) {
       return false;
@@ -59,6 +62,7 @@ export class CommentRepositoryTypeORM {
     );
     const take = await qbComment
       .where('id = :id', { id: commentId })
+      .andWhere('c.vision = :vision', { vision: true })
       .getRawMany();
 
     if (take.length < 1) {

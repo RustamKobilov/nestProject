@@ -142,7 +142,7 @@ export class UserAdminPaginationDTO extends UserPaginationDTO {
   @IsOptional()
   @IsString()
   @IsEnum(BanStatusForAdminPagination)
-  isBanned: BanStatusForAdminPagination;
+  banStatus: BanStatusForAdminPagination;
 }
 export class BlogPaginationDTO extends PaginationDTO {
   @IsOptional()
@@ -218,8 +218,8 @@ export class PaginationSqlDTO {
 }
 export class UpdateBanStatusUserDTO {
   @Type((type) => String)
-  @Length(1, 100)
   @IsString()
+  @Length(6, 100)
   banReason: string;
 
   @Transform(({ value }) => helper.getBoolean(value))

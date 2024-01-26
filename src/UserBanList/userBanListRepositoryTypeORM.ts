@@ -31,6 +31,8 @@ export class UserBanListRepositoryTypeORM {
         id: userId,
       },
     });
+    console.log(userId, 'findUserInBanList');
+    console.log(userBanList);
     if (userBanList.length < 1) {
       return false;
     }

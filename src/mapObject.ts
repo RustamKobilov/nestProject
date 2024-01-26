@@ -44,14 +44,12 @@ export const mapObject = {
     nameTable: any[],
   ): any {
     for (const name of nameTable) {
-      //console.log(name);
       for (const user of rawArray) {
         // console.log('before');
         // console.log(user);
         Object.keys(user).forEach((key) => {
           const newKey = key.replace(name, '');
           const valueKey = user[key];
-          //console.log(newKey + ' newKey');
           delete user[key];
           if (key !== 'uBL_id') {
             user[newKey] = valueKey;
@@ -59,7 +57,6 @@ export const mapObject = {
         });
       }
     }
-    console.log('rawArray');
     // console.log(rawArray);
     return rawArray;
   },

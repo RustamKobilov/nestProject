@@ -226,3 +226,17 @@ export class UpdateBanStatusUserDTO {
   @IsBoolean()
   isBanned: boolean;
 }
+export class UpdateBanStatusUserForBlogDTO {
+  @Type((type) => String)
+  @IsString()
+  @Length(6, 100)
+  banReason: string;
+
+  @Transform(({ value }) => helper.getBoolean(value))
+  @IsBoolean()
+  isBanned: boolean;
+  @Type((type) => String)
+  @IsString()
+  @IsUUID()
+  blogId: string;
+}

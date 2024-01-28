@@ -20,6 +20,8 @@ import {
   CreatePostByBlogDTO,
   CreatePostDTO,
   PaginationDTO,
+  PaginationSqlDTO,
+  UpdateBanStatusUserForBlogDTO,
 } from '../DTO';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { GetBlogsForBloggerUseCaseCommand } from './use-cases/get-blogs-for-blogger-use-case';
@@ -31,6 +33,7 @@ import { CreatePostByBlogCommand } from '../Blog/use-cases/create-post-by-blog-u
 import { UpdatePostUserCaseCommand } from '../Post/use-cases/update-post-use-case';
 import { DeletePostUseCaseCommand } from '../Post/use-cases/delete-post-use-case';
 import { GetPostByBlogForBloggerCommand } from '../Blog/use-cases/get-post-by-blog-for-blogger-use-case';
+import { UpdateBanUserForBlogUseCaseCommand } from '../ParentBanList/use-case/update-ban-all-parent-for-blog';
 
 @SkipThrottle()
 @Controller('blogger/blogs')
@@ -64,6 +67,7 @@ export class BloggerController {
     );
     res.status(200).send(blogs);
   }
+
   @UseGuards(BearerGuard)
   @Put('/:id')
   async updateBlog(
@@ -77,6 +81,7 @@ export class BloggerController {
     );
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
+
   @UseGuards(BearerGuard)
   @Delete('/:id')
   async deleteBlog(@Param('id') blogId: string, @Res() res, @Req() req) {
@@ -85,6 +90,7 @@ export class BloggerController {
     );
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
+
   @UseGuards(BearerGuard)
   @Post('/:id/posts')
   async createPostByBlog(
@@ -98,6 +104,7 @@ export class BloggerController {
     );
     return res.status(201).send(posts);
   }
+
   @UseGuards(BearerGuard)
   @Get('/:id/posts')
   async getPostsByBlog(
@@ -111,6 +118,7 @@ export class BloggerController {
     );
     return res.status(200).send(resultAllPostsByBlog);
   }
+
   @UseGuards(BearerGuard)
   @Put('/:id/posts/:postId')
   async updatePost(
@@ -126,6 +134,7 @@ export class BloggerController {
 
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
+
   @UseGuards(BearerGuard)
   @Delete('/:id/posts/:postId')
   async deletePost(
@@ -139,4 +148,29 @@ export class BloggerController {
     );
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
+}
+@SkipThrottle()
+@Controller('blogger/users')
+export class BloggerUserController {
+  constructor(private commandBus: CommandBus) {}
+  @UseGuards(BearerGuard)
+  @Put('/:id/ban/')
+  async updateUserBanStatusForBlog(
+    @Param('id') userId: string,
+    @Body() updateBanStatusUserForBlogDTO: UpdateBanStatusUserForBlogDTO,
+    @Res() res: Response,
+    @Req() req,
+  ) {
+    await this.commandBus.execute(
+      new UpdateBanUserForBlogUseCaseCommand(
+        req.user.id,
+        userId,
+        updateBanStatusUserForBlogDTO,
+      ),
+    );
+
+    return res.sendStatus(HttpStatus.NO_CONTENT);
+  }
+  //@Query() userAdminPaginationDTO: PaginationSqlDTO,
+  //     @Body() updatePostDto: CreatePostDTO,
 }

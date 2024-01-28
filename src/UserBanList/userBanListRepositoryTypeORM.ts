@@ -16,7 +16,7 @@ export class UserBanListRepositoryTypeORM {
     private reactionRepository: ReactionRepository,
   ) {}
   async addUserInBanList(userId: string, banReason: string) {
-    const userAddBanList = await this.userBanListRepository.save(<
+    const addUserBanList = await this.userBanListRepository.save(<
       UserBanListEntity
     >{
       banDate: new Date().toISOString(),

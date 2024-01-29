@@ -520,18 +520,6 @@ export class UsersRepositoryTypeORM {
     console.log('isBannedFilter');
     console.log(isBannedFilter);
     console.log(filter, ' do bulo');
-    // filter.where = filter.where + isBannedFilter;
-    // console.log(filter);
-
-    // const qbUser2 = await this.userRepository.createQueryBuilder('u');
-    // const zaprosQb2 = await qbUser2
-    //   .leftJoinAndSelect('u.userConfirmationInfo', 'uCI')
-    //   .leftJoinAndSelect('u.userRecoveryPasswordInfo', 'uRPI')
-    //   .leftJoinAndSelect('u.userBanList', 'uBL')
-    //   .where(filter.where, filter.params)
-    //   .andWhere(isBannedFilter)
-    //   .getSql();
-    // console.log(zaprosQb2);
 
     const qbUser = await this.userRepository.createQueryBuilder('u');
     const totalCountUser = await qbUser

@@ -73,3 +73,12 @@ export class SaUserViewModel {
     banReason: string | null;
   };
 }
+export class UserBannedForParentViewModel {
+  id: string;
+  login: string;
+  banInfo: {
+    isBanned: boolean;
+    banDate: string;
+    banReason: string;
+  };
+}

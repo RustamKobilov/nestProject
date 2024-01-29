@@ -19,6 +19,7 @@ import {
   CreateBlogDTO,
   CreatePostByBlogDTO,
   CreatePostDTO,
+  PaginationBloggerBanListDTO,
   PaginationDTO,
   PaginationSqlDTO,
   UpdateBanStatusUserForBlogDTO,
@@ -34,6 +35,7 @@ import { UpdatePostUserCaseCommand } from '../Post/use-cases/update-post-use-cas
 import { DeletePostUseCaseCommand } from '../Post/use-cases/delete-post-use-case';
 import { GetPostByBlogForBloggerCommand } from '../Blog/use-cases/get-post-by-blog-for-blogger-use-case';
 import { UpdateBanUserForBlogUseCaseCommand } from '../ParentBanList/use-case/update-ban-all-parent-for-blog';
+import { GetAllUserBannedForParentUseCaseCommand } from '../ParentBanList/use-case/get-all-user-banned-for-parent-use-case';
 
 @SkipThrottle()
 @Controller('blogger/blogs')
@@ -171,6 +173,17 @@ export class BloggerUserController {
 
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
-  //@Query() userAdminPaginationDTO: PaginationSqlDTO,
-  //     @Body() updatePostDto: CreatePostDTO,
+  @UseGuards(BearerGuard)
+  @Get('blog/:id/')
+  async getPostsByBlog(
+    @Query() pagination: PaginationBloggerBanListDTO,
+    @Param('id') blogId: string,
+    @Res() res: Response,
+    @Req() req,
+  ) {
+    const resultAllUsersBannedForBlog = await this.commandBus.execute(
+      new GetAllUserBannedForParentUseCaseCommand(pagination, blogId),
+    );
+    return res.status(200).send(resultAllUsersBannedForBlog);
+  }
 }

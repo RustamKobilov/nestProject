@@ -3,7 +3,7 @@ import { Column, Entity, PrimaryColumn } from 'typeorm';
 @Entity()
 export class ParentBanListEntity {
   @PrimaryColumn({ type: 'uuid' })
-  ownerId: string;
+  parentId: string;
   @PrimaryColumn({ type: 'uuid' })
   userId: string;
   @Column({ type: 'varchar', length: 20 })

@@ -144,6 +144,10 @@ import { UpdateBanStatusForUserUseCase } from './User/use-cases/update-ban-statu
 import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
 import { UserBanListRepositoryTypeORM } from './UserBanList/userBanListRepositoryTypeORM';
 import { GetUsersAdminUseCase } from './User/use-cases/get-users-admin-use-case';
+import { ParentBanListEntity } from './ParentBanList/ParentBanList.Entity';
+import { GetAllUserBannedForParentUseCase } from './ParentBanList/use-case/get-all-user-banned-for-parent-use-case';
+import { updateBanUserForBlogUseCase } from './ParentBanList/use-case/update-ban-all-parent-for-blog';
+import { ParentRepositoryTypeORM } from './ParentBanList/parentRepositoryTypeORM';
 
 dotenv.config();
 const useCaseUser = [
@@ -200,10 +204,15 @@ const useCaseDevice = [
   CheckActiveDeviceUseCase,
   RefreshTokenUseCase,
 ];
+const useCaseParentBanned = [
+  GetAllUserBannedForParentUseCase,
+  updateBanUserForBlogUseCase,
+];
 const useCaseAdapters = [
   SendEmailForRegistrationUserUseCase,
   SendEmailForPasswordRecoveryUseCase,
 ];
+
 const sqlEntity = [
   UserEntity,
   UserConfirmationInfoEntity,
@@ -217,6 +226,7 @@ const sqlEntity = [
   PlayerEntity,
   GameEntity,
   UserBanListEntity,
+  ParentBanListEntity,
 ];
 @Module({
   imports: [
@@ -397,6 +407,7 @@ const sqlEntity = [
     QuestionsService,
     QuizRepository,
     UserBanListRepositoryTypeORM,
+    ParentRepositoryTypeORM,
     QuizService,
     JwtServices,
     isEmailNoUniqueValidate,
@@ -405,6 +416,7 @@ const sqlEntity = [
     IsEntityQuestionCheckingValidate,
     ...useCaseBlog,
     ...useCaseBlogger,
+    ...useCaseParentBanned,
     ...useCasePost,
     ...useCaseComment,
     ...useCaseDevice,

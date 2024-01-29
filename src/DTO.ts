@@ -240,3 +240,9 @@ export class UpdateBanStatusUserForBlogDTO {
   @IsUUID()
   blogId: string;
 }
+
+export class PaginationBloggerBanListDTO extends PaginationDTO {
+  @IsOptional()
+  @Transform(({ value }) => helper.getValueTrim(value))
+  searchLoginTerm: string | null;
+}

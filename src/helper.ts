@@ -1,5 +1,6 @@
 import {
   BlogPaginationDTO,
+  PaginationBloggerBanListDTO,
   PaginationDTO,
   PaginationSqlDTO,
   UserAdminPaginationDTO,
@@ -105,6 +106,15 @@ export const helper = {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
       sort: query.sort ? query.sort.toString() : 'avgScores desc,sumScore desc',
+    };
+  },
+  getBloggerBanListPaginationValues(query: any): PaginationBloggerBanListDTO {
+    return {
+      pageNumber: query.pageNumber || 1,
+      pageSize: query.pageSize || 10,
+      sortBy: query.sortBy || 'pairCreatedDate',
+      sortDirection: query.sortDirection === 'asc' ? 1 : -1,
+      searchLoginTerm: query.searchLoginTerm,
     };
   },
   getBoolean(value: any) {

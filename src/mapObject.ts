@@ -8,6 +8,7 @@ import {
   PostViewModel,
   SaBlogViewModel,
   SaUserViewModel,
+  UserBannedForParentViewModel,
   UserViewModel,
 } from './viewModelDTO';
 import { Blog } from './Blog/Blog';
@@ -18,6 +19,7 @@ import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
 import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
 import { BanStatusForAdminPagination } from './Enum';
+import { ParentBanListEntity } from './ParentBanList/ParentBanList.Entity';
 
 export const mapObject = {
   mapRawManyQBOnTableNameIsNotNull(rawArray: any[], nameTable: any[]): any {
@@ -307,6 +309,24 @@ export const mapObject = {
         },
       };
       resultUsers.push(userSaViewModel);
+    }
+    return resultUsers;
+  },
+  mapUserBannedForParent(
+    parentBanListEntity: ParentBanListEntity[],
+  ): UserBannedForParentViewModel[] {
+    const resultUsers: UserBannedForParentViewModel[] = [];
+    for (const rowParentBanListEntity of parentBanListEntity) {
+      const userBannedForParentViewModel: UserBannedForParentViewModel = {
+        id: rowParentBanListEntity.userId,
+        login: rowParentBanListEntity.userLogin,
+        banInfo: {
+          isBanned: true,
+          banDate: rowParentBanListEntity.createdAt,
+          banReason: rowParentBanListEntity.banReason,
+        },
+      };
+      resultUsers.push(userBannedForParentViewModel);
     }
     return resultUsers;
   },

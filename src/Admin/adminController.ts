@@ -23,7 +23,6 @@ import {
   UpdateBanStatusBlogForSaDTO,
   UpdateBanStatusUserDTO,
   UserAdminPaginationDTO,
-  UserPaginationDTO,
 } from '../DTO';
 import { CreateUserAdminUseCaseCommand } from '../User/use-cases/create-user-admin-use-case';
 import { Response } from 'express';
@@ -37,10 +36,8 @@ import {
 import { GetBlogsForSaUseCaseCommand } from '../Blog/use-cases/get-blogs-for-sa-use-case';
 import { UpdateBanStatusForUserCommand } from '../User/use-cases/update-ban-status-user-use-case';
 import { ReactionRepository } from '../Reaction/reactionRepository';
-import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { UserBanListRepositoryTypeORM } from '../UserBanList/userBanListRepositoryTypeORM';
 import { UserRepository } from '../User/userRepository';
-import { helper } from '../helper';
 import { GetUsersAdminUseCaseCommand } from '../User/use-cases/get-users-admin-use-case';
 import { UpdateBanStatusBlogUseCaseCommand } from '../Blog/use-cases/update-ban-status-blog-use-case';
 
@@ -144,7 +141,6 @@ export class adminBlogsController {
     @Body() updateBanStatusUserForBlogDTO: UpdateBanStatusBlogForSaDTO,
     @Res() res: Response,
   ) {
-    //visionв репе убрать
     await this.commandBus.execute(
       new UpdateBanStatusBlogUseCaseCommand(
         blogId,
@@ -152,7 +148,7 @@ export class adminBlogsController {
       ),
     );
 
-    return res.sendStatus(HttpStatus.BAD_REQUEST);
+    return res.sendStatus(HttpStatus.NO_CONTENT);
   }
 }
 

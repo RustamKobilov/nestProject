@@ -136,10 +136,10 @@ export class PostRepository {
       items: resulPostsAddLikes,
     };
   }
-  async getPostsByBlog(
+  async getPostsForBlog(
     paginationPost: PaginationDTO,
     blogId: string,
-  ): Promise<outputModel<Post>> {
+  ): Promise<outputModel<PostViewModel>> {
     const filter = { blogId: blogId };
     const totalCountPost = await this.postModel.count(filter);
     const paginationFromHelperForUsers =
@@ -220,6 +220,22 @@ export class PostRepository {
   }
   async updatePostVision(userId: string, visionStatus: boolean) {
     return true;
+  }
+  async updatePostVisionForBlog(blogId: string, visionStatus: boolean) {
+    return true;
+  }
+  async getPostsForBlogByBlogger(
+    paginationPost: PaginationDTO,
+    blogId: string,
+    userId: string,
+  ) {
+    return {
+      pagesCount: 1,
+      page: 1,
+      pageSize: 10,
+      totalCount: 1,
+      items: 'resulPostsSortDate',
+    };
   }
   //   const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
   //   const update = await qbPost

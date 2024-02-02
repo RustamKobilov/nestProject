@@ -308,7 +308,85 @@ export class PostsRepositoryTypeORM {
         totalCountPost,
       );
     const zaprosQb = await qbPost
-      .where('p.vision = :vision', { vision: true })
+      .where(whereFilter.where, whereFilter.params)
+      .andWhere('p.vision = :vision', { vision: true })
+      .orderBy('p.' + paginationPost.sortBy, sortDirection)
+      .limit(paginationPost.pageSize)
+      .offset(paginationFromHelperForPosts.skipPage)
+      .getRawMany();
+    console.log('after');
+    console.log(zaprosQb);
+    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
+      'p' + '_',
+    ]);
+    //console.log(table);
+    const resultPosts: PostViewModel[] = [];
+    const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
+      'r',
+    );
+    // console.log(await qbReaction.getRawMany());
+    if (posts.length > 0) {
+      for (const post of posts) {
+        const limitLike = 3;
+        const tableNewestLike = await qbReaction
+          .where(
+            'r.parentId = :parentId AND r.status = :status AND r.vision = :vision',
+            {
+              parentId: post.id,
+              status: likeStatus.Like,
+              vision: true,
+            },
+          )
+          .orderBy('r.' + 'createdAt', sortDirection)
+          .limit(limitLike)
+          .getRawMany();
+        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
+          tableNewestLike,
+          ['r' + '_'],
+        );
+        const postViewModel = mapObject.mapPostFromSqlFromViewModel(
+          post,
+          mapObject.mapNewestLikesFromSql(newestLike),
+        );
+
+        resultPosts.push(postViewModel);
+      }
+    }
+
+    return {
+      pagesCount: paginationFromHelperForPosts.totalCount,
+      page: paginationPost.pageNumber,
+      pageSize: paginationPost.pageSize,
+      totalCount: totalCountPost,
+      items: resultPosts,
+    };
+  }
+  async getPostsForBlogByBlogger(
+    paginationPost: PaginationDTO,
+    blogId: string,
+    userId: string,
+  ): Promise<outputModel<PostViewModel>> {
+    console.log(blogId + ' blogId');
+    const whereFilter = {
+      where: 'p.blogId = :blogId AND p.userId = :userId',
+      params: { blogId: `${blogId}`, userId: `${userId}` },
+    };
+    const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
+    const sortDirection = paginationPost.sortDirection === 1 ? 'ASC' : 'DESC';
+    const totalCountPost = await qbPost
+      .where(whereFilter.where, whereFilter.params)
+      .andWhere('p.vision = :vision', { vision: true })
+      .getCount();
+    // console.log(totalCountPost);
+    const paginationFromHelperForPosts =
+      helper.getPaginationFunctionSkipSortTotal(
+        paginationPost.pageNumber,
+        paginationPost.pageSize,
+        totalCountPost,
+      );
+    const zaprosQb = await qbPost
+      .where(whereFilter.where, whereFilter.params)
+      .andWhere('p.vision = :vision', { vision: true })
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
       .limit(paginationPost.pageSize)
       .offset(paginationFromHelperForPosts.skipPage)
@@ -424,6 +502,21 @@ export class PostsRepositoryTypeORM {
         vision: visionStatus,
       })
       .where('userId = :userId', { userId: userId })
+      .execute();
+
+    if (!update.affected) {
+      return false;
+    }
+    return true;
+  }
+  async updatePostVisionForBlog(blogId: string, visionStatus: boolean) {
+    const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
+    const update = await qbPost
+      .update(PostEntity)
+      .set({
+        vision: visionStatus,
+      })
+      .where('blogId = :blogId', { blogId: blogId })
       .execute();
 
     if (!update.affected) {

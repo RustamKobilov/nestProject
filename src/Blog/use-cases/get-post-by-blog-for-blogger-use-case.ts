@@ -28,6 +28,10 @@ export class GetPostByBlogForBloggerUseCase {
       throw new ForbiddenException('blog ne User / UpdateBlogUseCase/');
     }
     const pagination = helper.getPostPaginationValues(command.postPagination);
-    return await this.postRepository.getPostsByBlog(pagination, command.blogId);
+    return await this.postRepository.getPostsForBlogByBlogger(
+      pagination,
+      command.blogId,
+      command.userId,
+    );
   }
 }

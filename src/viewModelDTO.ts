@@ -61,6 +61,10 @@ export class SaBlogViewModel {
     userId: string;
     userLogin: string;
   };
+  banInfo: {
+    isBanned: boolean;
+    banDate: string;
+  };
 }
 export class SaUserViewModel {
   id: string;

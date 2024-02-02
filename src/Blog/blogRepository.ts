@@ -85,6 +85,13 @@ export class BlogRepository {
     }
     return blog;
   }
+  async getBlogAllBanStatus(blogId: string): Promise<Blog | false> {
+    const blog = await this.blogModel.findOne({ id: blogId });
+    if (!blog) {
+      return false;
+    }
+    return blog;
+  }
   async updateBlog(blogId: string, updateBlogDto: CreateBlogDTO) {
     const updateBlog: UpdateWriteOpResult = await this.blogModel.updateOne(
       { id: blogId },

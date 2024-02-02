@@ -152,6 +152,7 @@ import { GetAllUserBannedForParentUseCase } from './ParentBanList/use-case/get-a
 import { updateBanUserForBlogUseCase } from './ParentBanList/use-case/update-ban-all-parent-for-blog';
 import { ParentRepositoryTypeORM } from './ParentBanList/parentRepositoryTypeORM';
 import { UpdateBanStatusBlogUseCase } from './Blog/use-cases/update-ban-status-blog-use-case';
+import { GetPostByBlogUseCase } from './Blog/use-cases/get-post-by-blog-use-case';
 
 dotenv.config();
 const useCaseUser = [
@@ -177,6 +178,7 @@ const useCaseBlog = [
   UpdateBlogUseCase,
   DeleteBlogUseCase,
   GetPostByBlogForBloggerUseCase,
+  GetPostByBlogUseCase,
   CreatePostByBlogUseCase,
   GetPostByBlogForUser,
   DeleteCommentUseCase,

@@ -24,7 +24,6 @@ import { ParentBanListEntity } from './ParentBanList/ParentBanList.Entity';
 export const mapObject = {
   mapRawManyQBOnTableNameIsNotNull(rawArray: any[], nameTable: any[]): any {
     for (const name of nameTable) {
-      console.log(name);
       for (const user of rawArray) {
         // console.log('before');
         // console.log(user);
@@ -37,8 +36,6 @@ export const mapObject = {
         });
       }
     }
-    console.log('rawArray');
-    console.log(rawArray);
     return rawArray;
   },
   mapRawManyQBOnTableNameIsNullIdUserBan(
@@ -122,6 +119,7 @@ export const mapObject = {
       isMembership: blog.isMembership,
     };
   },
+  //TODO таблица с банами блога время негде фиксировать возможно поле в блоге.мап сменить
   mapSaBlogForViewModel(blog: Blog): SaBlogViewModel {
     return {
       id: blog.id,
@@ -133,6 +131,10 @@ export const mapObject = {
       blogOwnerInfo: {
         userId: blog.userId,
         userLogin: blog.userLogin,
+      },
+      banInfo: {
+        isBanned: false,
+        banDate: 'string',
       },
     };
   },

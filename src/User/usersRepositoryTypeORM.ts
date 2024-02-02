@@ -480,7 +480,7 @@ export class UsersRepositoryTypeORM {
       .getRawMany();
 
     console.log('after');
-    console.log(zaprosQb);
+    // console.log(zaprosQb);
 
     const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
       'u' + '_',
@@ -488,7 +488,7 @@ export class UsersRepositoryTypeORM {
       'uRPI' + '_',
     ]); //второй массив алиасы
     console.log('sqlUsers');
-    console.log(sqlUsers);
+    // console.log(sqlUsers);
     const users = mapObject.mapUsersFromSql(sqlUsers);
     const resultUsers = await Promise.all(
       users.map(async (user: User) => {

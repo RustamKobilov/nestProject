@@ -60,7 +60,7 @@ export class BlogsRepositoryTypeORM {
     console.log(filter);
     const totalCountBlog = await qbBlog
       .where(filter.where, filter.params)
-      .andWhere('b.vision = :vision', { vision: true })
+      //.andWhere('b.vision = :vision', { vision: true })
       .getCount();
     console.log(totalCountBlog);
     const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
@@ -74,7 +74,7 @@ export class BlogsRepositoryTypeORM {
 
     const zaprosQb = await qbBlog
       .where(filter.where, filter.params)
-      .andWhere('b.vision = :vision', { vision: true })
+      //.andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
@@ -105,7 +105,7 @@ export class BlogsRepositoryTypeORM {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
     const totalCountBlog = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
-      .andWhere('b.vision = :vision', { vision: true })
+      //.andWhere('b.vision = :vision', { vision: true })
       .getCount();
     console.log(totalCountBlog);
     const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
@@ -119,7 +119,7 @@ export class BlogsRepositoryTypeORM {
 
     const zaprosQb = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
-      .andWhere('b.vision = :vision', { vision: true })
+      //.andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
@@ -251,5 +251,16 @@ export class BlogsRepositoryTypeORM {
       return false;
     }
     return true;
+  }
+  async getBlogAllBanStatus(blogId: string): Promise<Blog | false> {
+    const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
+
+    const take = await qbBlog.where('id = :id', { id: blogId }).getRawMany();
+
+    if (take.length < 1) {
+      return false;
+    }
+    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(take, ['b' + '_']);
+    return blogs[0];
   }
 }

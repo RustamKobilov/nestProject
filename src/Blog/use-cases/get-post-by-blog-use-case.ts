@@ -21,6 +21,9 @@ export class GetPostByBlogUseCase {
       throw new NotFoundException('blogId not found for blog /blogService');
     }
     const pagination = helper.getPostPaginationValues(command.postPagination);
-    return await this.postRepository.getPostsByBlog(pagination, command.blogId);
+    return await this.postRepository.getPostsForBlog(
+      pagination,
+      command.blogId,
+    );
   }
 }

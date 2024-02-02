@@ -5,10 +5,15 @@ import { randomUUID } from 'crypto';
 import { Comment, CommentatorInfo, LikesInfo } from '../../Comment/Comment';
 import { likeStatus } from '../../Enum';
 import { ParentRepositoryTypeORM } from '../../ParentBanList/parentRepositoryTypeORM';
-import { UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 
 export class CreateCommentForPostUseCaseCommand {
   constructor(
+    public blogId: string,
     public postId: string,
     public content: string,
     public user: User,
@@ -24,15 +29,25 @@ export class CreateCommentForPostUseCase {
   async execute(command: CreateCommentForPostUseCaseCommand) {
     //
     const checkUserBanned =
-      await this.parentRepositoryTypeORM.findUserInParentBanList(
-        command.postId,
+      await this.parentRepositoryTypeORM.findBanUserAndParentInParentBanList(
+        command.blogId,
         command.user.id,
       );
+
     if (checkUserBanned) {
-      throw new UnauthorizedException(
-        'user zabanen/CreateCommentForPostUseCase',
+      throw new ForbiddenException('user zabanen/CreateCommentForPostUseCase');
+    }
+    const checkBlogBanned =
+      await this.parentRepositoryTypeORM.findBanUserInParentBanList(
+        command.blogId,
+      );
+
+    if (checkBlogBanned) {
+      throw new BadRequestException(
+        'blog zabanen. kak comment create? /CreateCommentForPostUseCase',
       );
     }
+
     const idNewComment = randomUUID();
     const commentatorInfoNewComment: CommentatorInfo = {
       userId: command.user.id,

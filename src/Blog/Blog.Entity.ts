@@ -19,6 +19,8 @@ export class BlogEntity {
   createdAt: string;
   @Column({ type: 'boolean' })
   isMembership: boolean;
+  @Column({ type: 'boolean' })
+  vision: boolean;
 
   @OneToMany(() => PostEntity, (post) => post.blog)
   //@JoinColumn({ name: 'blogId' })

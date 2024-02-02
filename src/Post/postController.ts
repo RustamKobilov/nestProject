@@ -77,9 +77,10 @@ export class PostController {
     @Res() res: Response,
     @Req() req,
   ) {
-    await this.postService.getPost(postId);
+    const post = await this.postService.getPost(postId);
     const addCommentByPostReturnIdComment = await this.commandBus.execute(
       new CreateCommentForPostUseCaseCommand(
+        post.blogId,
         postId,
         createCommentDto.content,
         req.user,

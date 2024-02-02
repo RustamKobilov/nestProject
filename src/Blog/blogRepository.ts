@@ -1,17 +1,8 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Blog, BlogDocument } from './Blog';
 import { FilterQuery, Model, UpdateWriteOpResult } from 'mongoose';
-import {
-  BlogPaginationDTO,
-  CreateBlogDTO,
-  outputModel,
-  PaginationDTO,
-} from '../DTO';
+import { BlogPaginationDTO, CreateBlogDTO, outputModel } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
 import { BlogViewModel, SaBlogViewModel } from '../viewModelDTO';
@@ -156,6 +147,9 @@ export class BlogRepository {
       totalCount: totalCountUser,
       items: resultBlogs,
     };
+  }
+  async updateBlogVision(blogId: string, visionStatus: boolean) {
+    return true;
   }
   async getBlogs(
     paginationBlog: BlogPaginationDTO,

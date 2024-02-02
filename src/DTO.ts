@@ -246,3 +246,8 @@ export class PaginationBloggerBanListDTO extends PaginationDTO {
   @Transform(({ value }) => helper.getValueTrim(value))
   searchLoginTerm: string | null;
 }
+export class UpdateBanStatusBlogForSaDTO {
+  @Transform(({ value }) => helper.getBoolean(value))
+  @IsBoolean()
+  isBanned: boolean;
+}

@@ -135,7 +135,10 @@ import { QuizService } from './Game/quizService';
 import { PlayerEntity } from './Game/Player.Entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cronService';
-import { BloggerController } from './blogger/bloggerController';
+import {
+  BloggerController,
+  BloggerUserController,
+} from './blogger/bloggerController';
 import { GetBlogsUseForBloggerCase } from './blogger/use-cases/get-blogs-for-blogger-use-case';
 import { GetBlogsForSaUseCase } from './Blog/use-cases/get-blogs-for-sa-use-case';
 import { GetBlogsUseCase } from './Blog/use-cases/get-blogs-use-case';
@@ -148,6 +151,7 @@ import { ParentBanListEntity } from './ParentBanList/ParentBanList.Entity';
 import { GetAllUserBannedForParentUseCase } from './ParentBanList/use-case/get-all-user-banned-for-parent-use-case';
 import { updateBanUserForBlogUseCase } from './ParentBanList/use-case/update-ban-all-parent-for-blog';
 import { ParentRepositoryTypeORM } from './ParentBanList/parentRepositoryTypeORM';
+import { UpdateBanStatusBlogUseCase } from './Blog/use-cases/update-ban-status-blog-use-case';
 
 dotenv.config();
 const useCaseUser = [
@@ -176,6 +180,7 @@ const useCaseBlog = [
   CreatePostByBlogUseCase,
   GetPostByBlogForUser,
   DeleteCommentUseCase,
+  UpdateBanStatusBlogUseCase,
 ];
 const useCasePost = [
   GetPostsUseCase,
@@ -340,6 +345,7 @@ const sqlEntity = [
     adminQuestionsController,
     QuizController,
     BloggerController,
+    BloggerUserController,
   ],
   providers: [
     {

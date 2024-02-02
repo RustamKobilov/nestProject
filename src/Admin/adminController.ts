@@ -20,6 +20,7 @@ import {
   BlogPaginationDTO,
   CreateUserDto,
   PaginationSqlDTO,
+  UpdateBanStatusBlogForSaDTO,
   UpdateBanStatusUserDTO,
   UserAdminPaginationDTO,
   UserPaginationDTO,
@@ -41,6 +42,7 @@ import { UserBanListRepositoryTypeORM } from '../UserBanList/userBanListReposito
 import { UserRepository } from '../User/userRepository';
 import { helper } from '../helper';
 import { GetUsersAdminUseCaseCommand } from '../User/use-cases/get-users-admin-use-case';
+import { UpdateBanStatusBlogUseCaseCommand } from '../Blog/use-cases/update-ban-status-blog-use-case';
 
 @SkipThrottle()
 @Controller('/sa/users')
@@ -132,6 +134,23 @@ export class adminBlogsController {
     // await this.commandBus.execute(
     //   new UpdatePostUserCaseCommand(postId, updatePostDto, blogId),
     // );
+
+    return res.sendStatus(HttpStatus.BAD_REQUEST);
+  }
+  @UseGuards(BasicAuthorizationGuard)
+  @Put('/:id/ban')
+  async banBlog(
+    @Param('id') blogId: string,
+    @Body() updateBanStatusUserForBlogDTO: UpdateBanStatusBlogForSaDTO,
+    @Res() res: Response,
+  ) {
+    //visionв репе убрать
+    await this.commandBus.execute(
+      new UpdateBanStatusBlogUseCaseCommand(
+        blogId,
+        updateBanStatusUserForBlogDTO.isBanned,
+      ),
+    );
 
     return res.sendStatus(HttpStatus.BAD_REQUEST);
   }

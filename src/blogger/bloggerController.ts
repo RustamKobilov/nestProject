@@ -21,7 +21,6 @@ import {
   CreatePostDTO,
   PaginationBloggerBanListDTO,
   PaginationDTO,
-  PaginationSqlDTO,
   UpdateBanStatusUserForBlogDTO,
 } from '../DTO';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
@@ -49,11 +48,9 @@ export class BloggerController {
     @Res() res,
     @Req() req,
   ) {
-    console.log('create blog');
     const blog = await this.commandBus.execute(
       new CreateBlogUseCaseCommand(createBlogDto, req.user.id, req.user.login),
     );
-    console.log(blog, 'send');
     res.status(201).send(blog);
   }
 
@@ -174,7 +171,7 @@ export class BloggerUserController {
     return res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BearerGuard)
-  @Get('blog/:id/')
+  @Get('/blog/:id/')
   async getPostsByBlog(
     @Query() pagination: PaginationBloggerBanListDTO,
     @Param('id') blogId: string,
@@ -182,7 +179,11 @@ export class BloggerUserController {
     @Req() req,
   ) {
     const resultAllUsersBannedForBlog = await this.commandBus.execute(
-      new GetAllUserBannedForParentUseCaseCommand(pagination, blogId),
+      new GetAllUserBannedForParentUseCaseCommand(
+        req.user.id,
+        pagination,
+        blogId,
+      ),
     );
     return res.status(200).send(resultAllUsersBannedForBlog);
   }

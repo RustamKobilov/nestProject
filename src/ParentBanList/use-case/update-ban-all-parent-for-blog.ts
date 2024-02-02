@@ -2,7 +2,12 @@ import { CommandHandler } from '@nestjs/cqrs';
 import { ParentRepositoryTypeORM } from '../parentRepositoryTypeORM';
 import { ParentBanListEntity } from '../ParentBanList.Entity';
 import { UpdateBanStatusUserForBlogDTO } from '../../DTO';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from '../../User/userRepository';
 import { BlogRepository } from '../../Blog/blogRepository';
 
@@ -31,19 +36,19 @@ export class updateBanUserForBlogUseCase {
       );
     }
     if (blog.userId !== command.ownerId) {
-      throw new UnauthorizedException(
+      throw new ForbiddenException(
         'blog ne UpdateBanUserForBlogUseCaseCommand/',
       );
     }
     const userBanned = await this.userRepositoryTypeORM.getUser(command.userId);
     if (!userBanned) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'userId not found,from userRepository /updateBanUserForBlogUseCase',
       );
     }
     if (command.updateBanStatusUserForBlogDTO.isBanned === true) {
       const checkUserParentBanList =
-        await this.parentRepositoryTypeORM.findUserInParentBanList(
+        await this.parentRepositoryTypeORM.findBanUserAndParentInParentBanList(
           command.updateBanStatusUserForBlogDTO.blogId,
           userBanned.id,
         );
@@ -59,10 +64,13 @@ export class updateBanUserForBlogUseCase {
       };
       await this.parentRepositoryTypeORM.addParentBanList(parentBanListEntity);
     } else {
-      await this.parentRepositoryTypeORM.deleteUserInParentBanList(
-        command.ownerId,
-        userBanned.id,
-      );
+      console.log('delete parentId');
+      const deleteUserBanForParent =
+        await this.parentRepositoryTypeORM.deleteUserInParentBanList(
+          command.updateBanStatusUserForBlogDTO.blogId,
+          userBanned.id,
+        );
+      console.log(deleteUserBanForParent);
     }
     return;
   }

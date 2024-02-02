@@ -15,7 +15,9 @@ export class BlogsRepositoryTypeORM {
     private readonly blogRepositoryTypeOrm: Repository<BlogEntity>,
   ) {}
   async createBlog(newBlog: Blog) {
-    const queryInsertBlogEntity = await this.blogRepositoryTypeOrm.save(<Blog>{
+    const queryInsertBlogEntity = await this.blogRepositoryTypeOrm.save(<
+      BlogEntity
+    >{
       id: newBlog.id,
       userId: newBlog.userId,
       userLogin: newBlog.userLogin,
@@ -24,6 +26,7 @@ export class BlogsRepositoryTypeORM {
       websiteUrl: newBlog.websiteUrl,
       createdAt: newBlog.createdAt,
       isMembership: newBlog.isMembership,
+      vision: true,
     });
     return;
   }
@@ -45,7 +48,6 @@ export class BlogsRepositoryTypeORM {
     searchNameTermFilter: any | null,
     userId: string,
   ): Promise<outputModel<BlogViewModel>> {
-    //TODO как правильно с фильтром
     const filter = searchNameTermFilter;
     if (searchNameTermFilter.where === '') {
       filter.where = 'b.userId = :userId';
@@ -58,6 +60,7 @@ export class BlogsRepositoryTypeORM {
     console.log(filter);
     const totalCountBlog = await qbBlog
       .where(filter.where, filter.params)
+      .andWhere('b.vision = :vision', { vision: true })
       .getCount();
     console.log(totalCountBlog);
     const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
@@ -71,12 +74,11 @@ export class BlogsRepositoryTypeORM {
 
     const zaprosQb = await qbBlog
       .where(filter.where, filter.params)
+      .andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
       .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
 
     const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
       'b' + '_',
@@ -103,6 +105,7 @@ export class BlogsRepositoryTypeORM {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
     const totalCountBlog = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .andWhere('b.vision = :vision', { vision: true })
       .getCount();
     console.log(totalCountBlog);
     const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
@@ -116,6 +119,7 @@ export class BlogsRepositoryTypeORM {
 
     const zaprosQb = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
@@ -148,6 +152,7 @@ export class BlogsRepositoryTypeORM {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
     const totalCountBlog = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .andWhere('b.vision = :vision', { vision: true })
       .getCount();
     console.log(totalCountBlog);
     const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
@@ -161,6 +166,7 @@ export class BlogsRepositoryTypeORM {
 
     const zaprosQb = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
@@ -189,7 +195,10 @@ export class BlogsRepositoryTypeORM {
   async getBlog(blogId: string): Promise<Blog | false> {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
 
-    const take = await qbBlog.where('id = :id', { id: blogId }).getRawMany();
+    const take = await qbBlog
+      .where('id = :id', { id: blogId })
+      .andWhere('b.vision = :vision', { vision: true })
+      .getRawMany();
 
     if (take.length < 1) {
       return false;
@@ -224,6 +233,22 @@ export class BlogsRepositoryTypeORM {
       .execute();
     if (deleteOperation.affected !== 1) {
       throw new NotFoundException('0 item delete /userRepositorySql');
+    }
+    return true;
+  }
+  async updateBlogVision(blogId: string, visionStatus: boolean) {
+    const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
+
+    const update = await qbBlog
+      .update(BlogEntity)
+      .set({
+        vision: visionStatus,
+      })
+      .where('id = :id', { id: blogId })
+      .execute();
+
+    if (!update.affected) {
+      return false;
     }
     return true;
   }

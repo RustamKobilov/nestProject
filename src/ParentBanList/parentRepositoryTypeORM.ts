@@ -37,14 +37,31 @@ export class ParentRepositoryTypeORM {
     }
     return true;
   }
-  async findUserInParentBanList(parentId: string, userId: string) {
+  async findBanUserAndParentInParentBanList(parentId: string, userId: string) {
     const qbParentBanList = await this.parentBanListEntity.createQueryBuilder(
       'pBL',
     );
+    console.log(parentId);
+    console.log(userId);
     const parentBanList = await qbParentBanList
-      .where('parentId = :parentId AND userId = :userId', {
+      .where('pBL.parentId = :parentId AND pBL.userId = :userId', {
         parentId: parentId,
         userId: userId,
+      })
+      .getOne();
+    if (!parentBanList) {
+      return false;
+    }
+    return true;
+  }
+  async findBanUserInParentBanList(parentId: string) {
+    const qbParentBanList = await this.parentBanListEntity.createQueryBuilder(
+      'pBL',
+    );
+    console.log(parentId);
+    const parentBanList = await qbParentBanList
+      .where('pBL.parentId = :parentId', {
+        parentId: parentId,
       })
       .getOne();
     if (!parentBanList) {
@@ -56,7 +73,7 @@ export class ParentRepositoryTypeORM {
     if (paginationUser.searchLoginTerm != null) {
       const loginTerm = paginationUser.searchLoginTerm.toLowerCase();
       return {
-        where: 'u.login ilike :loginTerm',
+        where: 'pBL.login ilike :loginTerm',
         params: { loginTerm: `%${loginTerm}%` },
       };
       //return ' WHERE LOWER("login") LIKE ' + "'%" + loginTerm + "%'";
@@ -71,15 +88,19 @@ export class ParentRepositoryTypeORM {
     parentId: string,
   ): Promise<outputModel<UserBannedForParentViewModel>> {
     const filter = this.getFilterGetUsers(pagination);
+    pagination.sortBy =
+      pagination.sortBy === 'login' ? 'userLogin' : pagination.sortBy;
     const qbParentBanList = await this.parentBanListEntity.createQueryBuilder(
       'pBL',
     );
+    console.log(filter);
     const totalCountUser = await qbParentBanList
-      .where('parentId = :parentId', {
+      .where(filter.where, filter.params)
+      .andWhere('pBL.parentId = :parentId', {
         parentId: parentId,
       })
-      .andWhere(filter.where, filter.params)
       .getCount();
+    console.log(totalCountUser);
     const sortDirection = pagination.sortDirection === 1 ? 'ASC' : 'DESC';
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(
@@ -87,13 +108,13 @@ export class ParentRepositoryTypeORM {
         pagination.pageSize,
         totalCountUser,
       );
-
+    console.log(pagination.sortBy);
     const zaprosQb = await qbParentBanList
-      .where('parentId = :parentId', {
+      .where(filter.where, filter.params)
+      .andWhere('pBL.parentId = :parentId', {
         parentId: parentId,
       })
-      .andWhere(filter.where, filter.params)
-      .orderBy('u.' + pagination.sortBy, sortDirection)
+      .orderBy('pBL.' + pagination.sortBy, sortDirection)
       .limit(pagination.pageSize)
       .offset(paginationFromHelperForUsers.skipPage)
       .getMany();

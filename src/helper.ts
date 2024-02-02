@@ -112,7 +112,7 @@ export const helper = {
     return {
       pageNumber: query.pageNumber || 1,
       pageSize: query.pageSize || 10,
-      sortBy: query.sortBy || 'pairCreatedDate',
+      sortBy: query.sortBy || 'createdAt',
       sortDirection: query.sortDirection === 'asc' ? 1 : -1,
       searchLoginTerm: query.searchLoginTerm,
     };

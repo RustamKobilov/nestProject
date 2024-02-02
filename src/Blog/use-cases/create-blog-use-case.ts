@@ -27,6 +27,7 @@ export class CreateBlogUseCase {
       websiteUrl: command.createBlogDto.websiteUrl,
       createdAt: new Date().toISOString(),
       isMembership: false,
+      vision: true,
     };
     await this.blogRepository.createBlog(blog);
     const outputBlogModel = mapObject.mapBlogForViewModel(blog);

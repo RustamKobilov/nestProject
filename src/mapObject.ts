@@ -121,6 +121,7 @@ export const mapObject = {
   },
   //TODO таблица с банами блога время негде фиксировать возможно поле в блоге.мап сменить
   mapSaBlogForViewModel(blog: Blog): SaBlogViewModel {
+    const isBanned = blog.vision === true ? false : true;
     return {
       id: blog.id,
       name: blog.name,
@@ -133,8 +134,8 @@ export const mapObject = {
         userLogin: blog.userLogin,
       },
       banInfo: {
-        isBanned: false,
-        banDate: 'string',
+        isBanned: isBanned,
+        banDate: blog.createdAtVision,
       },
     };
   },

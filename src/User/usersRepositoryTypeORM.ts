@@ -70,17 +70,6 @@ export class UsersRepositoryTypeORM {
         diesAtDate: newUser.recoveryPasswordInfo.diesAtDate,
       });
 
-    // const userBanList = await this.userBanListRepository.save(<
-    //   UserBanListEntity
-    // >{
-    //   id: user.id,
-    //   isBanned: false,
-    //   dateBan: null,
-    //   banReason: null,
-    // });
-
-    //console.log('sozadali ego');
-    //console.log(newUser);
     return;
   }
 
@@ -134,10 +123,9 @@ export class UsersRepositoryTypeORM {
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    console.log(sqlUsers);
+
     const user = mapObject.mapUsersFromSql(sqlUsers);
-    //console.log(user[0]);
+
     return user[0];
   }
 
@@ -162,10 +150,9 @@ export class UsersRepositoryTypeORM {
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    console.log(sqlUsers);
+
     const user = mapObject.mapUsersFromSql(sqlUsers);
-    //console.log(user[0]);
+
     return user[0];
   }
 
@@ -189,11 +176,9 @@ export class UsersRepositoryTypeORM {
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    console.log(sqlUsers);
+
     const user = mapObject.mapUsersFromSql(sqlUsers);
-    console.log('findUserByLogin');
-    console.log(user[0]);
+
     return user[0];
   }
 
@@ -217,11 +202,9 @@ export class UsersRepositoryTypeORM {
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    console.log(sqlUsers);
+
     const user = mapObject.mapUsersFromSql(sqlUsers);
-    console.log('findUserByEmail');
-    console.log(user[0]);
+
     return user[0];
   }
 
@@ -249,10 +232,9 @@ export class UsersRepositoryTypeORM {
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    console.log(sqlUsers);
+
     const user = mapObject.mapUsersFromSql(sqlUsers);
-    //console.log(user[0]);
+
     return user[0];
   }
 
@@ -275,10 +257,9 @@ export class UsersRepositoryTypeORM {
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    console.log(sqlUsers);
+
     const user = mapObject.mapUsersFromSql(sqlUsers);
-    //console.log(user[0]);
+
     return user[0];
   }
 
@@ -294,7 +275,7 @@ export class UsersRepositoryTypeORM {
       .set({ code: newCode, expirationCode: expirationCode })
       .where('ownerId = :ownerId', { ownerId: userId })
       .execute();
-    //TODO верно ли так проверять
+
     if (!update.affected) {
       return false;
     }
@@ -309,7 +290,7 @@ export class UsersRepositoryTypeORM {
       .set({ userConformation: true })
       .where('ownerId = :ownerId', { ownerId: userId })
       .execute();
-    //TODO верно ли так проверять
+
     if (!update.affected) {
       return false;
     }
@@ -337,8 +318,7 @@ export class UsersRepositoryTypeORM {
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    console.log(sqlUsers);
+
     //TODO каскадное удаление подходит или 3 удаления? пока удаление только юсера Тоже самое в обычном SQL.rep
     const user = mapObject.mapUsersFromSql(sqlUsers);
     const deleteOperation = await qbUser
@@ -363,7 +343,7 @@ export class UsersRepositoryTypeORM {
       .set({ recoveryCode: recoveryCode, diesAtDate: diesAtDate })
       .where('ownerId = :ownerId', { ownerId: userId })
       .execute();
-    //TODO верно ли так проверять
+
     if (!update.affected) {
       return false;
     }
@@ -416,7 +396,6 @@ export class UsersRepositoryTypeORM {
   }
 
   getFilterGetUsers(paginationUser: UserPaginationDTO): any | null {
-    console.log(paginationUser);
     if (
       paginationUser.searchLoginTerm != null &&
       paginationUser.searchEmailTerm != null
@@ -461,9 +440,9 @@ export class UsersRepositoryTypeORM {
     const totalCountUser = await qbUser
       .where(filter.where, filter.params)
       .getCount();
-    console.log(totalCountUser);
+
     const sortDirection = paginationUser.sortDirection === 1 ? 'ASC' : 'DESC';
-    //console.log(totalCountUser);
+
     const paginationFromHelperForUsers =
       helper.getPaginationFunctionSkipSortTotal(
         paginationUser.pageNumber,
@@ -479,16 +458,12 @@ export class UsersRepositoryTypeORM {
       .offset(paginationFromHelperForUsers.skipPage)
       .getRawMany();
 
-    console.log('after');
-    // console.log(zaprosQb);
-
     const sqlUsers = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
       'u' + '_',
       'uCI' + '_',
       'uRPI' + '_',
     ]); //второй массив алиасы
-    console.log('sqlUsers');
-    // console.log(sqlUsers);
+
     const users = mapObject.mapUsersFromSql(sqlUsers);
     const resultUsers = await Promise.all(
       users.map(async (user: User) => {
@@ -519,7 +494,6 @@ export class UsersRepositoryTypeORM {
 
     console.log('isBannedFilter');
     console.log(isBannedFilter);
-    console.log(filter, ' do bulo');
 
     const qbUser = await this.userRepository.createQueryBuilder('u');
     const totalCountUser = await qbUser

@@ -23,6 +23,8 @@ export class Blog {
   isMembership: boolean;
   @Prop({ type: Boolean, required: true })
   vision: boolean;
+  @Prop({ type: String, required: true, default: null })
+  createdAtVision;
 }
 
 export const BlogSchema = SchemaFactory.createForClass(Blog);

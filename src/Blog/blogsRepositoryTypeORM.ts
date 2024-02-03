@@ -57,12 +57,10 @@ export class BlogsRepositoryTypeORM {
       filter.params = { ...filter.params, userId: userId };
     }
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
-    console.log(filter);
     const totalCountBlog = await qbBlog
       .where(filter.where, filter.params)
       //.andWhere('b.vision = :vision', { vision: true })
       .getCount();
-    console.log(totalCountBlog);
     const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
     const paginationFromHelperForBlogs =
       helper.getPaginationFunctionSkipSortTotal(
@@ -70,7 +68,6 @@ export class BlogsRepositoryTypeORM {
         paginationBlog.pageSize,
         totalCountBlog,
       );
-    console.log(paginationBlog);
 
     const zaprosQb = await qbBlog
       .where(filter.where, filter.params)
@@ -105,9 +102,8 @@ export class BlogsRepositoryTypeORM {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
     const totalCountBlog = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
-      //.andWhere('b.vision = :vision', { vision: true })
       .getCount();
-    console.log(totalCountBlog);
+
     const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
     const paginationFromHelperForBlogs =
       helper.getPaginationFunctionSkipSortTotal(
@@ -115,7 +111,6 @@ export class BlogsRepositoryTypeORM {
         paginationBlog.pageSize,
         totalCountBlog,
       );
-    console.log(paginationBlog);
 
     const zaprosQb = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
@@ -124,8 +119,6 @@ export class BlogsRepositoryTypeORM {
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
       .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
 
     const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
       'b' + '_',
@@ -162,7 +155,6 @@ export class BlogsRepositoryTypeORM {
         paginationBlog.pageSize,
         totalCountBlog,
       );
-    console.log(paginationBlog);
 
     const zaprosQb = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
@@ -171,8 +163,6 @@ export class BlogsRepositoryTypeORM {
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
       .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
 
     const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
       'b' + '_',
@@ -243,6 +233,8 @@ export class BlogsRepositoryTypeORM {
       .update(BlogEntity)
       .set({
         vision: visionStatus,
+        createdAtVision:
+          visionStatus === true ? null : new Date().toISOString(),
       })
       .where('id = :id', { id: blogId })
       .execute();

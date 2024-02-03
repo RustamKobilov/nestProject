@@ -21,9 +21,10 @@ export class BlogEntity {
   isMembership: boolean;
   @Column({ type: 'boolean' })
   vision: boolean;
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  createdAtVision: string | null;
 
   @OneToMany(() => PostEntity, (post) => post.blog)
   //@JoinColumn({ name: 'blogId' })
   posts: PostEntity[];
 }
-//TODO может быть userID ADMIN или uuid какой тип в sql

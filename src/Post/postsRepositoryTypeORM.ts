@@ -39,7 +39,9 @@ export class PostsRepositoryTypeORM {
   }
   async getPost(postId: string): Promise<Post | false> {
     const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
-    const take = await qbPost.where('id = :id', { id: postId }).getRawMany();
+    const take = await qbPost
+      .where('p.id = :id AND p.vision = :vision', { id: postId, vision: true })
+      .getRawMany();
 
     if (take.length < 1) {
       return false;
@@ -147,7 +149,9 @@ export class PostsRepositoryTypeORM {
     userId: string,
   ): Promise<PostViewModel | false> {
     const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
-    const take = await qbPost.where('id = :id', { id: postId }).getRawMany();
+    const take = await qbPost
+      .where('p.id = :id AND p.vision = :vision', { id: postId, vision: true })
+      .getRawMany();
 
     if (take.length < 1) {
       return false;
@@ -198,7 +202,7 @@ export class PostsRepositoryTypeORM {
     console.log(filter);
     console.log('filter.blogId');
     console.log(filter.blogId);
-    //TODO почему филтр в like  в blogRep ставится строка тут обьект
+
     const whereFilterSql =
       filter.blogId === null || filter.blogId === undefined
         ? {

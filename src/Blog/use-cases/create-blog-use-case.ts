@@ -28,6 +28,7 @@ export class CreateBlogUseCase {
       createdAt: new Date().toISOString(),
       isMembership: false,
       vision: true,
+      createdAtVision: null,
     };
     await this.blogRepository.createBlog(blog);
     const outputBlogModel = mapObject.mapBlogForViewModel(blog);

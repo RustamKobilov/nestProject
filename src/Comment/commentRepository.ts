@@ -180,4 +180,8 @@ export class CommentRepository {
   async updateCommentVision(userId: string, visionStatus: boolean) {
     return true;
   }
+
+  async getCommentsForPostBlogger(pagination: PaginationDTO, param2: {}) {
+    return true;
+  }
 }

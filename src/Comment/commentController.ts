@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Put,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -12,19 +13,23 @@ import {
 import { CommentService } from './commentService';
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { IdenteficationUserGuard } from '../auth/Guard/identeficationUserGuard';
-import { CreateCommentDto, UpdateLikeStatusDto } from '../DTO';
+import { CreateCommentDto, PaginationDTO, UpdateLikeStatusDto } from '../DTO';
 import { SkipThrottle } from '@nestjs/throttler';
 import { CommandBus } from '@nestjs/cqrs';
 import { UpdateCommentUseCaseCommand } from './use-cases/update-comment-use-case';
 import { DeleteCommentUseCaseCommand } from './use-cases/delete-comment-use-case';
 import { UpdateLikeStatusCommentUseCaseCommand } from './use-cases/update-like-status-comment-use-case';
 import { GetCommentForUserUseCaseCommand } from './use-cases/get-comment-for-user-use-case';
+import { CommentRepositoryTypeORM } from './commentRepositoryTypeORM';
+import { CommentRepository } from './commentRepository';
+import { GetCommentsForAllPostBloggerUseCaseCommand } from '../blogger/use-cases/get-comments-for-blogger-use-case';
 
 @SkipThrottle()
 @Controller('comments')
 export class CommentController {
   constructor(
     private readonly commentService: CommentService,
+    private readonly commentRepo: CommentRepository,
     private commandBus: CommandBus,
   ) {}
 
@@ -46,6 +51,7 @@ export class CommentController {
     }
     return res.status(200).send(resultSearch);
   }
+
   @UseGuards(BearerGuard)
   @Put('/:id')
   async updateComment(
@@ -63,6 +69,7 @@ export class CommentController {
     );
     return res.sendStatus(204);
   }
+
   @UseGuards(BearerGuard)
   @Delete('/:id')
   async deleteComment(@Param('id') commentId: string, @Res() res, @Req() req) {
@@ -71,6 +78,7 @@ export class CommentController {
     );
     return res.sendStatus(204);
   }
+
   @UseGuards(BearerGuard)
   @Put('/:id/like-status')
   async updateLikeStatus(
@@ -88,4 +96,17 @@ export class CommentController {
     );
     return res.sendStatus(204);
   }
+  // @UseGuards()
+  // @Get('/p/ty/:id')
+  // async getCheck(
+  //   @Param('id') userId: string,
+  //   @Query() pagination: PaginationDTO,
+  //   @Res() res,
+  //   @Req() req,
+  // ) {
+  //   const comments = await this.commandBus.execute(
+  //     new GetCommentsForAllPostBloggerUseCaseCommand(pagination, userId),
+  //   );
+  //   return res.status(200).send(comments);
+  // }
 }

@@ -3,13 +3,16 @@ import { Repository } from 'typeorm';
 import { ReactionEntity } from '../Reaction/Reaction.Entity';
 import { CommentEntity } from './Comment.Entity';
 import { Comment } from './Comment';
-import { CommentViewModel } from '../viewModelDTO';
+import {
+  BloggerCommentViewModel,
+  CommentViewModel,
+  PostViewModel,
+} from '../viewModelDTO';
 import { mapObject } from '../mapObject';
 import { NotFoundException } from '@nestjs/common';
-import { PaginationDTO } from '../DTO';
+import { outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
 import { ReactionRepository } from '../Reaction/reactionRepository';
-import { PostEntity } from '../Post/Post.Entity';
 
 export class CommentRepositoryTypeORM {
   constructor(
@@ -157,7 +160,7 @@ export class CommentRepositoryTypeORM {
   async getCommentsForPost(
     pagination: PaginationDTO,
     filter,
-  ) /*: Promise<outputModel<PostViewModel>>*/ {
+  ): Promise<outputModel<CommentViewModel>> {
     const whereFilter =
       filter.postId === null || filter.postId === undefined
         ? {
@@ -207,7 +210,7 @@ export class CommentRepositoryTypeORM {
     pagination: PaginationDTO,
     filter,
     userId: string,
-  ) {
+  ): Promise<outputModel<CommentViewModel>> {
     const whereFilter =
       filter.postId === null || filter.postId === undefined
         ? {
@@ -283,5 +286,51 @@ export class CommentRepositoryTypeORM {
       return false;
     }
     return true;
+  }
+  async getCommentsForPostBlogger(
+    pagination: PaginationDTO,
+    filter,
+  ): Promise<outputModel<BloggerCommentViewModel>> {
+    const whereFilter = {
+      where: 'p.userId = :userId',
+      params: { userId: `${filter.userId}` },
+    };
+    const sortDirection = pagination.sortDirection === 1 ? 'ASC' : 'DESC';
+    const qbComment = await this.commentRepositoryTypeOrm.createQueryBuilder(
+      'c',
+    );
+    const countCommentsForPost = await qbComment
+      .leftJoinAndSelect('c.post', 'p')
+      .where(whereFilter.where, whereFilter.params)
+      .getCount();
+
+    const paginationFromHelperForComments =
+      helper.getPaginationFunctionSkipSortTotal(
+        pagination.pageNumber,
+        pagination.pageSize,
+        countCommentsForPost,
+      );
+    const zaprosQb = await qbComment
+      .leftJoinAndSelect('c.post', '_p')
+      .where(whereFilter.where, whereFilter.params)
+      .andWhere('c.vision = :vision', { vision: true })
+      .orderBy('c.' + pagination.sortBy, sortDirection)
+      .limit(pagination.pageSize)
+      .offset(paginationFromHelperForComments.skipPage)
+      .getMany();
+
+    console.log(zaprosQb);
+
+    const commentsViewModel =
+      mapObject.mapCommentForBloggerCommentViewModel(zaprosQb);
+    console.log(commentsViewModel);
+
+    return {
+      pagesCount: paginationFromHelperForComments.totalCount,
+      page: pagination.pageNumber,
+      pageSize: pagination.pageSize,
+      totalCount: countCommentsForPost,
+      items: commentsViewModel,
+    };
   }
 }

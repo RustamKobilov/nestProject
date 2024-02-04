@@ -1,5 +1,6 @@
 import { User } from './User/User';
 import {
+  BloggerCommentViewModel,
   BlogViewModel,
   CommentViewModel,
   DeviceViewModel,
@@ -214,6 +215,35 @@ export const mapObject = {
           likesCount: sqlComment.likesCount,
           dislikesCount: sqlComment.dislikesCount,
           myStatus: sqlComment.myStatus,
+        },
+      };
+      comments.push(comment);
+    }
+    return comments;
+  },
+  mapCommentForBloggerCommentViewModel(
+    sqlArray: any,
+  ): BloggerCommentViewModel[] {
+    const comments: BloggerCommentViewModel[] = [];
+    for (const sqlComment of sqlArray) {
+      const comment: BloggerCommentViewModel = {
+        id: sqlComment.id,
+        content: sqlComment.content,
+        createdAt: sqlComment.createdAt,
+        commentatorInfo: {
+          userId: sqlComment.userId,
+          userLogin: sqlComment.userLogin,
+        },
+        likesInfo: {
+          likesCount: sqlComment.likesCount,
+          dislikesCount: sqlComment.dislikesCount,
+          myStatus: sqlComment.myStatus,
+        },
+        postInfo: {
+          id: sqlComment.post.id,
+          title: sqlComment.post.title,
+          blogId: sqlComment.post.blogId,
+          blogName: sqlComment.post.blogName,
         },
       };
       comments.push(comment);

@@ -35,6 +35,8 @@ import { DeletePostUseCaseCommand } from '../Post/use-cases/delete-post-use-case
 import { GetPostByBlogForBloggerCommand } from '../Blog/use-cases/get-post-by-blog-for-blogger-use-case';
 import { UpdateBanUserForBlogUseCaseCommand } from '../ParentBanList/use-case/update-ban-all-parent-for-blog';
 import { GetAllUserBannedForParentUseCaseCommand } from '../ParentBanList/use-case/get-all-user-banned-for-parent-use-case';
+import { BloggerCommentViewModel } from '../viewModelDTO';
+import { GetCommentsForAllPostBloggerUseCaseCommand } from './use-cases/get-comments-for-blogger-use-case';
 
 @SkipThrottle()
 @Controller('blogger/blogs')
@@ -146,6 +148,18 @@ export class BloggerController {
       new DeletePostUseCaseCommand(postId, blogId, req.user.id),
     );
     return res.sendStatus(HttpStatus.NO_CONTENT);
+  }
+  @UseGuards(BearerGuard)
+  @Get('/comments')
+  async getCommentsForBlogger(
+    @Query() pagination: PaginationDTO,
+    @Res() res,
+    @Req() req,
+  ) {
+    const comments = await this.commandBus.execute(
+      new GetCommentsForAllPostBloggerUseCaseCommand(pagination, req.user.id),
+    );
+    return res.status(200).send(comments);
   }
 }
 @SkipThrottle()

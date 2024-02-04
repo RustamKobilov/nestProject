@@ -86,3 +86,12 @@ export class UserBannedForParentViewModel {
     banReason: string;
   };
 }
+export class PostInfo {
+  id: string;
+  title: string;
+  blogId: string;
+  blogName: string;
+}
+export class BloggerCommentViewModel extends CommentViewModel {
+  postInfo: PostInfo;
+}

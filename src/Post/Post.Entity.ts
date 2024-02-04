@@ -45,7 +45,7 @@ export class PostEntity {
   blog: BlogEntity;
 
   @OneToMany(() => CommentEntity, (comment) => comment.post)
-  //@JoinColumn({ name: 'blogId' })
+  //@JoinColumn({ name: 'id' })
   comments: CommentEntity[];
 }
 

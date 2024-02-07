@@ -154,6 +154,7 @@ import { ParentRepositoryTypeORM } from './ParentBanList/parentRepositoryTypeORM
 import { UpdateBanStatusBlogUseCase } from './Blog/use-cases/update-ban-status-blog-use-case';
 import { GetPostByBlogUseCase } from './Blog/use-cases/get-post-by-blog-use-case';
 import { GetCommentsForAllPostBloggerUseCase } from './blogger/use-cases/get-comments-for-blogger-use-case';
+import { AvatarController } from './avatar/avatarController';
 
 dotenv.config();
 const useCaseUser = [
@@ -352,6 +353,7 @@ const sqlEntity = [
     QuizController,
     BloggerController,
     BloggerUserController,
+    AvatarController,
   ],
   providers: [
     {

@@ -7,9 +7,14 @@ import { readTextFileAsync } from './utils/fs.utils';
 export class AvatarController {
   constructor() {}
   @Get()
-  async getChangeAvatar() {
-    const content = await readTextFileAsync('pathToFile');
+  async getChangeAvatar(req: Request, res: Response) {
+    const content = await readTextFileAsync(
+      path.join('views', 'changePage.html'),
+    );
     //console.log(require.main.filename);
-    return '<h1>Hello change!</h1>';
+
+    //console.log(pathFinish);
+    //console.log(__dirname);
+    return content;
   }
 }

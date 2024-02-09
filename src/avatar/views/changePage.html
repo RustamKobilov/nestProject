@@ -6,9 +6,9 @@
 </head>
 <body>
 <h1>Change Avatar</h1>
-<form>
-  <input name="login" />
-  <input name="password" />
+<form action='/avatar' method='post' enctype='multipart/form-data'>
+  <input name="login" type='text'/>
+  <input name="avatar" type='file'/>
   <button>Authorize</button>
 </form>
 </body>

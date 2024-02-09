@@ -1,10 +1,11 @@
 import fs from 'node:fs';
-import path, { dirname } from 'node:path';
+import path from 'node:path';
 
 export const readTextFileAsync = (relativePath: string) => {
   return new Promise((resolve, reject) => {
     //console.log(path.join(__dirname, '..'));
     const rootDirPath = path.join(__dirname, '..');
+    //require.main.filename;
     //у димыча до диста, у меня просто на уровень выше
     console.log(rootDirPath, relativePath);
     const pathFinish = path.join(rootDirPath, relativePath);
@@ -17,4 +18,6 @@ export const readTextFileAsync = (relativePath: string) => {
       resolve(content);
     });
   });
+  ///s3 хранилище
+  ///sdk clients3
 };

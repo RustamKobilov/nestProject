@@ -4,6 +4,8 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "assets": ["avatar/views/**/*.html"]
+    "assets": [
+      { "include": "**/*.html", "watchAssets": true }
+    ]
   }
 }

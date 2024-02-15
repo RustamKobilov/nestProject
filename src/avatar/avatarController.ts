@@ -5,14 +5,17 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import path, { dirname } from 'node:path';
-import { readTextFileAsync } from './utils/fs.utils';
+import path from 'node:path';
+import {
+  checkAndCreateDirectoryAsyncAsync,
+  readTextFileAsync,
+  saveFileAsync,
+} from './utils/fs.utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
 
 @Controller('/avatar')
 export class AvatarController {
-  constructor() {}
   @Get()
   async getChangeAvatar(req: Request, res: Response) {
     const content = await readTextFileAsync(
@@ -26,15 +29,22 @@ export class AvatarController {
   }
   @Post()
   @UseInterceptors(FileInterceptor('avatar'))
-  async putChangeAvatar(
+  async postChangeAvatar(
     req: Request,
     res: Response,
-    @UploadedFile() avatarFile /*: Express.Multer.File*/,
+    @UploadedFile() avatarFile: Express.Multer.File,
   ) {
     //const login = req.params.login;
     //const password = req.params.login;
-    console.log(avatarFile);
+    const dir = path.join('image', 'userId');
+    await checkAndCreateDirectoryAsyncAsync(dir);
+    await saveFileAsync(
+      path.join(dir, avatarFile.originalname),
+      avatarFile.buffer,
+    );
     console.log('reee');
+    console.log(avatarFile);
+
     return 'content';
   }
 }

@@ -67,6 +67,7 @@ export class QuizService {
     if (getGamesAwaitPlayer.length < 1) {
       console.log('CreateGame');
       const game: GameEntity = await this.createGame(player);
+
       const gameAwaitPlayer: GamePairViewModelPendingSecondPlayerViewModel =
         mapKuiz.mapGamePairViewModelPendingSecondPlayer(game);
       return gameAwaitPlayer;
@@ -82,8 +83,11 @@ export class QuizService {
       throw new NotFoundException('gameId not found game /gameService');
     }
     console.log('tyt12');
-    await this.checkNewPlayer(game[0].firstPlayerId, game[0].firstPlayerLogin);
-    await this.checkNewPlayer(
+    await this.findAndCreateNewPlayer(
+      game[0].firstPlayerId,
+      game[0].firstPlayerLogin,
+    );
+    await this.findAndCreateNewPlayer(
       game[0].secondPlayerId,
       game[0].secondPlayerLogin,
     );
@@ -103,57 +107,57 @@ export class QuizService {
     return false;
   }
 
-  async getGameNotFinished(
-    player: PlayerInformation,
-  ): Promise<
-    GamePairViewModel | GamePairViewModelPendingSecondPlayerViewModel
-  > {
-    const games = await this.quizRepository.checkActiveAndPendingGamePlayer(
-      player,
-    );
-    if (games.length < 1) {
-      throw new NotFoundException(
-        'game not found for user, questionService/getGameNotFinished',
-      );
-    }
-    if (games[0].status === gameStatusesEnum.PendingSecondPlayer) {
-      return mapKuiz.mapGamePairViewModelPendingSecondPlayer(games[0]);
-    }
-    const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
-    return game[0];
-  }
+  // async getGameNotFinished(
+  //   player: PlayerInformation,
+  // ): Promise<
+  //   GamePairViewModel | GamePairViewModelPendingSecondPlayerViewModel
+  // > {
+  //   const games = await this.quizRepository.checkActiveAndPendingGamePlayer(
+  //     player,
+  //   );
+  //   if (games.length < 1) {
+  //     throw new NotFoundException(
+  //       'game not found for user, questionService/getGameNotFinished',
+  //     );
+  //   }
+  //   if (games[0].status === gameStatusesEnum.PendingSecondPlayer) {
+  //     return mapKuiz.mapGamePairViewModelPendingSecondPlayer(games[0]);
+  //   }
+  //   const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
+  //   return game[0];
+  // }
 
-  async getGame(
-    gameId: string,
-    player: PlayerInformation,
-  ): Promise<
-    GamePairViewModel | GamePairViewModelPendingSecondPlayerViewModel
-  > {
-    if (isUUID(gameId) === false) {
-      throw new BadRequestException(
-        'gameId not found question /quizService/getGame',
-      );
-    }
-    const games = await this.quizRepository.getGame(gameId);
-    if (games.length < 1) {
-      throw new NotFoundException(
-        'game not found for user, questionService/getGameNotFinished',
-      );
-    }
-    if (
-      games[0].firstPlayerId !== player.playerId &&
-      games[0].secondPlayerId !== player.playerId
-    ) {
-      throw new ForbiddenException('cheshay Game/ getGame/quizService');
-    }
-    if (games[0].startGameDate === null) {
-      const game: GamePairViewModelPendingSecondPlayerViewModel =
-        mapKuiz.mapGamePairViewModelPendingSecondPlayer(games[0]);
-      return game;
-    }
-    const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
-    return game[0];
-  }
+  // async getGame(
+  //   gameId: string,
+  //   player: PlayerInformation,
+  // ): Promise<
+  //   GamePairViewModel | GamePairViewModelPendingSecondPlayerViewModel
+  // > {
+  //   if (isUUID(gameId) === false) {
+  //     throw new BadRequestException(
+  //       'gameId not found question /quizService/getGame',
+  //     );
+  //   }
+  //   const games = await this.quizRepository.getGame(gameId);
+  //   if (games.length < 1) {
+  //     throw new NotFoundException(
+  //       'game not found for user, questionService/getGameNotFinished',
+  //     );
+  //   }
+  //   if (
+  //     games[0].firstPlayerId !== player.playerId &&
+  //     games[0].secondPlayerId !== player.playerId
+  //   ) {
+  //     throw new ForbiddenException('cheshay Quiz/ getGame/quizService');
+  //   }
+  //   if (games[0].startGameDate === null) {
+  //     const game: GamePairViewModelPendingSecondPlayerViewModel =
+  //       mapKuiz.mapGamePairViewModelPendingSecondPlayer(games[0]);
+  //     return game;
+  //   }
+  //   const game: GamePairViewModel[] = mapKuiz.mapGamesViewModel(games);
+  //   return game[0];
+  // }
 
   async createAnswer(
     player: PlayerInformation,
@@ -326,7 +330,10 @@ export class QuizService {
     return staticPlayerNullGame;
   }
 
-  private async checkNewPlayer(playerId: string | null, login: string | null) {
+  private async findAndCreateNewPlayer(
+    playerId: string | null,
+    login: string | null,
+  ) {
     if (playerId === null || login === null) {
       throw new BadRequestException(
         'ne dolgen byt tyt,net vtorogo igroka CreatePlayer/quizService',

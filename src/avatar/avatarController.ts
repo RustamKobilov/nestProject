@@ -13,9 +13,11 @@ import {
 } from './utils/fs.utils';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Express } from 'express';
+import { S3StorageAdapter } from '../adapters/s3StarageAdapter';
 
 @Controller('/avatar')
 export class AvatarController {
+  constructor(private s3Adapter: S3StorageAdapter) {}
   @Get()
   async getChangeAvatar(req: Request, res: Response) {
     const content = await readTextFileAsync(
@@ -36,12 +38,14 @@ export class AvatarController {
   ) {
     //const login = req.params.login;
     //const password = req.params.login;
-    const dir = path.join('image', 'userId');
-    await checkAndCreateDirectoryAsyncAsync(dir);
-    await saveFileAsync(
-      path.join(dir, avatarFile.originalname),
-      avatarFile.buffer,
-    );
+    const userId = '112233';
+    const dir = path.join('image', userId);
+    //await checkAndCreateDirectoryAsyncAsync(dir);
+    //await saveFileAsync(
+    // path.join(dir, avatarFile.originalname),
+    // avatarFile.buffer,
+    //);
+    await this.s3Adapter.saveImage(userId, dir, avatarFile.buffer);
     console.log('reee');
     console.log(avatarFile);
 

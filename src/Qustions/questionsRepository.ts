@@ -12,10 +12,10 @@ import {
 import { helper } from '../helper';
 import { publishedStatusEnum } from './questionEnum';
 import { mapObject } from '../mapObject';
-import { mapKuiz } from '../Game/mapKuiz';
-import { GameEntity, QuestionInGameEntityType } from '../Game/Game.Entity';
+import { mapKuiz } from '../Quiz/mapKuiz';
+import { GameEntity, QuestionInGameEntityType } from '../Quiz/Game.Entity';
 import { outputModel } from '../DTO';
-import { GamePairViewModel } from '../Game/gameDTO';
+import { GamePairViewModel } from '../Quiz/gameDTO';
 
 @Injectable()
 export class QuestionsRepository {

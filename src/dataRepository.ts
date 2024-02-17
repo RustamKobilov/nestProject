@@ -14,8 +14,8 @@ import { Reaction, ReactionDocument } from './Reaction/Reaction';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuestionEntity } from './Qustions/Question.Entity';
 import { Repository } from 'typeorm';
-import { GameEntity } from './Game/Game.Entity';
-import { PlayerEntity } from './Game/Player.Entity';
+import { GameEntity } from './Quiz/Game.Entity';
+import { PlayerEntity } from './Quiz/Player.Entity';
 import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
 
 export class DataRepository {

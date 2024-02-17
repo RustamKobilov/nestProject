@@ -18,11 +18,17 @@ import { CreateAnswerDTO } from '../Qustions/questionDTO';
 import { PaginationSqlDTO } from '../DTO';
 import { PaginationGetTopDTO } from './gameDTO';
 import { addSeconds } from 'date-fns';
+import { CommandBus } from '@nestjs/cqrs';
+import { GetQuizGameUseCaseCommand } from './use-case/get-quiz-game-use-case';
+import { GetGameNotFinishedUseCaseCommand } from './use-case/get-game-not-finished-use-case';
 
 @Injectable()
 @Controller('/pair-game-quiz')
 export class QuizController {
-  constructor(private readonly quizService: QuizService) {}
+  constructor(
+    private readonly quizService: QuizService,
+    private readonly commandBus: CommandBus,
+  ) {}
 
   @UseGuards(BearerGuard)
   @Post('/pairs/connection')
@@ -59,7 +65,9 @@ export class QuizController {
       playerId: req.user.id,
       playerLogin: req.user.login,
     };
-    const game = await this.quizService.getGameNotFinished(player);
+    const game = await this.commandBus.execute(
+      new GetGameNotFinishedUseCaseCommand(player),
+    );
     return res.status(200).send(game);
   }
   @UseGuards(BearerGuard)
@@ -83,7 +91,9 @@ export class QuizController {
       playerId: req.user.id,
       playerLogin: req.user.login,
     };
-    const game = await this.quizService.getGame(gameId, player);
+    const game = await this.commandBus.execute(
+      new GetQuizGameUseCaseCommand(gameId, player),
+    );
     return res.status(200).send(game);
   }
   @UseGuards(BearerGuard)

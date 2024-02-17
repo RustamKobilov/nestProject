@@ -23,7 +23,7 @@
     "generate-migration": "typeorm-ts-node-esm migration:generate ./src/dataMigration/migrations/new_migrations -d ./src/dataMigration/data-source.ts"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.514.0",
+    "@aws-sdk/client-s3": "3.213.0",
     "@nestjs-modules/mailer": "^1.8.1",
     "@nestjs/class-transformer": "^0.4.0",
     "@nestjs/common": "^10.0.0",

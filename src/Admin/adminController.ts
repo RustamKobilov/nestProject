@@ -40,6 +40,10 @@ import { UserBanListRepositoryTypeORM } from '../UserBanList/userBanListReposito
 import { UserRepository } from '../User/userRepository';
 import { GetUsersAdminUseCaseCommand } from '../User/use-cases/get-users-admin-use-case';
 import { UpdateBanStatusBlogUseCaseCommand } from '../Blog/use-cases/update-ban-status-blog-use-case';
+import { DeleteQuestionUseCaseCommand } from '../Qustions/use-case/delete-question-use-case';
+import { UpdateQuestionUseCaseCommand } from '../Qustions/use-case/update-question-use-case';
+import { UpdatePublishQuestionUseCaseCommand } from '../Qustions/use-case/update-publish-question-use-case';
+import { GetQuestionsUseCaseCommand } from '../Qustions/use-case/get-questions-use-case';
 
 @SkipThrottle()
 @Controller('/sa/users')
@@ -155,7 +159,10 @@ export class adminBlogsController {
 @Injectable()
 @Controller('sa/quiz/questions')
 export class adminQuestionsController {
-  constructor(private readonly questionsService: QuestionsService) {}
+  constructor(
+    private readonly questionsService: QuestionsService,
+    private commandBus: CommandBus,
+  ) {}
 
   @UseGuards(BasicAuthorizationGuard)
   @Post()
@@ -168,14 +175,15 @@ export class adminQuestionsController {
     @Query() paginationDTO: QuestionsPaginationDTO,
     @Res() res: Response,
   ) {
-    res
-      .status(200)
-      .send(await this.questionsService.getQuestions(paginationDTO));
+    const questions = await this.commandBus.execute(
+      new GetQuestionsUseCaseCommand(paginationDTO),
+    );
+    res.status(200).send(questions);
   }
   @UseGuards(BasicAuthorizationGuard)
   @Delete('/:id')
   async deleteQuestion(@Param('id') questionId: string, @Res() res: Response) {
-    await this.questionsService.deleteQuestion(questionId);
+    await this.commandBus.execute(new DeleteQuestionUseCaseCommand(questionId));
     res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)
@@ -185,7 +193,9 @@ export class adminQuestionsController {
     @Body() updateQuestionDTO: CreateQuestionDTO,
     @Res() res: Response,
   ) {
-    await this.questionsService.updateQuestion(questionId, updateQuestionDTO);
+    await this.commandBus.execute(
+      new UpdateQuestionUseCaseCommand(questionId, updateQuestionDTO),
+    );
     res.sendStatus(HttpStatus.NO_CONTENT);
   }
   @UseGuards(BasicAuthorizationGuard)
@@ -196,9 +206,11 @@ export class adminQuestionsController {
     @Res() res: Response,
   ) {
     console.log(updatePublishedQuestion.published);
-    await this.questionsService.updatePublishQuestion(
-      questionId,
-      updatePublishedQuestion.published,
+    await this.commandBus.execute(
+      new UpdatePublishQuestionUseCaseCommand(
+        questionId,
+        updatePublishedQuestion.published,
+      ),
     );
     res.sendStatus(HttpStatus.NO_CONTENT);
   }

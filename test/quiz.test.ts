@@ -17,7 +17,7 @@ import {
   GamePairViewModelPendingSecondPlayerViewModel,
   StaticViewModel,
   TopPlayerViewModel,
-} from '../src/Game/gameDTO';
+} from '../src/Quiz/gameDTO';
 import { gameStatusesEnum } from '../src/Qustions/questionEnum';
 
 describe('test App', () => {

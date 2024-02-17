@@ -11,8 +11,8 @@ import {
   QuestionsPaginationDTO,
 } from './Qustions/questionDTO';
 import { publishedStatusEnum } from './Qustions/questionEnum';
-import { GameEntity } from './Game/Game.Entity';
-import { PaginationGetTopDTO } from './Game/gameDTO';
+import { GameEntity } from './Quiz/Game.Entity';
+import { PaginationGetTopDTO } from './Quiz/gameDTO';
 import { BanStatusForAdminPagination } from './Enum';
 
 export const helper = {

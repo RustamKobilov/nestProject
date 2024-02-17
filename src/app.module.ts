@@ -126,13 +126,13 @@ import { CommentRepositoryTypeORM } from './Comment/commentRepositoryTypeORM';
 import { DeviceRepositoryTypeORM } from './Device/deviceRepositoryTypeORM';
 import { ReactionRepositoryTypeORM } from './Reaction/reactionRepositoryTypeORM';
 import { QuestionEntity } from './Qustions/Question.Entity';
-import { QuizController } from './Game/quizController';
+import { QuizController } from './Quiz/quizController';
 import { QuestionsService } from './Qustions/questionsService';
 import { QuestionsRepository } from './Qustions/questionsRepository';
-import { GameEntity } from './Game/Game.Entity';
-import { QuizRepository } from './Game/quizRepository';
-import { QuizService } from './Game/quizService';
-import { PlayerEntity } from './Game/Player.Entity';
+import { GameEntity } from './Quiz/Game.Entity';
+import { QuizRepository } from './Quiz/quizRepository';
+import { QuizService } from './Quiz/quizService';
+import { PlayerEntity } from './Quiz/Player.Entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronService } from './cronService';
 import {
@@ -155,6 +155,7 @@ import { UpdateBanStatusBlogUseCase } from './Blog/use-cases/update-ban-status-b
 import { GetPostByBlogUseCase } from './Blog/use-cases/get-post-by-blog-use-case';
 import { GetCommentsForAllPostBloggerUseCase } from './blogger/use-cases/get-comments-for-blogger-use-case';
 import { AvatarController } from './avatar/avatarController';
+import { S3StorageAdapter } from './adapters/s3StarageAdapter';
 
 dotenv.config();
 const useCaseUser = [
@@ -403,6 +404,7 @@ const sqlEntity = [
       useClass:
         process.env.DATA_BASE === 'SQL' ? DataRepositorySql : DataRepository,
     },
+    S3StorageAdapter,
     UserService,
     //UserRepository,
     BlogService,

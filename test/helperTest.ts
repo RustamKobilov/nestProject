@@ -11,7 +11,7 @@ import {
 import {
   GamePairViewModel,
   GamePairViewModelPendingSecondPlayerViewModel,
-} from '../src/Game/gameDTO';
+} from '../src/Quiz/gameDTO';
 import { gameStatusesEnum } from '../src/Qustions/questionEnum';
 
 export type CreateUserTest = {

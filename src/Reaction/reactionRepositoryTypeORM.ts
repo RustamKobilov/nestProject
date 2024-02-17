@@ -5,7 +5,6 @@ import { likeStatus } from '../Enum';
 import { Reaction } from './Reaction';
 import { mapObject } from '../mapObject';
 import { User } from '../User/User';
-import { PostViewModel } from '../viewModelDTO';
 
 export class ReactionRepositoryTypeORM {
   constructor(

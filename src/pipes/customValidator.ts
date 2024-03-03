@@ -1,14 +1,14 @@
 import {
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
+  registerDecorator,
   ValidationArguments,
   ValidationOptions,
-  registerDecorator,
+  ValidatorConstraint,
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { UserRepository } from '../User/userRepository';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BlogRepository } from '../Blog/blogRepository';
-import { QuestionEntity } from '../Qustions/Question.Entity';
+import { Metadata } from 'sharp';
 
 @ValidatorConstraint({ name: 'IsEmailNoUnique', async: true })
 @Injectable()
@@ -84,33 +84,54 @@ export function IsBlogChecking(validationOptions?: ValidationOptions) {
     });
   };
 }
+//TODO выводить в validationPipe ?
 
-@ValidatorConstraint({ name: 'IsEntityQuestionChecking', async: true })
-@Injectable()
-export class IsEntityQuestionCheckingValidate
-  implements ValidatorConstraintInterface
-{
-  async validate(paramSortBy: string, args: ValidationArguments) {
-    const keys = QuestionEntity.arguments;
-    // if(keys<1){
-    //   return false;
-    // }
-    console.log(keys);
-    return true;
-  }
-}
-
-export function IsEntityQuestionChecking(
-  validationOptions?: ValidationOptions,
-) {
-  return function (object: object, propertyName: string) {
-    registerDecorator({
-      name: 'IsEntityQuestionChecking',
-      target: object.constructor,
-      propertyName: propertyName,
-      options: validationOptions,
-      constraints: [],
-      validator: IsEntityQuestionCheckingValidate,
-    });
-  };
-}
+// @ValidatorConstraint({ name: 'IsEntityQuestionChecking', async: true })
+// @Injectable()
+// export class SizeImageValidate implements ValidatorConstraintInterface {
+//   async validate(
+//     metadateImage: Metadata,
+//     imageFormat: string[],
+//     imageSize: number,
+//     imageWidth: number,
+//     imageHeight: number,
+//     args: ValidationArguments,
+//   ) {
+//     console.log(metadateImage);
+//     //const imageFormat = ['png', 'jpeg', 'jpg'];
+//     if (!imageFormat.includes(metadateImage.format as string)) {
+//       console.log('format invalid');
+//       //throw new BadRequestException('format invalid');
+//       return false;
+//     }
+//     if (!metadateImage.size || metadateImage.size > imageSize) {
+//       console.log('size invalid');
+//       //throw new BadRequestException('size invalid');
+//       return false;
+//     }
+//     if (
+//       !metadateImage.width ||
+//       !metadateImage.height ||
+//       metadateImage.width > imageWidth ||
+//       metadateImage.height > imageHeight
+//     ) {
+//       console.log('width&height invalid');
+//       // throw new BadRequestException('width&height invalid');
+//       return false;
+//     }
+//     return true;
+//   }
+// }
+//
+// export function IsSizeImageValidate(validationOptions?: ValidationOptions) {
+//   return function (object: object, propertyName: string) {
+//     registerDecorator({
+//       name: 'IsSizeImageValidate',
+//       target: object.constructor,
+//       propertyName: propertyName,
+//       options: validationOptions,
+//       constraints: [],
+//       validator: SizeImageValidate,
+//     });
+//   };
+// }

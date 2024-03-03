@@ -15,6 +15,7 @@ export class BlogViewModel {
   websiteUrl: string;
   createdAt: string;
   isMembership: boolean;
+  images: BlogImagesViewModel;
 }
 
 export class PostViewModel {
@@ -26,6 +27,7 @@ export class PostViewModel {
   blogName: string;
   createdAt: string;
   extendedLikesInfo: ExtendedLikesInfo;
+  images: PostImagesViewModel;
 }
 export class CommentViewModel {
   id: string;
@@ -94,4 +96,24 @@ export class PostInfo {
 }
 export class BloggerCommentViewModel extends CommentViewModel {
   postInfo: PostInfo;
+}
+
+export class ImageSizeViewModel {
+  url: string;
+  width: number;
+  height: number;
+  fileSize: number;
+}
+// export class EmptyImageSizeViewModel {
+//   url: null;
+//   width: null;
+//   height: null;
+//   fileSize: null;
+// }
+export class PostImagesViewModel {
+  main: ImageSizeViewModel[];
+}
+export class BlogImagesViewModel {
+  wallpaper: ImageSizeViewModel | null;
+  main: ImageSizeViewModel[];
 }

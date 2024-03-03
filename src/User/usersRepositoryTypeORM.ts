@@ -31,21 +31,6 @@ export class UsersRepositoryTypeORM {
     @InjectDataSource() private dataSource: DataSource,
   ) {}
 
-  async checkDuplicateLoginAndEmail(createUserDto: CreateUserDto) {
-    const query = await this.dataSource.query(
-      'SELECT COUNT (*) FROM user_entity' +
-        ' WHERE  "login" = $1 ' +
-        ' OR "email" =  $2 ',
-      [createUserDto.login, createUserDto.email],
-    );
-    const userCount = query[0].count;
-    console.log(userCount);
-    if (userCount > 0) {
-      return false;
-    }
-    return true;
-  }
-
   async createUser(newUser: User) {
     const user = await this.userRepository.save(<UserEntity>{
       id: newUser.id,
@@ -56,7 +41,9 @@ export class UsersRepositoryTypeORM {
       password: newUser.password,
     });
 
-    const userConfirmationInfo = await this.userConfirmationRepository.save({
+    const userConfirmationInfo = await this.userConfirmationRepository.save(<
+      UserConfirmationInfoEntity
+    >{
       ownerId: newUser.id,
       userConformation: newUser.userConfirmationInfo.userConformation,
       code: newUser.userConfirmationInfo.code,
@@ -64,7 +51,9 @@ export class UsersRepositoryTypeORM {
     });
 
     const userRecoveryPasswordInfo =
-      await this.userRecoveryPasswordInfoRepository.save({
+      await this.userRecoveryPasswordInfoRepository.save(<
+        UserRecoveryPasswordInfoEntity
+      >{
         ownerId: newUser.id,
         recoveryCode: newUser.recoveryPasswordInfo.recoveryCode,
         diesAtDate: newUser.recoveryPasswordInfo.diesAtDate,

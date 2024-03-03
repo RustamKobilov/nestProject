@@ -5,6 +5,12 @@ import { randomUUID } from 'crypto';
 import { mapObject } from '../../mapObject';
 import { BlogRepository } from '../blogRepository';
 import { CommandHandler } from '@nestjs/cqrs';
+import { ImagesRepository } from '../../Images/imageRepository';
+import {
+  countMainImageForBlog,
+  countWallpaperImageForBlog,
+} from '../../constant';
+import { ImagePurpose } from '../../Enum';
 
 export class CreateBlogUseCaseCommand {
   constructor(
@@ -15,7 +21,10 @@ export class CreateBlogUseCaseCommand {
 }
 @CommandHandler(CreateBlogUseCaseCommand)
 export class CreateBlogUseCase {
-  constructor(private blogRepository: BlogRepository) {}
+  constructor(
+    private readonly blogRepository: BlogRepository,
+    private readonly imageRepository: ImagesRepository,
+  ) {}
 
   async execute(command: CreateBlogUseCaseCommand): Promise<BlogViewModel> {
     const blog: Blog = {
@@ -31,7 +40,23 @@ export class CreateBlogUseCase {
       createdAtVision: null,
     };
     await this.blogRepository.createBlog(blog);
-    const outputBlogModel = mapObject.mapBlogForViewModel(blog);
-    return outputBlogModel;
+    const imageWallpaper =
+      await this.imageRepository.getImageForBlogByLimitAndPurpose(
+        blog.id,
+        countWallpaperImageForBlog,
+        ImagePurpose.wallpaper,
+      );
+    const imageMain =
+      await this.imageRepository.getImageForBlogByLimitAndPurpose(
+        blog.id,
+        countMainImageForBlog,
+        ImagePurpose.main,
+      );
+    const blogViewModel = mapObject.mapBlogForViewModel(
+      blog,
+      imageWallpaper,
+      imageMain,
+    );
+    return blogViewModel;
   }
 }

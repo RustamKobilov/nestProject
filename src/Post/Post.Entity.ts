@@ -1,18 +1,12 @@
-import {
-  Column,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  OneToMany,
-  PrimaryColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, PrimaryColumn } from 'typeorm';
 import { likeStatus } from '../Enum';
 import { BlogEntity } from '../Blog/Blog.Entity';
 import { CommentEntity } from '../Comment/Comment.Entity';
+import { PostImageEntity } from '../Images/Entity/PostImage.Entity';
 
 @Entity()
 export class PostEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   id: string;
   @Column({ type: 'uuid' })
   userId: string;
@@ -41,12 +35,12 @@ export class PostEntity {
   vision: boolean;
 
   @ManyToOne(() => BlogEntity, (blog) => blog.posts)
-  //@JoinColumn({ name: 'blogId' })
   blog: BlogEntity;
 
   @OneToMany(() => CommentEntity, (comment) => comment.post)
-  //@JoinColumn({ name: 'id' })
   comments: CommentEntity[];
+  @OneToMany(() => PostImageEntity, (image) => image.post)
+  images: PostImageEntity[];
 }
 
 // @Entity()

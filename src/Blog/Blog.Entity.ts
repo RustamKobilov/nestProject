@@ -1,9 +1,18 @@
-import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryColumn,
+} from 'typeorm';
 import { PostEntity } from '../Post/Post.Entity';
+import { BlogImageEntity } from '../Images/Entity/BlogImage.Entity';
 
 @Entity()
 export class BlogEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   id: string;
   @Column({ type: 'uuid' })
   userId: string;
@@ -25,6 +34,7 @@ export class BlogEntity {
   createdAtVision: string | null;
 
   @OneToMany(() => PostEntity, (post) => post.blog)
-  //@JoinColumn({ name: 'blogId' })
   posts: PostEntity[];
+  @OneToMany(() => BlogImageEntity, (image) => image.blog)
+  images: BlogImageEntity[];
 }

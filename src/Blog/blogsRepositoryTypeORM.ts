@@ -7,12 +7,16 @@ import { BlogPaginationDTO, CreateBlogDTO, outputModel } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
 import { BlogViewModel, SaBlogViewModel } from '../viewModelDTO';
+import { ImagesRepository } from '../Images/imageRepository';
+import { countMainImageForBlog, countWallpaperImageForBlog } from '../constant';
+import { ImagePurpose } from '../Enum';
 
 @Injectable()
 export class BlogsRepositoryTypeORM {
   constructor(
     @InjectRepository(BlogEntity)
     private readonly blogRepositoryTypeOrm: Repository<BlogEntity>,
+    private readonly imageRepository: ImagesRepository,
   ) {}
   async createBlog(newBlog: Blog) {
     const queryInsertBlogEntity = await this.blogRepositoryTypeOrm.save(<
@@ -69,32 +73,49 @@ export class BlogsRepositoryTypeORM {
         totalCountBlog,
       );
 
-    const zaprosQb = await qbBlog
-      .where(filter.where, filter.params)
-      //.andWhere('b.vision = :vision', { vision: true })
+    const blogs = await qbBlog
+      .where(searchNameTermFilter.where, searchNameTermFilter.params)
+      .andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
-      .getRawMany();
+      .getMany();
 
-    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
-      'b' + '_',
-    ]);
+    const blogsViewModel: BlogViewModel[] = [];
 
-    const resultBlogs = await Promise.all(
-      blogs.map(async (blog: Blog) => {
-        const blogView = await mapObject.mapBlogForViewModel(blog);
-        return blogView;
-      }),
-    );
+    if (blogs.length > 0) {
+      for (const blog of blogs) {
+        const imageWallpaper =
+          await this.imageRepository.getImageForBlogByLimitAndPurpose(
+            blog.id,
+            countWallpaperImageForBlog,
+            ImagePurpose.wallpaper,
+          );
+        const imageMain =
+          await this.imageRepository.getImageForBlogByLimitAndPurpose(
+            blog.id,
+            countMainImageForBlog,
+            ImagePurpose.main,
+          );
+        console.log(imageMain, 'imageMain');
+        const blogViewModel = mapObject.mapBlogAndImageArrayForBlogViewModel(
+          blog,
+          imageWallpaper,
+          imageMain,
+        );
+        blogsViewModel.push(blogViewModel);
+      }
+    }
+
     return {
       pagesCount: paginationFromHelperForBlogs.totalCount,
       page: paginationBlog.pageNumber,
       pageSize: paginationBlog.pageSize,
       totalCount: totalCountBlog,
-      items: resultBlogs,
+      items: blogsViewModel,
     };
   }
+  //TODO логика админа не реализована
   async getBlogsForSa(
     paginationBlog: BlogPaginationDTO,
     searchNameTermFilter,
@@ -112,20 +133,41 @@ export class BlogsRepositoryTypeORM {
         totalCountBlog,
       );
 
-    const zaprosQb = await qbBlog
+    const blogs = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
       //.andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
-      .getRawMany();
+      .getMany();
 
-    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
-      'b' + '_',
-    ]);
+    const blogsViewModel: SaBlogViewModel[] = [];
 
+    // if (blogs.length > 0) {
+    //   for (const blog of blogs) {
+    //     const imageWallpaper =
+    //       await this.imageRepository.getImageForBlogByLimitAndPurpose(
+    //         blog.id,
+    //         countWallpaperImageForBlog,
+    //         ImagePurpose.wallpaper,
+    //       );
+    //     const imageMain =
+    //       await this.imageRepository.getImageForBlogByLimitAndPurpose(
+    //         blog.id,
+    //         countMainImageForBlog,
+    //         ImagePurpose.main,
+    //       );
+    //     console.log(imageMain, 'imageMain');
+    //     const blogViewModel = mapObject.mapBlogAndImageArrayForBlogViewModel(
+    //       blog,
+    //       imageWallpaper,
+    //       imageMain,
+    //     );
+    //     blogsViewModel.push(blogViewModel);
+    //   }
+    // }
     const resultBlogs = await Promise.all(
-      blogs.map(async (blog: Blog) => {
+      blogs.map(async (blog: BlogEntity) => {
         const saBlogView = await mapObject.mapSaBlogForViewModel(blog);
         return saBlogView;
       }),
@@ -141,7 +183,7 @@ export class BlogsRepositoryTypeORM {
   async getBlogs(
     paginationBlog: BlogPaginationDTO,
     searchNameTermFilter,
-  ): Promise<outputModel<SaBlogViewModel>> {
+  ): Promise<outputModel<BlogViewModel>> {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
     const totalCountBlog = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
@@ -156,45 +198,78 @@ export class BlogsRepositoryTypeORM {
         totalCountBlog,
       );
 
-    const zaprosQb = await qbBlog
+    const blogs = await qbBlog
       .where(searchNameTermFilter.where, searchNameTermFilter.params)
       .andWhere('b.vision = :vision', { vision: true })
       .orderBy('b.' + paginationBlog.sortBy, sortDirection)
       .limit(paginationBlog.pageSize)
       .offset(paginationFromHelperForBlogs.skipPage)
-      .getRawMany();
+      .getMany();
 
-    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
-      'b' + '_',
-    ]);
+    const blogsViewModel: BlogViewModel[] = [];
 
-    const resultBlogs = await Promise.all(
-      blogs.map(async (blog: Blog) => {
-        const blogView = await mapObject.mapBlogForViewModel(blog);
-        return blogView;
-      }),
-    );
+    if (blogs.length > 0) {
+      for (const blog of blogs) {
+        const imageWallpaper =
+          await this.imageRepository.getImageForBlogByLimitAndPurpose(
+            blog.id,
+            countWallpaperImageForBlog,
+            ImagePurpose.wallpaper,
+          );
+        const imageMain =
+          await this.imageRepository.getImageForBlogByLimitAndPurpose(
+            blog.id,
+            countMainImageForBlog,
+            ImagePurpose.main,
+          );
+        const blogViewModel = mapObject.mapBlogAndImageArrayForBlogViewModel(
+          blog,
+          imageWallpaper,
+          imageMain,
+        );
+        blogsViewModel.push(blogViewModel);
+      }
+    }
+
     return {
       pagesCount: paginationFromHelperForBlogs.totalCount,
       page: paginationBlog.pageNumber,
       pageSize: paginationBlog.pageSize,
       totalCount: totalCountBlog,
-      items: resultBlogs,
+      items: blogsViewModel,
     };
   }
-  async getBlog(blogId: string): Promise<Blog | false> {
+  async getBlog(blogId: string): Promise<BlogEntity | false> {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
 
-    const take = await qbBlog
+    const blog = await qbBlog
       .where('id = :id', { id: blogId })
       .andWhere('b.vision = :vision', { vision: true })
-      .getRawMany();
+      .getOne();
 
-    if (take.length < 1) {
+    if (!blog) {
       return false;
     }
-    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(take, ['b' + '_']);
-    return blogs[0];
+
+    // const imageWallpaper =
+    //   await this.imageRepository.getImageForBlogByLimitAndPurpose(
+    //     blog.id,
+    //     countWallpaperImageForBlog,
+    //     ImagePurpose.wallpaper,
+    //   );
+    // const imageMain =
+    //   await this.imageRepository.getImageForBlogByLimitAndPurpose(
+    //     blog.id,
+    //     countMainImageForBlog,
+    //     ImagePurpose.main,
+    //   );
+    // const blogViewModel = mapObject.mapBlogAndImageArrayForBlogViewModel(
+    //   blog,
+    //   imageWallpaper,
+    //   imageMain,
+    // );
+
+    return blog;
   }
   async updateBlog(blogId: string, updateBlogDto: CreateBlogDTO) {
     const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
@@ -243,16 +318,5 @@ export class BlogsRepositoryTypeORM {
       return false;
     }
     return true;
-  }
-  async getBlogAllBanStatus(blogId: string): Promise<Blog | false> {
-    const qbBlog = await this.blogRepositoryTypeOrm.createQueryBuilder('b');
-
-    const take = await qbBlog.where('id = :id', { id: blogId }).getRawMany();
-
-    if (take.length < 1) {
-      return false;
-    }
-    const blogs = mapObject.mapRawManyQBOnTableNameIsNotNull(take, ['b' + '_']);
-    return blogs[0];
   }
 }

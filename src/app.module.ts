@@ -59,7 +59,6 @@ import { JwtServices } from './application/jwtService';
 import {
   IsBlogCheckingValidate,
   isEmailNoUniqueValidate,
-  IsEntityQuestionCheckingValidate,
   IsLoginNoUniqueValidate,
 } from './pipes/customValidator';
 import { CqrsModule } from '@nestjs/cqrs';
@@ -156,6 +155,17 @@ import { GetPostByBlogUseCase } from './Blog/use-cases/get-post-by-blog-use-case
 import { GetCommentsForAllPostBloggerUseCase } from './blogger/use-cases/get-comments-for-blogger-use-case';
 import { AvatarController } from './avatar/avatarController';
 import { S3StorageAdapter } from './adapters/s3StarageAdapter';
+import { CreateWallpaperForBlogForBloggerUseCase } from './blogger/use-cases/create-wallpaper-for-blog-for-blogger-use-case';
+import { ImageService } from './Images/imageService';
+import { BlogImageEntity } from './Images/Entity/BlogImage.Entity';
+import { ImagesRepository } from './Images/imageRepository';
+import { PostImageEntity } from './Images/Entity/PostImage.Entity';
+import { GetImagesForBlogForBloggerUseCase } from './blogger/use-cases/get-images-for-blog-for-blogger-use-case';
+import { CreateMainForPostForBloggerUseCase } from './blogger/use-cases/create-main-for-post-for-blogger-use-case';
+import { CreateMainForBlogForBloggerUseCase } from './blogger/use-cases/create-main-for-blog-for-blogger-use-case';
+import { CustomUploadFileTypeValidator } from './pipes/customImagePipes';
+import { GetImagesForPostForBloggerUseCase } from './blogger/use-cases/get-images-for-post-for-blogger-use-case';
+import { CustomUploadImageValidatorOptionsType } from './Enum';
 
 dotenv.config();
 const useCaseUser = [
@@ -175,6 +185,11 @@ const useCaseUser = [
 const useCaseBlogger = [
   GetBlogsUseForBloggerCase,
   GetCommentsForAllPostBloggerUseCase,
+  CreateWallpaperForBlogForBloggerUseCase,
+  GetImagesForBlogForBloggerUseCase,
+  GetImagesForPostForBloggerUseCase,
+  CreateMainForPostForBloggerUseCase,
+  CreateMainForBlogForBloggerUseCase,
 ];
 const useCaseBlog = [
   GetBlogUseCase,
@@ -225,6 +240,14 @@ const useCaseAdapters = [
   SendEmailForRegistrationUserUseCase,
   SendEmailForPasswordRecoveryUseCase,
 ];
+const validationPipe = [
+  isEmailNoUniqueValidate,
+  IsLoginNoUniqueValidate,
+  IsBlogCheckingValidate,
+  CustomUploadFileTypeValidator,
+  CustomUploadImageValidatorOptionsType,
+  //CustomUploadFileTypeValidator,
+];
 
 const sqlEntity = [
   UserEntity,
@@ -240,66 +263,68 @@ const sqlEntity = [
   GameEntity,
   UserBanListEntity,
   ParentBanListEntity,
+  BlogImageEntity,
+  PostImageEntity,
 ];
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    MongooseModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
-        return {
-          uri: configService.get<string>('MONGO_URI_CLUSTER'),
-        };
-      },
-      inject: [ConfigService],
-    }),
-    MongooseModule.forFeature([
-      { name: User.name, schema: UserSchema },
-      { name: UserConfirmationInfo.name, schema: UserConfirmationInfoSchema },
-      {
-        name: UserRecoveryPasswordInfo.name,
-        schema: UserRecoveryPasswordInfoSchema,
-      },
-      { name: Blog.name, schema: BlogSchema },
-      { name: Post.name, schema: PostSchema },
-      { name: ExtendedLikesInfo.name, schema: ExtendedLikesInfoSchema },
-      { name: NewestLikes.name, schema: NewestLikesSchema },
-      { name: Device.name, schema: DeviceSchema },
-      { name: Comment.name, schema: CommentSchema },
-      { name: CommentatorInfo.name, schema: CommentatorInfoSchema },
-      { name: LikesInfo.name, schema: LikesInfoSchema },
-      { name: Reaction.name, schema: ReactionSchema },
-    ]),
+    // MongooseModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   useFactory: async (configService: ConfigService) => {
+    //     return {
+    //       uri: configService.get<string>('MONGO_URI_CLUSTER'),
+    //     };
+    //   },
+    //   inject: [ConfigService],
+    // }),
+    // MongooseModule.forFeature([
+    //   { name: User.name, schema: UserSchema },
+    //   { name: UserConfirmationInfo.name, schema: UserConfirmationInfoSchema },
+    //   {
+    //     name: UserRecoveryPasswordInfo.name,
+    //     schema: UserRecoveryPasswordInfoSchema,
+    //   },
+    //   { name: Blog.name, schema: BlogSchema },
+    //   { name: Post.name, schema: PostSchema },
+    //   { name: ExtendedLikesInfo.name, schema: ExtendedLikesInfoSchema },
+    //   { name: NewestLikes.name, schema: NewestLikesSchema },
+    //   { name: Device.name, schema: DeviceSchema },
+    //   { name: Comment.name, schema: CommentSchema },
+    //   { name: CommentatorInfo.name, schema: CommentatorInfoSchema },
+    //   { name: LikesInfo.name, schema: LikesInfoSchema },
+    //   { name: Reaction.name, schema: ReactionSchema },
+    // ]),
     PassportModule,
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
       //signOptions: { expiresIn: '60s' },
     }),
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-        transport: {
-          service: 'gmail',
-          //secure: false,
-          auth: {
-            user: configService.get<string>('MAIL_USER'),
-            pass: configService.get<string>('MAIL_PASSWORD'),
-          },
-        },
-        defaults: {
-          from: '"No Reply" <noreply@example.com>',
-        },
-        template: {
-          dir: join(__dirname, 'templates'),
-          adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
-          options: {
-            strict: true,
-          },
-        },
-      }),
-    }),
+    // MailerModule.forRootAsync({
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: async (configService: ConfigService) => ({
+    //     transport: {
+    //       service: 'gmail',
+    //       //secure: false,
+    //       auth: {
+    //         user: configService.get<string>('MAIL_USER'),
+    //         pass: configService.get<string>('MAIL_PASSWORD'),
+    //       },
+    //     },
+    //     defaults: {
+    //       from: '"No Reply" <noreply@example.com>',
+    //     },
+    //     template: {
+    //       dir: join(__dirname, 'templates'),
+    //       adapter: new HandlebarsAdapter(), // or new PugAdapter() or new EjsAdapter()
+    //       options: {
+    //         strict: true,
+    //       },
+    //     },
+    //   }),
+    // }),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -339,7 +364,7 @@ const sqlEntity = [
       },
     }),
     TypeOrmModule.forFeature(sqlEntity),
-    ScheduleModule.forRoot(),
+    ScheduleModule.forRoot(), //cron
   ],
   controllers: [
     DeleteBase,
@@ -362,42 +387,42 @@ const sqlEntity = [
       useClass:
         process.env.DATA_BASE === 'SQL'
           ? /*UsersRepositorySql*/ UsersRepositoryTypeORM
-          : UserRepository,
+          : /*UserRepository*/ UsersRepositoryTypeORM,
     },
     {
       provide: BlogRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
           ? BlogsRepositoryTypeORM /*BlogsRepositorySql*/
-          : BlogRepository,
+          : /*BlogRepository*/ BlogsRepositoryTypeORM,
     },
     {
       provide: PostRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
           ? /*PostRepositorySql*/ PostsRepositoryTypeORM
-          : PostRepository,
+          : /*PostRepository*/ PostsRepositoryTypeORM,
     },
     {
       provide: ReactionRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
           ? /*ReactionRepositorySql*/ ReactionRepositoryTypeORM
-          : ReactionRepository,
+          : /*ReactionRepository*/ ReactionRepositoryTypeORM,
     },
     {
       provide: DeviceRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
           ? /*DevicesRepositorySql*/ DeviceRepositoryTypeORM
-          : DeviceRepository,
+          : /*DeviceRepository*/ DeviceRepositoryTypeORM,
     },
     {
       provide: CommentRepository,
       useClass:
         process.env.DATA_BASE === 'SQL'
           ? /*CommentsRepositorySql*/ CommentRepositoryTypeORM
-          : CommentRepository,
+          : /*CommentRepository*/ CommentRepositoryTypeORM,
     },
     {
       provide: DataRepository,
@@ -426,10 +451,7 @@ const sqlEntity = [
     ParentRepositoryTypeORM,
     QuizService,
     JwtServices,
-    isEmailNoUniqueValidate,
-    IsLoginNoUniqueValidate,
-    IsBlogCheckingValidate,
-    IsEntityQuestionCheckingValidate,
+    ...validationPipe,
     ...useCaseBlog,
     ...useCaseBlogger,
     ...useCaseParentBanned,
@@ -440,6 +462,8 @@ const sqlEntity = [
     ...useCaseUser,
     ...sqlEntity,
     CronService,
+    ImageService,
+    ImagesRepository,
     // {
     //   provide: APP_GUARD,
     //   useClass: ThrottlerGuard,

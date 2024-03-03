@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 @Entity()
 export class DeviceEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   deviceId: string;
   @Column({ type: 'uuid' })
   userId: string;

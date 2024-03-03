@@ -4,7 +4,7 @@ import { AnswerViewModel, QuestionViewModel } from '../Qustions/questionDTO';
 
 @Entity()
 export class GameEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   id: string;
   @Column({ type: 'uuid' })
   firstPlayerId: string;

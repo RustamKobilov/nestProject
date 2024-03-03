@@ -1,11 +1,14 @@
 import { User } from './User/User';
 import {
   BloggerCommentViewModel,
+  BlogImagesViewModel,
   BlogViewModel,
   CommentViewModel,
   DeviceViewModel,
+  ImageSizeViewModel,
   MeViewModel,
   newestLikeViewModel,
+  PostImagesViewModel,
   PostViewModel,
   SaBlogViewModel,
   SaUserViewModel,
@@ -18,9 +21,12 @@ import { Reaction } from './Reaction/Reaction';
 import { Comment } from './Comment/Comment';
 import { Device } from './Device/Device';
 import { PostEntity } from './Post/Post.Entity';
-import { UserBanListEntity } from './UserBanList/UserBanList.Entity';
-import { BanStatusForAdminPagination } from './Enum';
+import { ImagePurpose } from './Enum';
 import { ParentBanListEntity } from './ParentBanList/ParentBanList.Entity';
+import { BlogImageEntity } from './Images/Entity/BlogImage.Entity';
+import { PostImageEntity } from './Images/Entity/PostImage.Entity';
+import { countMainImageForBlog } from './constant';
+import { BlogEntity } from './Blog/Blog.Entity';
 
 export const mapObject = {
   mapRawManyQBOnTableNameIsNotNull(rawArray: any[], nameTable: any[]): any {
@@ -110,7 +116,11 @@ export const mapObject = {
     }
     return users;
   },
-  mapBlogForViewModel(blog: Blog): BlogViewModel {
+  mapNewBlogForViewModelKostyl(
+    blog: Blog,
+    imageWallpaper: ImageSizeViewModel,
+    imageMain: ImageSizeViewModel,
+  ): BlogViewModel {
     return {
       id: blog.id,
       name: blog.name,
@@ -118,9 +128,54 @@ export const mapObject = {
       websiteUrl: blog.websiteUrl,
       createdAt: blog.createdAt,
       isMembership: blog.isMembership,
+      images: {
+        wallpaper: imageWallpaper,
+        main: [imageMain],
+      },
     };
   },
-  //TODO таблица с банами блога время негде фиксировать возможно поле в блоге.мап сменить
+  mapBlogForViewModel(
+    blog: Blog,
+    arrayImagesWallpaper: BlogImageEntity[] = [],
+    arrayImagesMain: BlogImageEntity[] = [],
+  ): BlogViewModel {
+    const arrayMainImage: ImageSizeViewModel[] = [];
+    if (arrayImagesMain.length > 0) {
+      for (const main of arrayImagesMain) {
+        const mainImageViewModel: ImageSizeViewModel = {
+          url: main.urlDownload,
+          fileSize: main.fileSize,
+          height: main.height,
+          width: main.width,
+        };
+        arrayMainImage.push(mainImageViewModel);
+      }
+    }
+    let wallpaperImage: ImageSizeViewModel | null = null;
+
+    if (arrayImagesWallpaper.length > 0) {
+      wallpaperImage = {
+        url: arrayImagesWallpaper[0].urlDownload,
+        fileSize: arrayImagesWallpaper[0].fileSize,
+        height: arrayImagesWallpaper[0].height,
+        width: arrayImagesWallpaper[0].width,
+      };
+    }
+
+    return <BlogViewModel>{
+      id: blog.id,
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+      images: {
+        wallpaper: wallpaperImage,
+        main: arrayMainImage,
+      },
+    };
+  },
+
   mapSaBlogForViewModel(blog: Blog): SaBlogViewModel {
     const isBanned = blog.vision === true ? false : true;
     return {
@@ -140,8 +195,8 @@ export const mapObject = {
       },
     };
   },
-  mapPost(post: Post): PostViewModel {
-    return {
+  mapPost(post: Post): Post {
+    return <Post>{
       id: post.id,
       title: post.title,
       shortDescription: post.shortDescription,
@@ -171,11 +226,24 @@ export const mapObject = {
       vision: post.vision,
     };
   },
-  mapPostFromSqlFromViewModel(
+  mapPostFromViewModel(
     post: PostEntity,
     newestLikes: NewestLikes[] = [],
+    arrayMainImageForPost: PostImageEntity[] = [],
   ): PostViewModel {
-    return {
+    const arrayMainImage: ImageSizeViewModel[] = [];
+    if (arrayMainImageForPost.length > 0) {
+      for (const main of arrayMainImageForPost) {
+        const mainImageViewModel: ImageSizeViewModel = {
+          url: main.urlDownload,
+          fileSize: main.fileSize,
+          height: main.height,
+          width: main.width,
+        };
+        arrayMainImage.push(mainImageViewModel);
+      }
+    }
+    const postViewModel: PostViewModel = {
       id: post.id,
       title: post.title,
       shortDescription: post.shortDescription,
@@ -189,7 +257,12 @@ export const mapObject = {
         myStatus: post.myStatus,
         newestLikes: newestLikes,
       },
+      images: {
+        main: arrayMainImage,
+      },
     };
+
+    return postViewModel;
   },
   mapComment(comment: Comment): CommentViewModel {
     return {
@@ -362,5 +435,91 @@ export const mapObject = {
       resultUsers.push(userBannedForParentViewModel);
     }
     return resultUsers;
+  },
+  mapBlogImageForViewModel(
+    imagesForBLog: BlogImageEntity[],
+  ): BlogImagesViewModel {
+    const blogImagesMainViewModel: ImageSizeViewModel[] = [];
+    const blogImagesWallpaperViewModel: ImageSizeViewModel[] = [];
+    const blogImagesViewModel: BlogImagesViewModel = {
+      wallpaper: null,
+      main: blogImagesMainViewModel,
+    };
+    for (const image of imagesForBLog) {
+      //console.log(image);
+      const blogImagesViewModel: ImageSizeViewModel = {
+        url: image.urlDownload,
+        fileSize: image.fileSize,
+        height: image.height,
+        width: image.width,
+      };
+      if (image.purpose === ImagePurpose.wallpaper) {
+        blogImagesWallpaperViewModel.push(blogImagesViewModel);
+      } else {
+        blogImagesMainViewModel.push(blogImagesViewModel);
+      }
+    }
+    if (blogImagesWallpaperViewModel.length !== 0) {
+      blogImagesViewModel.wallpaper = blogImagesWallpaperViewModel[0];
+    }
+    return blogImagesViewModel;
+  },
+  mapPostImageForViewModel(
+    imagesForPost: PostImageEntity[],
+  ): PostImagesViewModel {
+    const postImagesViewModel: PostImagesViewModel = {
+      main: [],
+    };
+    for (const image of imagesForPost) {
+      const postImagesMainViewModel: ImageSizeViewModel = {
+        url: image.urlDownload,
+        fileSize: image.fileSize,
+        height: image.height,
+        width: image.width,
+      };
+      postImagesViewModel.main.push(postImagesMainViewModel);
+    }
+
+    return postImagesViewModel;
+  },
+  mapBlogAndImageArrayForBlogViewModel(
+    blog: BlogEntity,
+    arrayWallpaperImageForBlog: BlogImageEntity[] = [],
+    arrayMainImageForBlog: BlogImageEntity[] = [],
+  ): BlogViewModel {
+    const arrayMainImage: ImageSizeViewModel[] = [];
+    if (arrayMainImageForBlog.length > 0) {
+      for (const main of arrayMainImageForBlog) {
+        const mainImageViewModel: ImageSizeViewModel = {
+          url: main.urlDownload,
+          fileSize: main.fileSize,
+          height: main.height,
+          width: main.width,
+        };
+        arrayMainImage.push(mainImageViewModel);
+      }
+    }
+
+    const blogViewModel: BlogViewModel = {
+      id: blog.id,
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: blog.createdAt,
+      isMembership: blog.isMembership,
+      images: {
+        wallpaper:
+          arrayWallpaperImageForBlog.length > 0
+            ? <ImageSizeViewModel>{
+                url: arrayWallpaperImageForBlog[0].urlDownload,
+                fileSize: arrayWallpaperImageForBlog[0].fileSize,
+                height: arrayWallpaperImageForBlog[0].height,
+                width: arrayWallpaperImageForBlog[0].width,
+              }
+            : null,
+        main: arrayMainImage,
+      },
+    };
+    return blogViewModel;
   },
 };

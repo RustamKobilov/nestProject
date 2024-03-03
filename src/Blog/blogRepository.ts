@@ -5,7 +5,11 @@ import { FilterQuery, Model, UpdateWriteOpResult } from 'mongoose';
 import { BlogPaginationDTO, CreateBlogDTO, outputModel } from '../DTO';
 import { helper } from '../helper';
 import { mapObject } from '../mapObject';
-import { BlogViewModel, SaBlogViewModel } from '../viewModelDTO';
+import {
+  BlogViewModel,
+  ImageSizeViewModel,
+  SaBlogViewModel,
+} from '../viewModelDTO';
 
 @Injectable()
 export class BlogRepository {
@@ -64,7 +68,18 @@ export class BlogRepository {
 
     const resultBlogs = await Promise.all(
       sortBlog.map(async (blog: Blog) => {
-        const blogView = await mapObject.mapBlogForViewModel(blog);
+        //const blogView = await mapObject.mapBlogForViewModel(blog);
+        const kostyl: ImageSizeViewModel = {
+          url: 'string',
+          width: 0,
+          height: 0,
+          fileSize: 0,
+        };
+        const blogView = await mapObject.mapNewBlogForViewModelKostyl(
+          blog,
+          kostyl,
+          kostyl,
+        ); //не пишем на монге заглушка
         return blogView;
       }),
     );
@@ -192,7 +207,17 @@ export class BlogRepository {
 
     const resultBlogs = await Promise.all(
       sortBlog.map(async (blog: Blog) => {
-        const blogView = await mapObject.mapBlogForViewModel(blog);
+        const kostyl: ImageSizeViewModel = {
+          url: 'string',
+          width: 0,
+          height: 0,
+          fileSize: 0,
+        };
+        const blogView = await mapObject.mapNewBlogForViewModelKostyl(
+          blog,
+          kostyl,
+          kostyl,
+        );
         return blogView;
       }),
     );

@@ -6,12 +6,15 @@ import {
   Get,
   HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   Post,
   Put,
   Query,
   Req,
   Res,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import {
@@ -26,7 +29,7 @@ import {
 import { BearerGuard } from '../auth/Guard/bearerGuard';
 import { GetBlogsForBloggerUseCaseCommand } from './use-cases/get-blogs-for-blogger-use-case';
 import { CreateBlogUseCaseCommand } from '../Blog/use-cases/create-blog-use-case';
-import { Response } from 'express';
+import { Express, Response } from 'express';
 import { UpdateUseCaseCommand } from '../Blog/use-cases/update-blog-use-case';
 import { DeleteBlogUseCaseCommand } from '../Blog/use-cases/delete-blog-use-case';
 import { CreatePostByBlogCommand } from '../Blog/use-cases/create-post-by-blog-use-case';
@@ -35,8 +38,24 @@ import { DeletePostUseCaseCommand } from '../Post/use-cases/delete-post-use-case
 import { GetPostByBlogForBloggerCommand } from '../Blog/use-cases/get-post-by-blog-for-blogger-use-case';
 import { UpdateBanUserForBlogUseCaseCommand } from '../ParentBanList/use-case/update-ban-all-parent-for-blog';
 import { GetAllUserBannedForParentUseCaseCommand } from '../ParentBanList/use-case/get-all-user-banned-for-parent-use-case';
-import { BloggerCommentViewModel } from '../viewModelDTO';
 import { GetCommentsForAllPostBloggerUseCaseCommand } from './use-cases/get-comments-for-blogger-use-case';
+import { CreateWallpaperForBlogForBloggerUseCaseCommand } from './use-cases/create-wallpaper-for-blog-for-blogger-use-case';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CreateMainForBlogForBloggerUseCaseCommand } from './use-cases/create-main-for-blog-for-blogger-use-case';
+import { GetImagesForBlogForBloggerUseCaseCommand } from './use-cases/get-images-for-blog-for-blogger-use-case';
+import { CreateMainForPostForBloggerUseCaseCommand } from './use-cases/create-main-for-post-for-blogger-use-case';
+import { GetImagesForPostForBloggerUseCaseCommand } from './use-cases/get-images-for-post-for-blogger-use-case';
+import { CustomUploadFileTypeValidator } from '../pipes/customImagePipes';
+import {
+  ImageFormatBackgroundWallpaperForBlog,
+  ImageFormatMainForBlog,
+  ImageFormatMainForPost,
+  SettingsImageBackgroundWallpaperForBlog,
+  SettingsImageMainForBlog,
+  SettingsImageMainForPost,
+} from '../Enum';
+import { readTextFileAsync } from '../avatar/utils/fs.utils';
+import path from 'node:path';
 
 @SkipThrottle()
 @Controller('blogger/blogs')
@@ -160,6 +179,126 @@ export class BloggerController {
       new GetCommentsForAllPostBloggerUseCaseCommand(pagination, req.user.id),
     );
     return res.status(200).send(comments);
+  }
+  @UseGuards(BearerGuard)
+  @Post('/:id/images/wallpaper')
+  @UseInterceptors(FileInterceptor('file'))
+  async createWallpaperImageForBlog(
+    @Param('id') blogId: string,
+    @Res() res,
+    @Req() req,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addValidator(
+          new CustomUploadFileTypeValidator({
+            fileType: Object.values(ImageFormatBackgroundWallpaperForBlog),
+            imageHeight: SettingsImageBackgroundWallpaperForBlog.height,
+            imageSize: SettingsImageBackgroundWallpaperForBlog.size,
+            imageWidth: SettingsImageBackgroundWallpaperForBlog.width,
+          }),
+        )
+        .build({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    wallpaperFile: Express.Multer.File,
+  ) {
+    const createWallpaper = await this.commandBus.execute(
+      new CreateWallpaperForBlogForBloggerUseCaseCommand(
+        blogId,
+        req.user.id /*'admin'*/,
+        wallpaperFile,
+      ),
+    );
+    const blogImagesViewModel = await this.commandBus.execute(
+      new GetImagesForBlogForBloggerUseCaseCommand(
+        blogId,
+        req.user.id /*'admin'*/,
+      ),
+    );
+    return res.status(201).send(blogImagesViewModel);
+  }
+  @UseGuards(BearerGuard)
+  @Post('/:id/images/main')
+  @UseInterceptors(FileInterceptor('file'))
+  async createMainImageForBlog(
+    @Param('id') blogId: string,
+    @Res() res,
+    @Req() req,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addValidator(
+          new CustomUploadFileTypeValidator({
+            fileType: Object.values(ImageFormatMainForBlog),
+            imageHeight: SettingsImageMainForBlog.height,
+            imageSize: SettingsImageMainForBlog.size,
+            imageWidth: SettingsImageMainForBlog.width,
+          }),
+        )
+        .build({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    mainFile: Express.Multer.File,
+  ) {
+    const main = await this.commandBus.execute(
+      new CreateMainForBlogForBloggerUseCaseCommand(
+        blogId,
+        req.user.id /*'admin'*/,
+        mainFile,
+      ),
+    );
+    const blogImagesViewModel = await this.commandBus.execute(
+      new GetImagesForBlogForBloggerUseCaseCommand(
+        blogId,
+        req.user.id /*'admin'*/,
+      ),
+    );
+    return res.status(201).send(blogImagesViewModel);
+  }
+  @UseGuards(BearerGuard)
+  @Post('/:id/posts/:postId/images/main')
+  @UseInterceptors(FileInterceptor('file'))
+  async createMainImageForPost(
+    @Param('id') blogId: string,
+    @Param('postId') postId: string,
+    @Res() res,
+    @Req() req,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addValidator(
+          new CustomUploadFileTypeValidator({
+            fileType: Object.values(ImageFormatMainForPost),
+            imageHeight: SettingsImageMainForPost.height,
+            imageSize: SettingsImageMainForPost.size,
+            imageWidth: SettingsImageMainForPost.width,
+          }),
+        )
+        .build({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    wallpaperFile: Express.Multer.File,
+  ) {
+    const main = await this.commandBus.execute(
+      new CreateMainForPostForBloggerUseCaseCommand(
+        blogId,
+        postId,
+        req.user.id /*'admin'*/,
+        wallpaperFile,
+      ),
+    );
+    const postImagesViewModel = await this.commandBus.execute(
+      new GetImagesForPostForBloggerUseCaseCommand(
+        blogId,
+        postId,
+        req.user.id /*'admin'*/,
+      ),
+    );
+    return res.status(201).send(postImagesViewModel);
+  }
+  @Get('/file')
+  async getChangeAvatar(req: Request, res: Response) {
+    const content = await readTextFileAsync(
+      path.join('views', 'changePage.html'),
+    );
+    //console.log(pathFinish);
+    //console.log(__dirname);
+    return content;
   }
 }
 @SkipThrottle()

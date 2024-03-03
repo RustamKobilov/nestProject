@@ -3,7 +3,7 @@ import { UserEntity } from '../User/User.Entity';
 
 @Entity()
 export class UserBanListEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   id: string;
   @Column({ type: 'varchar', length: 100, nullable: true })
   banDate: string;

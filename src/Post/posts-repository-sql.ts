@@ -116,7 +116,7 @@ export class PostRepositorySql {
         const tableNewestLike = await this.dataSource.query(
           zaprosForNewestLike,
         );
-        const post = mapObject.mapPostFromSqlFromViewModel(
+        const post = mapObject.mapPostFromViewModel(
           postSql,
           mapObject.mapNewestLikesFromSql(tableNewestLike),
         );
@@ -163,7 +163,7 @@ export class PostRepositorySql {
       ' ORDER BY reaction_entity."createdAt" DESC LIMIT 3';
     const tableNewestLike = await this.dataSource.query(zaprosForNewestLike);
 
-    const postUpgrade = mapObject.mapPostFromSqlFromViewModel(
+    const postUpgrade = mapObject.mapPostFromViewModel(
       table[0],
       mapObject.mapNewestLikesFromSql(tableNewestLike),
     );
@@ -247,7 +247,7 @@ export class PostRepositorySql {
         const tableNewestLike = await this.dataSource.query(
           zaprosForNewestLike,
         );
-        const post = mapObject.mapPostFromSqlFromViewModel(
+        const post = mapObject.mapPostFromViewModel(
           postSql,
           mapObject.mapNewestLikesFromSql(tableNewestLike),
         );
@@ -337,7 +337,7 @@ export class PostRepositorySql {
         const tableNewestLike = await this.dataSource.query(
           zaprosForNewestLike,
         );
-        const post = mapObject.mapPostFromSqlFromViewModel(
+        const post = mapObject.mapPostFromViewModel(
           postSql,
           mapObject.mapNewestLikesFromSql(tableNewestLike),
         );

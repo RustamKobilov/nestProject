@@ -17,6 +17,7 @@ export class DeleteBlogUseCase {
     if (blog.userId !== command.userId) {
       throw new ForbiddenException('blog ne User / UpdateBlogUseCase/');
     }
+    //TODO удалять все посты в юскейсе
     await this.blogRepository.deleteBlog(command.blogId);
     return;
   }

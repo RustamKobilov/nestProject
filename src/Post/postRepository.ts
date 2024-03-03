@@ -7,7 +7,7 @@ import { helper } from '../helper';
 import { mapObject } from '../mapObject';
 import { ReactionRepository } from '../Reaction/reactionRepository';
 import { PostViewModel } from '../viewModelDTO';
-import { PostEntity } from './Post.Entity';
+import { likeStatus } from '../Enum';
 
 @Injectable()
 export class PostRepository {
@@ -49,13 +49,17 @@ export class PostRepository {
         return err;
       });
 
-    const resulPostsSortDate = await Promise.all(
-      posts.map(async (post: Post) => {
-        const postUpgrade = await mapObject.mapPost(post);
-
-        return postUpgrade;
-      }),
-    );
+    // const resulPostsSortDate = await Promise.all(
+    //   posts.map(async (post: Post) => {
+    //     const postUpgrade = await mapObject.mapPostFromViewModel(
+    //       post,
+    //     );
+    //
+    //     return postUpgrade;
+    //   }),
+    // );
+    //не ведется мангус
+    const resulPostsSortDate: [] = [];
 
     return {
       pagesCount: paginationFromHelperForUsers.totalCount,
@@ -77,17 +81,38 @@ export class PostRepository {
     if (!postForUser) {
       return false;
     }
-    const postUpgrade = await mapObject.mapPost(postForUser);
-
-    const searchReaction =
-      await this.reactionRepository.getReactionUserForParent(postId, userId);
-
-    if (!searchReaction) {
-      return postUpgrade;
-    }
-
-    postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
-
+    // const postUpgrade = await mapObject.mapPost(
+    //   postForUser,
+    //   new EmptyImageSizeViewModel(),
+    // );
+    //
+    // const searchReaction =
+    //   await this.reactionRepository.getReactionUserForParent(postId, userId);
+    //
+    // if (!searchReaction) {
+    //   return postUpgrade;
+    // }
+    //
+    // postUpgrade.extendedLikesInfo.myStatus = searchReaction.status;
+    //не ведется мангус
+    const postUpgrade: PostViewModel = {
+      id: 'id',
+      blogId: 'blogId',
+      content: 'content',
+      title: 'title',
+      createdAt: 'createdAt',
+      shortDescription: 'shortDescription',
+      blogName: 'blogName',
+      extendedLikesInfo: {
+        likesCount: 0,
+        dislikesCount: 0,
+        myStatus: likeStatus.Like,
+        newestLikes: [],
+      },
+      images: {
+        main: [],
+      },
+    };
     return postUpgrade;
   }
   async getPostsForUser(filter, pagination: PaginationDTO, userId: string) {

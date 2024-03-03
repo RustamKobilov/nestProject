@@ -4,7 +4,7 @@ import { PostEntity } from '../Post/Post.Entity';
 
 @Entity()
 export class CommentEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   id: string;
   @Column({ type: 'uuid' })
   postId: string;
@@ -29,6 +29,5 @@ export class CommentEntity {
   vision: boolean;
 
   @ManyToOne(() => PostEntity, (post) => post.comments)
-  //@JoinColumn({ name: 'postId' })
   post: PostEntity;
 }

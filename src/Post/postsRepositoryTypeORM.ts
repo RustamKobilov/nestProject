@@ -2,7 +2,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PostEntity } from './Post.Entity';
 import { NewestLikes, Post } from './Post';
-import { likeStatus } from '../Enum';
+import { ImagePurpose, likeStatus } from '../Enum';
 import { mapObject } from '../mapObject';
 import { CreatePostDTO, outputModel, PaginationDTO } from '../DTO';
 import { helper } from '../helper';
@@ -10,6 +10,8 @@ import { PostViewModel } from '../viewModelDTO';
 import { NotFoundException } from '@nestjs/common';
 import { ReactionEntity } from '../Reaction/Reaction.Entity';
 import { ReactionRepository } from '../Reaction/reactionRepository';
+import { ImagesRepository } from '../Images/imageRepository';
+import { countMainImageForPost } from '../constant';
 
 export class PostsRepositoryTypeORM {
   constructor(
@@ -18,6 +20,7 @@ export class PostsRepositoryTypeORM {
     @InjectRepository(ReactionEntity)
     private readonly reactionRepositoryTypeOrm: Repository<ReactionEntity>,
     private reactionRepository: ReactionRepository,
+    private readonly imageRepository: ImagesRepository,
   ) {}
 
   async createPost(newPost: Post) {
@@ -73,9 +76,12 @@ export class PostsRepositoryTypeORM {
       post,
       mapObject.mapNewestLikesFromSql(tableNewestLike),
     );
+
     return postViewModel;
   }
-  async getPosts(paginationPost: PaginationDTO) {
+  async getPosts(
+    paginationPost: PaginationDTO,
+  ): Promise<outputModel<PostViewModel>> {
     const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
     const sortDirection = paginationPost.sortDirection === 1 ? 'ASC' : 'DESC';
     const totalCountPost = await qbPost
@@ -89,26 +95,21 @@ export class PostsRepositoryTypeORM {
         totalCountPost,
       );
     //console.log(paginationPost);
-    const zaprosQb = await qbPost
+    const posts = await qbPost
       .where('p.vision = :vision', { vision: true })
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
       .limit(paginationPost.pageSize)
       .offset(paginationFromHelperForPosts.skipPage)
-      .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
-    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
-      'p' + '_',
-    ]);
-    //console.log(table);
+      .getMany();
+
     const resultPosts: PostViewModel[] = [];
-    const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
-      'r',
-    );
+
     // console.log(await qbReaction.getRawMany());
     if (posts.length > 0) {
       for (const post of posts) {
         const limitLike = 3;
+        const qbReaction =
+          await this.reactionRepositoryTypeOrm.createQueryBuilder('r');
         const tableNewestLike = await qbReaction
           .where(
             'r.parentId = :parentId AND r.status = :status AND r.vision = :vision',
@@ -120,21 +121,23 @@ export class PostsRepositoryTypeORM {
           )
           .orderBy('r.' + 'createdAt', sortDirection)
           .limit(limitLike)
-          .getRawMany();
-        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
-          tableNewestLike,
-          ['r' + '_'],
-        );
+          .getMany();
 
-        const postViewModel = mapObject.mapPostFromSqlFromViewModel(
+        const imageMain =
+          await this.imageRepository.getImageForPostByLimitAndPurpose(
+            post.id,
+            countMainImageForPost,
+            ImagePurpose.main,
+          );
+
+        const postViewModel = mapObject.mapPostFromViewModel(
           post,
-          mapObject.mapNewestLikesFromSql(newestLike),
+          mapObject.mapNewestLikesFromSql(tableNewestLike),
+          imageMain,
         );
         resultPosts.push(postViewModel);
       }
     }
-    //console.log('finish');
-    //console.log(resultPosts);
 
     return {
       pagesCount: paginationFromHelperForPosts.totalCount,
@@ -149,21 +152,18 @@ export class PostsRepositoryTypeORM {
     userId: string,
   ): Promise<PostViewModel | false> {
     const qbPost = await this.postRepositoryTypeOrm.createQueryBuilder('p');
-    const take = await qbPost
+    const post = await qbPost
       .where('p.id = :id AND p.vision = :vision', { id: postId, vision: true })
-      .getRawMany();
+      .getOne();
 
-    if (take.length < 1) {
+    if (!post) {
       return false;
     }
-    const post = mapObject.mapRawManyQBOnTableNameIsNotNull(take, [
-      'p' + '_',
-    ])[0];
 
+    const limitLike = 3;
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
       'r',
     );
-    const limitLike = 3;
     const tableNewestLike = await qbReaction
       .where(
         'r.parentId = :parentId AND r.status = :status AND r.vision = :vision',
@@ -175,15 +175,18 @@ export class PostsRepositoryTypeORM {
       )
       .orderBy('r.' + 'createdAt', 'DESC')
       .limit(limitLike)
-      .getRawMany();
-    const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
-      tableNewestLike,
-      ['r' + '_'],
-    );
-    console.log(newestLike);
-    const postViewModel = mapObject.mapPostFromSqlFromViewModel(
+      .getMany();
+
+    const imageMain =
+      await this.imageRepository.getImageForPostByLimitAndPurpose(
+        post.id,
+        countMainImageForPost,
+        ImagePurpose.main,
+      );
+    const postViewModel = mapObject.mapPostFromViewModel(
       post,
-      mapObject.mapNewestLikesFromSql(newestLike),
+      mapObject.mapNewestLikesFromSql(tableNewestLike),
+      imageMain,
     );
 
     const searchReaction =
@@ -197,12 +200,11 @@ export class PostsRepositoryTypeORM {
 
     return postViewModel;
   }
-  async getPostsForUser(filter, paginationPost: PaginationDTO, userId: string) {
-    console.log('filter');
-    console.log(filter);
-    console.log('filter.blogId');
-    console.log(filter.blogId);
-
+  async getPostsForUser(
+    filter,
+    paginationPost: PaginationDTO,
+    userId: string,
+  ): Promise<outputModel<PostViewModel>> {
     const whereFilterSql =
       filter.blogId === null || filter.blogId === undefined
         ? {
@@ -219,25 +221,21 @@ export class PostsRepositoryTypeORM {
       .where(whereFilterSql.where, whereFilterSql.params)
       .andWhere('p.vision = :vision', { vision: true })
       .getCount();
-    // console.log(totalCountPost);
+
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(
         paginationPost.pageNumber,
         paginationPost.pageSize,
         totalCountPost,
       );
-    const zaprosQb = await qbPost
+    const posts = await qbPost
       .where(whereFilterSql.where, whereFilterSql.params)
       .andWhere('p.vision = :vision', { vision: true })
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
       .limit(paginationPost.pageSize)
       .offset(paginationFromHelperForPosts.skipPage)
-      .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
-    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
-      'p' + '_',
-    ]);
+      .getMany();
+
     //console.log(table);
     const resultPosts: PostViewModel[] = [];
     const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
@@ -247,6 +245,8 @@ export class PostsRepositoryTypeORM {
     if (posts.length > 0) {
       for (const post of posts) {
         const limitLike = 3;
+        const qbReaction =
+          await this.reactionRepositoryTypeOrm.createQueryBuilder('r');
         const tableNewestLike = await qbReaction
           .where(
             'r.parentId = :parentId AND r.status = :status AND r.vision = :vision',
@@ -258,14 +258,18 @@ export class PostsRepositoryTypeORM {
           )
           .orderBy('r.' + 'createdAt', sortDirection)
           .limit(limitLike)
-          .getRawMany();
-        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
-          tableNewestLike,
-          ['r' + '_'],
-        );
-        const postViewModel = mapObject.mapPostFromSqlFromViewModel(
+          .getMany();
+
+        const imageMain =
+          await this.imageRepository.getImageForPostByLimitAndPurpose(
+            post.id,
+            countMainImageForPost,
+            ImagePurpose.main,
+          );
+        const postViewModel = mapObject.mapPostFromViewModel(
           post,
-          mapObject.mapNewestLikesFromSql(newestLike),
+          mapObject.mapNewestLikesFromSql(tableNewestLike),
+          imageMain,
         );
         const searchReaction =
           await this.reactionRepository.getReactionUserForParent(
@@ -304,34 +308,28 @@ export class PostsRepositoryTypeORM {
       .where(whereFilter.where, whereFilter.params)
       .andWhere('p.vision = :vision', { vision: true })
       .getCount();
-    // console.log(totalCountPost);
+
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(
         paginationPost.pageNumber,
         paginationPost.pageSize,
         totalCountPost,
       );
-    const zaprosQb = await qbPost
+    const posts = await qbPost
       .where(whereFilter.where, whereFilter.params)
       .andWhere('p.vision = :vision', { vision: true })
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
       .limit(paginationPost.pageSize)
       .offset(paginationFromHelperForPosts.skipPage)
-      .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
-    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
-      'p' + '_',
-    ]);
-    //console.log(table);
+      .getMany();
+
     const resultPosts: PostViewModel[] = [];
-    const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
-      'r',
-    );
-    // console.log(await qbReaction.getRawMany());
+
     if (posts.length > 0) {
       for (const post of posts) {
         const limitLike = 3;
+        const qbReaction =
+          await this.reactionRepositoryTypeOrm.createQueryBuilder('r');
         const tableNewestLike = await qbReaction
           .where(
             'r.parentId = :parentId AND r.status = :status AND r.vision = :vision',
@@ -343,14 +341,18 @@ export class PostsRepositoryTypeORM {
           )
           .orderBy('r.' + 'createdAt', sortDirection)
           .limit(limitLike)
-          .getRawMany();
-        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
-          tableNewestLike,
-          ['r' + '_'],
-        );
-        const postViewModel = mapObject.mapPostFromSqlFromViewModel(
+          .getMany();
+
+        const imageMain =
+          await this.imageRepository.getImageForPostByLimitAndPurpose(
+            post.id,
+            countMainImageForPost,
+            ImagePurpose.main,
+          );
+        const postViewModel = mapObject.mapPostFromViewModel(
           post,
-          mapObject.mapNewestLikesFromSql(newestLike),
+          mapObject.mapNewestLikesFromSql(tableNewestLike),
+          imageMain,
         );
 
         resultPosts.push(postViewModel);
@@ -370,7 +372,6 @@ export class PostsRepositoryTypeORM {
     blogId: string,
     userId: string,
   ): Promise<outputModel<PostViewModel>> {
-    console.log(blogId + ' blogId');
     const whereFilter = {
       where: 'p.blogId = :blogId AND p.userId = :userId',
       params: { blogId: `${blogId}`, userId: `${userId}` },
@@ -381,34 +382,28 @@ export class PostsRepositoryTypeORM {
       .where(whereFilter.where, whereFilter.params)
       .andWhere('p.vision = :vision', { vision: true })
       .getCount();
-    // console.log(totalCountPost);
+
     const paginationFromHelperForPosts =
       helper.getPaginationFunctionSkipSortTotal(
         paginationPost.pageNumber,
         paginationPost.pageSize,
         totalCountPost,
       );
-    const zaprosQb = await qbPost
+    const posts = await qbPost
       .where(whereFilter.where, whereFilter.params)
       .andWhere('p.vision = :vision', { vision: true })
       .orderBy('p.' + paginationPost.sortBy, sortDirection)
       .limit(paginationPost.pageSize)
       .offset(paginationFromHelperForPosts.skipPage)
-      .getRawMany();
-    console.log('after');
-    console.log(zaprosQb);
-    const posts = mapObject.mapRawManyQBOnTableNameIsNotNull(zaprosQb, [
-      'p' + '_',
-    ]);
-    //console.log(table);
+      .getMany();
+
     const resultPosts: PostViewModel[] = [];
-    const qbReaction = await this.reactionRepositoryTypeOrm.createQueryBuilder(
-      'r',
-    );
-    // console.log(await qbReaction.getRawMany());
+
     if (posts.length > 0) {
       for (const post of posts) {
         const limitLike = 3;
+        const qbReaction =
+          await this.reactionRepositoryTypeOrm.createQueryBuilder('r');
         const tableNewestLike = await qbReaction
           .where(
             'r.parentId = :parentId AND r.status = :status AND r.vision = :vision',
@@ -420,14 +415,19 @@ export class PostsRepositoryTypeORM {
           )
           .orderBy('r.' + 'createdAt', sortDirection)
           .limit(limitLike)
-          .getRawMany();
-        const newestLike = mapObject.mapRawManyQBOnTableNameIsNotNull(
-          tableNewestLike,
-          ['r' + '_'],
-        );
-        const postViewModel = mapObject.mapPostFromSqlFromViewModel(
+          .getMany();
+
+        const imageMain =
+          await this.imageRepository.getImageForPostByLimitAndPurpose(
+            post.id,
+            countMainImageForPost,
+            ImagePurpose.main,
+          );
+
+        const postViewModel = mapObject.mapPostFromViewModel(
           post,
-          mapObject.mapNewestLikesFromSql(newestLike),
+          mapObject.mapNewestLikesFromSql(tableNewestLike),
+          imageMain,
         );
 
         resultPosts.push(postViewModel);

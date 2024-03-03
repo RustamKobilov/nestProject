@@ -36,71 +36,71 @@ export class BlogsRepositorySql {
     return searchNameTermFilter;
   }
 
-  async getBlogs(
-    paginationBlog: BlogPaginationDTO,
-    filter: string | null,
-  ): Promise<outputModel<Blog>> {
-    const filterCount =
-      filter === null
-        ? 'SELECT COUNT (*) FROM blog_entity'
-        : 'SELECT COUNT (*)  FROM blog_entity ' + filter;
-    const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
-    const queryCountBlog = await this.dataSource.query(filterCount);
-    console.log('filterCount');
-    console.log(filterCount);
-    const totalCountBlog = parseInt(queryCountBlog[0].count, 10);
-    console.log(totalCountBlog);
-    const paginationFromHelperForUsers =
-      helper.getPaginationFunctionSkipSortTotal(
-        paginationBlog.pageNumber,
-        paginationBlog.pageSize,
-        totalCountBlog,
-      );
-    console.log(paginationBlog);
-    const whereFilter = filter === null ? '' : filter;
-    const zapros =
-      'SELECT  "id", "name", "description", "websiteUrl", "createdAt", "isMembership"' +
-      ' FROM blog_entity' +
-      whereFilter +
-      ' ORDER BY' +
-      ' "' +
-      paginationBlog.sortBy +
-      '" ' +
-      sortDirection +
-      ' LIMIT ' +
-      paginationBlog.pageSize +
-      ' OFFSET ' +
-      paginationFromHelperForUsers.skipPage;
-    console.log(zapros);
-    const table = await this.dataSource.query(zapros);
-    console.log(table);
-    const resultBlogs = await Promise.all(
-      table.map(async (blog: Blog) => {
-        const blogView = await mapObject.mapBlogForViewModel(blog);
-        return blogView;
-      }),
-    );
-    //console.log(resultUsers);
-    return {
-      pagesCount: paginationFromHelperForUsers.totalCount,
-      page: paginationBlog.pageNumber,
-      pageSize: paginationBlog.pageSize,
-      totalCount: totalCountBlog,
-      items: resultBlogs,
-    };
-  }
-  async getBlog(blogId: string): Promise<BlogViewModel | false> {
-    const table = await this.dataSource.query(
-      'SELECT  "id", "name", "description", "websiteUrl", "createdAt", "isMembership"' +
-        ' FROM blog_entity WHERE "id" = $1',
-      [blogId],
-    );
-    if (table.length < 1) {
-      return false;
-    }
-    const blog = mapObject.mapBlogForViewModel(table[0]);
-    return blog;
-  }
+  // async getBlogs(
+  //   paginationBlog: BlogPaginationDTO,
+  //   filter: string | null,
+  // ): Promise<outputModel<Blog>> {
+  //   const filterCount =
+  //     filter === null
+  //       ? 'SELECT COUNT (*) FROM blog_entity'
+  //       : 'SELECT COUNT (*)  FROM blog_entity ' + filter;
+  //   const sortDirection = paginationBlog.sortDirection === 1 ? 'ASC' : 'DESC';
+  //   const queryCountBlog = await this.dataSource.query(filterCount);
+  //   console.log('filterCount');
+  //   console.log(filterCount);
+  //   const totalCountBlog = parseInt(queryCountBlog[0].count, 10);
+  //   console.log(totalCountBlog);
+  //   const paginationFromHelperForUsers =
+  //     helper.getPaginationFunctionSkipSortTotal(
+  //       paginationBlog.pageNumber,
+  //       paginationBlog.pageSize,
+  //       totalCountBlog,
+  //     );
+  //   console.log(paginationBlog);
+  //   const whereFilter = filter === null ? '' : filter;
+  //   const zapros =
+  //     'SELECT  "id", "name", "description", "websiteUrl", "createdAt", "isMembership"' +
+  //     ' FROM blog_entity' +
+  //     whereFilter +
+  //     ' ORDER BY' +
+  //     ' "' +
+  //     paginationBlog.sortBy +
+  //     '" ' +
+  //     sortDirection +
+  //     ' LIMIT ' +
+  //     paginationBlog.pageSize +
+  //     ' OFFSET ' +
+  //     paginationFromHelperForUsers.skipPage;
+  //   console.log(zapros);
+  //   const table = await this.dataSource.query(zapros);
+  //   console.log(table);
+  //   const resultBlogs = await Promise.all(
+  //     table.map(async (blog: Blog) => {
+  //       const blogView = await mapObject.mapBlogForViewModel(blog);
+  //       return blogView;
+  //     }),
+  //   );
+  //   //console.log(resultUsers);
+  //   return {
+  //     pagesCount: paginationFromHelperForUsers.totalCount,
+  //     page: paginationBlog.pageNumber,
+  //     pageSize: paginationBlog.pageSize,
+  //     totalCount: totalCountBlog,
+  //     items: resultBlogs,
+  //   };
+  // }
+  // async getBlog(blogId: string): Promise<BlogViewModel | false> {
+  //   const table = await this.dataSource.query(
+  //     'SELECT  "id", "name", "description", "websiteUrl", "createdAt", "isMembership"' +
+  //       ' FROM blog_entity WHERE "id" = $1',
+  //     [blogId],
+  //   );
+  //   if (table.length < 1) {
+  //     return false;
+  //   }
+  //   const blog = mapObject.mapBlogForViewModel(table[0]);
+  //   return blog;
+  // }
   async updateBlog(blogId: string, updateBlogDto: CreateBlogDTO) {
     const update = await this.dataSource.query(
       'UPDATE blog_entity ' +

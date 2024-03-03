@@ -94,12 +94,12 @@ export class AuthService {
     );
     console.log(userConfirmationCode);
     try {
-      await this.commandBus.execute(
-        new SendEmailForRegistrationUserUseCaseCommand(
-          createUserDto.email,
-          userConfirmationCode,
-        ),
-      );
+      // await this.commandBus.execute(
+      //   new SendEmailForRegistrationUserUseCaseCommand(
+      //     createUserDto.email,
+      //     userConfirmationCode,
+      //   ),
+      // );
       console.log(
         'SEND EMAIL ' + createUserDto.email + ' code ' + userConfirmationCode,
       );
@@ -162,9 +162,9 @@ export class AuthService {
       new UpdateConfirmationCodeForUserCommand(user.id),
     );
     try {
-      await this.commandBus.execute(
-        new SendEmailForRegistrationUserUseCaseCommand(email, code),
-      );
+      // await this.commandBus.execute(
+      //   new SendEmailForRegistrationUserUseCaseCommand(email, code),
+      // );
       console.log('SEND EMAIL ' + email + ' code ' + code);
     } catch (error) {
       console.error('email send out /authService/updateConfirmationCodeRepeat');
@@ -186,9 +186,9 @@ export class AuthService {
     await this.usersService.passwordRecovery(user.id, recoveryCode, diesAtDate);
     console.log('SEND EMAIL ' + email + ' code ' + recoveryCode);
     try {
-      await this.commandBus.execute(
-        new SendEmailForPasswordRecoveryUseCaseCommand(email, recoveryCode),
-      );
+      // await this.commandBus.execute(
+      //   new SendEmailForPasswordRecoveryUseCaseCommand(email, recoveryCode),
+      // );
       return true;
     } catch (error) {
       console.error('email send out');

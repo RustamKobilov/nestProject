@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import { Metadata } from 'sharp';
 
 export const readTextFileAsync = (relativePath: string) => {
   return new Promise((resolve, reject) => {

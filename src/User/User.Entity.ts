@@ -5,7 +5,7 @@ import { UserBanListEntity } from '../UserBanList/UserBanList.Entity';
 
 @Entity()
 export class UserEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   id: string;
   @Column({ type: 'varchar', length: 20 })
   login: string;

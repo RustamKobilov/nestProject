@@ -1,8 +1,9 @@
-import { Column, Entity, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { likeStatus } from '../Enum';
+
 @Entity()
 export class ReactionEntity {
-  @PrimaryColumn({ type: 'uuid' })
+  @PrimaryColumn({ type: 'uuid', unique: true })
   parentId: string;
   @PrimaryColumn({ type: 'uuid' })
   userId: string;

@@ -1,8 +1,6 @@
 import {
   IsBoolean,
-  IsEmpty,
   IsEnum,
-  IsNotEmpty,
   IsNumber,
   IsOptional,
   IsString,
@@ -15,12 +13,7 @@ import { Transform, Type } from 'class-transformer';
 import { helper } from './helper';
 import { CommentatorInfo, LikesInfo } from './Comment/Comment';
 import { BanStatusForAdminPagination, likeStatus } from './Enum';
-import {
-  IsBlogChecking,
-  IsEmailNoUnique,
-  IsEntityQuestionChecking,
-  IsLoginNoUnique,
-} from './pipes/customValidator';
+import { IsEmailNoUnique, IsLoginNoUnique } from './pipes/customValidator';
 
 export class CreateUserDto {
   @IsString()

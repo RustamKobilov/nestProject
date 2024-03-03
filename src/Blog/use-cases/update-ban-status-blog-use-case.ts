@@ -15,7 +15,7 @@ export class UpdateBanStatusBlogUseCase {
   ) {}
   async execute(command: UpdateBanStatusBlogUseCaseCommand) {
     console.log(command.blogId);
-    const blog = await this.blogRepository.getBlogAllBanStatus(command.blogId);
+    const blog = await this.blogRepository.getBlog(command.blogId);
     console.log(blog);
     if (!blog) {
       throw new BadRequestException(

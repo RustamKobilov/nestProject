@@ -7,20 +7,20 @@ export class SendEmailForPasswordRecoveryUseCaseCommand {
 
 @CommandHandler(SendEmailForPasswordRecoveryUseCaseCommand)
 export class SendEmailForPasswordRecoveryUseCase {
-  constructor(private mailerService: MailerService) {}
+  constructor(/*private mailerService: MailerService*/) {}
 
   async execute(command: SendEmailForPasswordRecoveryUseCaseCommand) {
-    await this.mailerService.sendMail({
-      from: 'admin <rustamincubator@gmail.com>',
-      to: command.email,
-      subject: 'Password recovery in platform',
-      html:
-        ' <h1>Password recovery\n' +
-        '       <p>To finish password recovery please follow the link below:\n' +
-        "          <a href='https://somesite.com/password-recovery?recoveryCode=" +
-        command.recoveryCode +
-        "'>recovery password</a>\n" +
-        '      </p>',
-    });
+    // await this.mailerService.sendMail({
+    //   from: 'admin <rustamincubator@gmail.com>',
+    //   to: command.email,
+    //   subject: 'Password recovery in platform',
+    //   html:
+    //     ' <h1>Password recovery\n' +
+    //     '       <p>To finish password recovery please follow the link below:\n' +
+    //     "          <a href='https://somesite.com/password-recovery?recoveryCode=" +
+    //     command.recoveryCode +
+    //     "'>recovery password</a>\n" +
+    //     '      </p>',
+    // });
   }
 }
